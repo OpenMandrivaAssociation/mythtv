@@ -1,11 +1,11 @@
 
 %define name	mythtv
 %define version	0.20
-%define snapshot 13107
+%define snapshot 13272
 %define rel	1
 
 %if %snapshot
-%define release	%mkrel 3.%snapshot.%rel
+%define release	%mkrel 4.%snapshot.%rel
 %else
 %define release	%mkrel %rel
 %endif
