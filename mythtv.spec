@@ -191,7 +191,7 @@ codecs that may be covered by software patents.
 %endif
 
 %package themes-base
-Obsoletes:	mythtv-themes < 0.20-4
+Obsoletes:	mythtv-themes < 0.20-5
 Summary:	Base themes for mythtv's frontend
 Group:		Video
 
@@ -274,7 +274,7 @@ into the NuppelVideo format.
 %package doc
 Summary:	MythTV documentation
 Group:		Video
-Obsoletes:	mythtv < 0.20-4
+Obsoletes:	mythtv < 0.20-5
 
 %description doc
 MythTV provides a unified graphical interface for recording and viewing
