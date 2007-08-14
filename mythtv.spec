@@ -184,7 +184,7 @@ This package is based on the MythTV "fixes" branch at revision %fixes
 
 %package -n %{lib_name_devel}
 Summary:	Development files for libmyth
-Group:		Development/Libraries
+Group:		Development/Other
 Requires:	%{lib_name} = %{version}-%{release}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
 Provides:	myth-devel = %{version}-%{release}
