@@ -1,18 +1,23 @@
 
 %define name	mythtv
 %define version	0.20
-%define snapshot 13272
 %define rel	1
+%define fixes 14154
 
-%if %snapshot
-%define release	%mkrel 4.%snapshot.%rel
+# When "fixes" branch takes over from the stable release
+# change the constant below to the last stable rel number.
+# "rel" can then be reset to 1 at that point and any future
+# dump of the "fixes" patchset.
+%if %fixes
+%define release	%mkrel 4.%fixes.%rel
 %else
 %define release	%mkrel %rel
 %endif
 
 %define lib_name_orig	libmyth
-%define lib_major	0.20
+%define lib_major	0.20.1
 %define lib_name	%mklibname myth %{lib_major}
+%define lib_name_devel	%mklibname myth -d
 
 %if %mdkversion <= 1020
 %define _logdir /var/log
@@ -76,12 +81,8 @@ Release: 	%{release}
 URL:		http://www.mythtv.org/
 License:	GPL
 Group:		Video
-%if %snapshot
-# example:
-#svn co http://svn.mythtv.org/svn/branches/release-0-20-fixes/mythtv mythtv
-#svn export mythtv mythtv-REV
-#tar -cjf mythtv-REV.tar.bz2 mythtv-REV
-Source0:	%{name}-%{snapshot}.tar.bz2
+%if %fixes
+Source0:	%{name}-%{version}-%{fixes}.tar.bz2
 %else
 Source0:	%{name}-%{version}.tar.bz2
 %endif
@@ -91,6 +92,7 @@ Source3:	mythbackend.logrotate.in
 Source4:	99MythFrontend
 Patch1:		mythtv-dts-pic.patch
 Patch2:		mythtv-0.20-nolame.patch
+
 BuildRoot:	%{_tmppath}/%{name}-root
 
 BuildRequires:	ImageMagick
@@ -158,6 +160,9 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
+%endif
 
 %package -n %{lib_name}
 Summary:	Library providing mythtv support
@@ -173,21 +178,27 @@ television programs.
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
 %endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
+%endif
 
-%package -n %{lib_name}-devel
+%package -n %{lib_name_devel}
 Summary:	Development files for libmyth
 Group:		Development/Libraries
 Requires:	%{lib_name} = %{version}-%{release}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
 Provides:	myth-devel = %{version}-%{release}
 
-%description -n %{lib_name}-devel
+%description -n %{lib_name_devel}
 This package contains the header files and libraries for developing
 add-ons for mythtv.
 
 %if %with plf
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
+%endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
 %endif
 
 %package themes-base
@@ -221,6 +232,9 @@ reachable via the network.
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
 %endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
+%endif
 
 %package backend
 Summary:	Server component of mythtv (a PVR)
@@ -244,6 +258,9 @@ codecs that may be covered by software patents.
 %if !%build_lame
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
+%endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
 %endif
 
 %package setup
@@ -270,6 +287,9 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
+%if %fixes
+This package is based on the MythTV "fixes" branch at revision %fixes
+%endif
 
 %package doc
 Summary:	MythTV documentation
@@ -294,11 +314,7 @@ television programs.
 This package contains the perl bindings for MythTV.
 
 %prep
-%if %snapshot
-%setup -q -n %name-%snapshot
-%else
 %setup -q
-%endif
 %patch1 -p1
 %patch2 -p1
 
@@ -595,7 +611,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{_libdir}/*-%lib_major.so.*
 
-%files -n %{lib_name}-devel
+%files -n %{lib_name_devel}
 %defattr(-,root,root)
 %if %maenable
 %multiarch %{multiarch_includedir}/mythtv/mythconfig.h
