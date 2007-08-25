@@ -1,21 +1,17 @@
 
 %define name	mythtv
-%define version	0.20
+%define version	0.20.2
 %define rel	1
-%define fixes 14154
+%define fixes 14282
 
-# When "fixes" branch takes over from the stable release
-# change the constant below to the last stable rel number.
-# "rel" can then be reset to 1 at that point and any future
-# dump of the "fixes" patchset.
 %if %fixes
-%define release	%mkrel 4.%fixes.%rel
+%define release	%mkrel %fixes.%rel
 %else
 %define release	%mkrel %rel
 %endif
 
 %define lib_name_orig	libmyth
-%define lib_major	0.20.1
+%define lib_major	0.20.2
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
@@ -90,8 +86,7 @@ Source1:	mythbackend.sysconfig.in
 Source2:	mythbackend.init.in
 Source3:	mythbackend.logrotate.in
 Source4:	99MythFrontend
-Patch1:		mythtv-dts-pic.patch
-Patch2:		mythtv-0.20-nolame.patch
+Patch1:		mythtv-0.20-nolame.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -316,7 +311,6 @@ This package contains the perl bindings for MythTV.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1
 
 # (anssi) As of 0.20, only documentation and contrib scripts are affected.
 find . -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
