@@ -463,7 +463,6 @@ Icon=%{name}
 Terminal=false
 Type=Application
 Categories=Qt;AudioVideo;Video;TV;Recorder;X-MandrivaLinux-Multimedia-Video;
-Encoding=UTF-8
 EOF
 cat <<EOF > %{buildroot}%{_datadir}/applications/mandriva-mythtv-setup.desktop
 [Desktop Entry]
@@ -474,7 +473,6 @@ Icon=%{name}
 Terminal=false
 Type=Application
 Categories=Qt;AudioVideo;Video;TV;Recorder;X-MandrivaLinux-Multimedia-Video;
-Encoding=UTF-8
 EOF
 
 cat > README.install.urpmi <<EOF
