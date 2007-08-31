@@ -183,6 +183,7 @@ Group:		Development/Other
 Requires:	%{lib_name} = %{version}-%{release}
 Provides:	%{lib_name_orig}-devel = %{version}-%{release}
 Provides:	myth-devel = %{version}-%{release}
+Obsoletes:	%{_lib}myth0.20-devel
 
 %description -n %{lib_name_devel}
 This package contains the header files and libraries for developing
