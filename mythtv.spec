@@ -429,7 +429,7 @@ mkdir -p %{buildroot}/%{_liconsdir}
 convert programs/mythuitest/images/tv.png -resize 48x48 %buildroot/%{_liconsdir}/%name.png
 
 mkdir -p %{buildroot}%{_menudir}
-# Mandrake Menu entrys
+# Mandriva Menu entrys
 cat <<EOF > $RPM_BUILD_ROOT%{_menudir}/mythtv-frontend
 ?package(mythtv-frontend): \
 needs="x11" \
