@@ -88,7 +88,6 @@ Source3:	mythbackend.logrotate.in
 Source4:	99MythFrontend
 Patch1:		mythtv-0.20-nolame.patch
 
-BuildRoot:	%{_tmppath}/%{name}-root
 
 BuildRequires:	ImageMagick
 BuildRequires:	qt3-devel
