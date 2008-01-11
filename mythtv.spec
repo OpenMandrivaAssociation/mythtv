@@ -428,31 +428,8 @@ convert programs/mythuitest/images/tv.png -resize 32x32 %buildroot/%{_iconsdir}/
 mkdir -p %{buildroot}/%{_liconsdir}
 convert programs/mythuitest/images/tv.png -resize 48x48 %buildroot/%{_liconsdir}/%name.png
 
-mkdir -p %{buildroot}%{_menudir}
 # Mandriva Menu entrys
-cat <<EOF > $RPM_BUILD_ROOT%{_menudir}/mythtv-frontend
-?package(mythtv-frontend): \
-needs="x11" \
-section="Multimedia/Video" \
-title="MythTV" \
-longtitle="Record, playback and watch TV" \
-command="%{_bindir}/mythfrontend" \
-icon="%name.png" \
-terminal="false" \
-xdg="true"
-EOF
 
-cat <<EOF > $RPM_BUILD_ROOT%{_menudir}/mythtv-setup
-?package(mythtv-setup): \
-needs="x11" \
-section="Multimedia/Video" \
-title="MythTV Setup" \
-longtitle="Setup MythTV backend" \
-command="%{_bindir}/mythtv-setup" \
-icon="%name.png" \
-terminal="false" \
-xdg="true"
-EOF
 
 install -d -m755 %{buildroot}%{_datadir}/applications
 cat <<EOF > %{buildroot}%{_datadir}/applications/mandriva-mythtv-frontend.desktop
@@ -581,13 +558,11 @@ rm -rf %{buildroot}
 %dir %{_datadir}/mythtv
 %{_datadir}/mythtv/*.ttf
 %{_datadir}/mythtv/i18n
-%{_menudir}/mythtv-frontend
 %{_datadir}/applications/mandriva-mythtv-frontend.desktop
 
 %files setup
 %defattr(-,root,root)
 %{_bindir}/mythtv-setup
-%{_menudir}/mythtv-setup
 %{_datadir}/applications/mandriva-mythtv-setup.desktop
 %dir %{_datadir}/mythtv
 %{_datadir}/mythtv/setup.xml
