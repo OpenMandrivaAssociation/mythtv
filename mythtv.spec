@@ -1,8 +1,8 @@
 
 %define name	mythtv
-%define version	0.20.2
+%define version	0.21
 %define rel	1
-%define fixes 14486
+%define fixes 16027
 
 %if %fixes
 %define release	%mkrel %fixes.%rel
@@ -11,13 +11,9 @@
 %endif
 
 %define lib_name_orig	libmyth
-%define lib_major	0.20.2
+%define lib_major	0.21
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
-
-%if %mdkversion <= 1020
-%define _logdir /var/log
-%endif
 
 %if %mdkversion >= 1020
 %define maenable 1
@@ -86,7 +82,9 @@ Source1:	mythbackend.sysconfig.in
 Source2:	mythbackend.init.in
 Source3:	mythbackend.logrotate.in
 Source4:	99MythFrontend
-Patch1:		mythtv-0.20-nolame.patch
+Source5:	%name-16.png
+Source6:	%name-32.png
+Source7:	%name-48.png
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -98,6 +96,7 @@ BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
+#BuildRequires	fftw3-devel
 %if %build_lame
 BuildRequires:	lame-devel
 %else
@@ -309,12 +308,21 @@ television programs.
 
 This package contains the perl bindings for MythTV.
 
+%package -n python-mythtv
+Summary:	Python bindings for MythTV
+Group:		Development/Python
+
+%description -n python-mythtv
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
+This package contains the python bindings for MythTV.
+
 %prep
 %setup -q
-%patch1 -p1
 
-# (anssi) As of 0.20, only documentation and contrib scripts are affected.
-find . -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
+# (cg) As of 0.21, only contrib scripts are affected.
+find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
 
 echo "QMAKE_PROJECT_DEPTH = 0" >> mythtv.pro
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
@@ -336,9 +344,6 @@ for file in mythbackend.init \
   < $file.in > $file
 done
 
-# Fix the arts detection
-perl -pi -e's|\$audio_arts_cflags|\$audio_arts_tmp|' configure
-
 # default recordings dir
 perl -pi -e's|/mnt/store|%{_localstatedir}/mythtv/recordings|' programs/mythtv-setup/backendsettings.cpp
 
@@ -354,35 +359,34 @@ export CXXFLAGS="%optflags"
 ./configure --prefix=%{_prefix} \
 	--libdir-name=%{_lib} \
 	--enable-dvb \
-	--enable-opengl-vsync \
+	--enable-opengl-vsync --enable-opengl-video \
 	--enable-xvmc --enable-xvmc-pro \
 	--without-bindings=perl \
 %if %{build_x264}
 	--enable-x264 \
 %endif
 %if %{build_xvid}
-	--enable-xvid \
+	--enable-libxvid \
 %endif
 %if %{build_faac}
-	--enable-faac \
+	--enable-libfaac \
 %endif
 %if %{build_faad}
-	--enable-faad \
+	--enable-libfaad \
 %endif
-%if %{build_directfb}
-	--enable-directfb \
+%if !%{build_directfb}
+	--disable-directfb \
 %endif
 %if !%{build_firewire}
 	--disable-firewire \
 %else
 	--enable-firewire \
 %endif
-%if !%{build_lame}
-	--disable-lame
+%if %{build_lame}
+	--enable-libmp3lame
 %endif
 
 %make
-#find contrib -type f | xargs -r chmod a-x 
 
 # This is easier to do ourselves
 cd bindings/perl
@@ -421,16 +425,17 @@ mkdir -p %{buildroot}%{_sysconfdir}/X11/wmsession.d
 install -p %{SOURCE4} %{buildroot}%{_sysconfdir}/X11/wmsession.d
 
 # icon
-mkdir -p %{buildroot}/%{_miconsdir}
-convert programs/mythuitest/images/tv.png -resize 16x16 %buildroot/%{_miconsdir}/%name.png
-mkdir -p %{buildroot}/%{_iconsdir}
-convert programs/mythuitest/images/tv.png -resize 32x32 %buildroot/%{_iconsdir}/%name.png
-mkdir -p %{buildroot}/%{_liconsdir}
-convert programs/mythuitest/images/tv.png -resize 48x48 %buildroot/%{_liconsdir}/%name.png
+install -d -m755 %{buildroot}/%{_miconsdir}
+install -m755 %{SOURCE5} %{buildroot}/%{_miconsdir}/%name.png
+
+install -d -m755 %{buildroot}/%{_iconsdir}
+install -m755 %{SOURCE6} %{buildroot}/%{_iconsdir}/%name.png
+
+install -d -m755 %{buildroot}/%{_liconsdir}
+install -m755 %{SOURCE7} %{buildroot}/%{_liconsdir}/%name.png
+
 
 # Mandriva Menu entrys
-
-
 install -d -m755 %{buildroot}%{_datadir}/applications
 cat <<EOF > %{buildroot}%{_datadir}/applications/mandriva-mythtv-frontend.desktop
 [Desktop Entry]
@@ -473,6 +478,9 @@ install -m755 contrib/mythrename.pl %{buildroot}%{_bindir}
 install -m755 contrib/mythname.pl %{buildroot}%{_bindir}
 install -m755 contrib/optimize_mythdb.pl %{buildroot}%{_bindir}
 
+# Remove python egg-info as it's pointless
+rm -f %{buildroot}%{py_puresitedir}/MythTV-*.egg-info
+
 %clean
 rm -rf %{buildroot}
 
@@ -514,7 +522,6 @@ rm -rf %{buildroot}
 %doc README UPGRADING AUTHORS COPYING FAQ
 %doc keys.txt
 %doc docs/*.html docs/*.png docs/*.txt docs/i18n contrib
-%doc configfiles
 
 %files backend
 %defattr(-,root,root)
@@ -540,7 +547,6 @@ rm -rf %{buildroot}
 
 %files frontend
 %defattr(-,root,root)
-#%config(noreplace) %{_datadir}/mythtv/mysql.txt
 %config(noreplace) %{_sysconfdir}/X11/wmsession.d/99MythFrontend
 %{_datadir}/mythtv/*.xml
 %{_bindir}/mythwelcome
@@ -594,3 +600,10 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %{perl_vendorlib}/MythTV.pm
 %{perl_vendorlib}/MythTV
+%{perl_vendorlib}/IO/Socket/INET/MythTV.pm
+
+%files -n python-mythtv
+%defattr(-,root,root)
+%dir %{py_puresitedir}/MythTV
+%{py_puresitedir}/MythTV/*.py
+%{py_puresitedir}/MythTV/*.pyc
