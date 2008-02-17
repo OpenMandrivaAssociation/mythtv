@@ -5,7 +5,7 @@
 %define fixes 16027
 
 %if %fixes
-%define release	%mkrel %fixes.%rel
+%define release	%mkrel 0.%fixes.%rel
 %else
 %define release	%mkrel %rel
 %endif
