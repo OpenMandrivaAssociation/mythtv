@@ -97,6 +97,7 @@ BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
+BuildRequires:  python-setuptools
 #BuildRequires	fftw3-devel
 %if %build_lame
 BuildRequires:	lame-devel
