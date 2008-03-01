@@ -85,6 +85,7 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
+Patch1:         mythtv-0.21-nolame.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -320,6 +321,7 @@ This package contains the python bindings for MythTV.
 
 %prep
 %setup -q
+%patch1 -p0 -b .lame
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
@@ -382,8 +384,8 @@ export CXXFLAGS="%optflags"
 %else
 	--enable-firewire \
 %endif
-%if %{build_lame}
-	--enable-libmp3lame
+%if !%{build_lame}
+	--disable-libmp3lame
 %endif
 
 %make
