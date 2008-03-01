@@ -97,7 +97,7 @@ BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
-BuildRequires:  python
+BuildRequires:  python-devel
 #BuildRequires	fftw3-devel
 %if %build_lame
 BuildRequires:	lame-devel
@@ -365,7 +365,6 @@ export CXXFLAGS="%optflags"
 	--enable-opengl-vsync --enable-opengl-video \
 	--enable-xvmc --enable-xvmc-pro \
         --without-bindings=perl \
-        --without-bindings=python \
 %if %{build_x264}
 	--enable-x264 \
 %endif
@@ -397,9 +396,6 @@ pushd bindings/perl
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
 popd
-pushd bindings/python
-python setup.py build
-popd
 
 %install
 rm -rf %{buildroot}
@@ -409,9 +405,6 @@ INSTALL_ROOT=%{buildroot}; export INSTALL_ROOT
 
 pushd bindings/perl
 %makeinstall_std
-popd
-pushd bindings/python
-python setup.py install --root=%{buildroot}
 popd
 
 
