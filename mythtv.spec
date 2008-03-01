@@ -97,7 +97,7 @@ BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
-BuildRequires:  python-setuptools
+BuildRequires:  python
 #BuildRequires	fftw3-devel
 %if %build_lame
 BuildRequires:	lame-devel
@@ -364,7 +364,8 @@ export CXXFLAGS="%optflags"
 	--enable-dvb \
 	--enable-opengl-vsync --enable-opengl-video \
 	--enable-xvmc --enable-xvmc-pro \
-	--without-bindings=perl \
+        --without-bindings=perl \
+        --without-bindings=python \
 %if %{build_x264}
 	--enable-x264 \
 %endif
@@ -392,10 +393,13 @@ export CXXFLAGS="%optflags"
 %make
 
 # This is easier to do ourselves
-cd bindings/perl
+pushd bindings/perl
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make
-cd -
+popd
+pushd bindings/python
+python setup.py build
+popd
 
 %install
 rm -rf %{buildroot}
@@ -403,9 +407,13 @@ rm -rf %{buildroot}
 INSTALL_ROOT=%{buildroot}; export INSTALL_ROOT
 %makeinstall
 
-cd bindings/perl
+pushd bindings/perl
 %makeinstall_std
-cd -
+popd
+pushd bindings/python
+python setup.py install --root=%{buildroot}
+popd
+
 
 %if %maenable
 %multiarch_includes %{buildroot}%_includedir/mythtv/mythconfig.h
