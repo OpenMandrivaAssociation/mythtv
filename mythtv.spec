@@ -2,13 +2,9 @@
 %define name	mythtv
 %define version	0.21
 %define rel	1
-%define fixes 16317
+%define fixes 16564
 
-%if %fixes
-%define release	%mkrel 0.%fixes.%rel
-%else
-%define release	%mkrel %rel
-%endif
+%define release	%mkrel %fixes.%rel
 
 %define lib_name_orig	libmyth
 %define lib_major	0.21
@@ -73,11 +69,7 @@ Release: 	%{release}
 URL:		http://www.mythtv.org/
 License:	GPL
 Group:		Video
-%if %fixes
 Source0:	%{name}-%{version}-%{fixes}.tar.bz2
-%else
-Source0:	%{name}-%{version}.tar.bz2
-%endif
 Source1:	mythbackend.sysconfig.in
 Source2:	mythbackend.init.in
 Source3:	mythbackend.logrotate.in
