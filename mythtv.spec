@@ -1,7 +1,7 @@
 
 %define name	mythtv
 %define version	0.21
-%define rel	1
+%define rel	2
 %define fixes 16564
 
 %define release	%mkrel %fixes.%rel
@@ -357,6 +357,7 @@ export CXXFLAGS="%optflags"
 	--enable-opengl-vsync --enable-opengl-video \
 	--enable-xvmc --enable-xvmc-pro \
         --without-bindings=perl \
+	--extra-cxxflags="%{optflags}" \
 %if %{build_x264}
 	--enable-x264 \
 %endif
