@@ -333,14 +333,14 @@ for file in mythbackend.init \
       -e's|@bindir@|%{_bindir}|g' \
       -e's|@sbindir@|%{_sbindir}|g' \
       -e's|@subsysdir@|%{_var}/lock/subsys|g' \
-      -e's|@varlibdir@|%{_localstatedir}|g' \
+      -e's|@varlibdir@|%{_localstatedir}/lib|g' \
       -e's|@varcachedir@|%{_var}/cache|g' \
       -e's|@logrotatedir@|%{_sysconfdir}/logrotate.d|g' \
   < $file.in > $file
 done
 
 # default recordings dir
-perl -pi -e's|/mnt/store|%{_localstatedir}/mythtv/recordings|' programs/mythtv-setup/backendsettings.cpp
+perl -pi -e's|/mnt/store|%{_localstatedir}/lib/mythtv/recordings|' programs/mythtv-setup/backendsettings.cpp
 
 # do not set hardcoded archflags
 perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
@@ -405,8 +405,8 @@ popd
 %multiarch_includes %{buildroot}%_includedir/mythtv/mythconfig.h
 %endif
 
-mkdir -p %{buildroot}%{_localstatedir}/mythtv
-mkdir -p %{buildroot}%{_localstatedir}/mythtv/recordings
+mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv
+mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv/recordings
 mkdir -p %{buildroot}%{_var}/cache/mythtv
 mkdir -p %{buildroot}%{_logdir}/mythtv
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
@@ -483,7 +483,7 @@ rm -rf %{buildroot}
 
 %pre backend
 # Add the "mythtv" user
-%_pre_useradd mythtv %{_localstatedir}/mythtv /sbin/nologin
+%_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
 %{_bindir}/gpasswd -a mythtv audio &>/dev/null
 %{_bindir}/gpasswd -a mythtv video &>/dev/null
 
@@ -531,8 +531,8 @@ rm -rf %{buildroot}
 %{_bindir}/mythname.pl
 %{_bindir}/mythrename.pl
 %{_bindir}/optimize_mythdb.pl
-%attr(-,mythtv,mythtv) %dir %{_localstatedir}/mythtv
-%attr(-,mythtv,mythtv) %dir %{_localstatedir}/mythtv/recordings
+%attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv
+%attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv/recordings
 %attr(-,mythtv,mythtv) %dir %{_var}/cache/mythtv
 %{_initrddir}/mythbackend
 %config(noreplace) %{_sysconfdir}/sysconfig/mythbackend
