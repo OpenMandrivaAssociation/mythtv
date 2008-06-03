@@ -62,6 +62,9 @@
 %{?_with_x264:			%global build_x264 1}
 %{?_with_xvid:			%global build_xvid 1}
 
+# backportability
+%define _localstatedir %{_var}
+
 Summary:	A personal video recorder (PVR) application
 Name:		%{name}
 Version:	%{version}
