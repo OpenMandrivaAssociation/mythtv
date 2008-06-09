@@ -11,9 +11,7 @@
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
-%if %mdkversion >= 1020
 %define maenable 1
-%endif
 
 #set default build options
 # disabled as overrides xv
@@ -121,11 +119,7 @@ BuildRequires:	libdirectfb-devel
 BuildRequires:	libavc1394-devel
 BuildRequires:	libiec61883-devel
 %endif
-%if %mdkversion > 200600
 BuildRequires:	mesaglu-devel
-%else
-BuildRequires:	MesaGLU-devel
-%endif
 %if %maenable
 BuildRequires:  multiarch-utils
 %endif
