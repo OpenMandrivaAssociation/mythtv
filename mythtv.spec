@@ -502,18 +502,26 @@ rm -rf %{buildroot}
 %_preun_service mythbackend
 
 %post frontend
+%if %mdkversion < 200900
 %{update_menus}
+%endif
 %{make_session}
 
 %postun frontend
+%if %mdkversion < 200900
 %{clean_menus}
+%endif
 %{make_session}
 
+%if %mdkversion < 200900
 %post setup
 %{update_menus}
+%endif
 
+%if %mdkversion < 200900
 %postun setup
 %{clean_menus}
+%endif
 
 %files doc
 %defattr(-,root,root)
