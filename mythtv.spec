@@ -82,7 +82,7 @@ Patch1:         mythtv-0.21-nolame.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
-BuildRequires:	ImageMagick
+BuildRequires:	imagemagick
 BuildRequires:	qt3-devel
 BuildRequires:	libalsa-devel
 BuildRequires:	libarts-devel
