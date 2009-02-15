@@ -86,7 +86,6 @@ BuildRoot:	%{_tmppath}/%{name}-root
 BuildRequires:	imagemagick
 BuildRequires:	qt3-devel
 BuildRequires:	libalsa-devel
-BuildRequires:	libarts-devel
 BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
