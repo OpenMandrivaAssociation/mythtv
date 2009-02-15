@@ -2,7 +2,7 @@
 %define name	mythtv
 %define version	0.21
 %define rel	1
-%define fixes 18452
+%define fixes 19961
 
 %define release	%mkrel %fixes.%rel
 
@@ -79,6 +79,7 @@ Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
 Patch1:         mythtv-0.21-nolame.patch
+Patch2:         mythtv-0.21-format-security.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -312,6 +313,7 @@ This package contains the python bindings for MythTV.
 %prep
 %setup -q
 %patch1 -p0 -b .lame
+%patch2 -p1 -b .fs
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
