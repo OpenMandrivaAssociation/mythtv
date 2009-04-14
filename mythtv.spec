@@ -2,7 +2,7 @@
 %define name	mythtv
 %define version	0.21
 %define rel	1
-%define fixes 19961
+%define fixes 20320
 
 %define release	%mkrel %fixes.%rel
 
@@ -342,6 +342,9 @@ perl -pi -e's|/mnt/store|%{_localstatedir}/lib/mythtv/recordings|' programs/myth
 
 # do not set hardcoded archflags
 perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
+
+# Fix the version reporting (which assumes svn checkout)
+perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pro
 
 %build
 export QTDIR=%{_prefix}/lib/qt3
