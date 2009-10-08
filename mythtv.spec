@@ -1,13 +1,13 @@
 
-%define name	mythtv
-%define version	0.21
-%define rel	2
-%define fixes 20320
+%define name    mythtv
+%define version 0.22
+%define rel     0.1
+%define fixes   22303
 
 %define release	%mkrel %fixes.%rel
 
 %define lib_name_orig	libmyth
-%define lib_major	0.21
+%define lib_major	0.22
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
@@ -17,16 +17,11 @@
 # disabled as overrides xv
 %define build_directfb		0
 %define build_dts		0
-%define build_firewire		1
 %define build_faac		0
 %define build_faad		0
 %define build_lame		0
 %define build_x264		0
 %define build_xvid		0
-
-%if %mdkversion <= 1020
-%define build_firewire		0
-%endif
 
 # --with plf
 %bcond_with plf
@@ -46,7 +41,6 @@
 %{?_without_dts:		%global build_dts 0}
 %{?_without_faac:		%global build_faac 0}
 %{?_without_faad:		%global build_faad 0}
-%{?_without_firewire:		%global build_firewire 0}
 %{?_without_lame:		%global build_lame 0}
 %{?_without_x264:		%global build_x264 0}
 %{?_without_xvid:		%global build_xvid 0}
@@ -55,13 +49,10 @@
 %{?_with_dts:			%global build_dts 1}
 %{?_with_faac:			%global build_faac 1}
 %{?_with_faad:			%global build_faad 1}
-%{?_with_firewire:		%global build_firewire 1}
 %{?_with_lame:			%global build_lame 1}
 %{?_with_x264:			%global build_x264 1}
 %{?_with_xvid:			%global build_xvid 1}
 
-# backportability
-%define _localstatedir %{_var}
 
 Summary:	A personal video recorder (PVR) application
 Name:		%{name}
@@ -78,14 +69,13 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
-Patch1:         mythtv-0.21-nolame.patch
-Patch2:         mythtv-0.21-format-security.patch
-Patch3:         mythtv-0.21-dont-backup-on-new-db.patch
+Patch1: mythtv-0.22-nolame.patch
+Patch2: mythtv-0.22-enable-pulseaudio-by-default.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
 BuildRequires:	imagemagick
-BuildRequires:	qt3-devel
+BuildRequires:	qt4-devel
 BuildRequires:	libalsa-devel
 BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
@@ -95,8 +85,6 @@ BuildRequires:  python-devel
 #BuildRequires	fftw3-devel
 %if %build_lame
 BuildRequires:	lame-devel
-%else
-BuildRequires:	mad-devel
 %endif
 %if %build_dts
 BuildRequires:	dtsdec-devel
@@ -116,10 +104,8 @@ BuildRequires:	libfaad2-devel
 %if %{build_directfb}
 BuildRequires:	libdirectfb-devel
 %endif
-%if %{build_firewire}
 BuildRequires:	libavc1394-devel
 BuildRequires:	libiec61883-devel
-%endif
 BuildRequires:	mesaglu-devel
 %if %maenable
 BuildRequires:  multiarch-utils
@@ -192,6 +178,7 @@ This package is based on the MythTV "fixes" branch at revision %fixes
 Obsoletes:	mythtv-themes < 0.20-5
 Summary:	Base themes for mythtv's frontend
 Group:		Video
+Conflicts: mythtv-themes-myththemes < 0.22
 
 %description themes-base
 MythTV provides a unified graphical interface for recording and viewing
@@ -204,7 +191,7 @@ mythtv-setup.
 Summary:	Client component of mythtv (a PVR)
 Group:		Video
 Requires:	mythtv-themes-base = %{version}-%{release}
-Requires:	%mklibname qt3-mysql
+Requires:	qt4-database-plugin-mysql
 
 %description frontend
 MythTV provides a unified graphical interface for recording and viewing
@@ -227,7 +214,7 @@ This package is based on the MythTV "fixes" branch at revision %fixes
 Summary:	Server component of mythtv (a PVR)
 Group:		Video
 Requires:	%{lib_name} = %{version}-%{release}
-Requires:	%mklibname qt3-mysql
+Requires:	qt4-database-plugin-mysql
 
 %description backend
 MythTV provides a unified graphical interface for recording and viewing
@@ -257,7 +244,7 @@ Requires:	mythtv-backend = %{version}-%{release}
 Requires:	mythtv-themes-base = %{version}-%{release}
 Obsoletes:	mythtvsetup < 0.19
 Provides:	mythtvsetup
-Requires:	%mklibname qt3-mysql
+Requires:	qt4-database-plugin-mysql
 
 %description setup
 MythTV provides a unified graphical interface for recording and viewing
@@ -313,8 +300,7 @@ This package contains the python bindings for MythTV.
 %prep
 %setup -q
 %patch1 -p0 -b .lame
-%patch2 -p1 -b .fs
-%patch3 -p0 -b .backup
+%patch2 -p0 -b .pulse
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
@@ -349,18 +335,15 @@ perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
 perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pro
 
 %build
-export QTDIR=%{_prefix}/lib/qt3
-export QTLIB=$QTDIR/%{_lib}
-export CFLAGS="%optflags"
-export CXXFLAGS="%optflags"
 
 ./configure --prefix=%{_prefix} \
 	--libdir-name=%{_lib} \
 	--enable-dvb \
 	--enable-opengl-vsync --enable-opengl-video \
 	--enable-xvmc --enable-xvmc-pro \
-        --without-bindings=perl \
+  --without-bindings=perl \
 	--extra-cxxflags="%{optflags}" \
+  --enable-firewire \
 %if %{build_x264}
 	--enable-x264 \
 %endif
@@ -376,13 +359,8 @@ export CXXFLAGS="%optflags"
 %if !%{build_directfb}
 	--disable-directfb \
 %endif
-%if !%{build_firewire}
-	--disable-firewire \
-%else
-	--enable-firewire \
-%endif
-%if !%{build_lame}
-	--disable-libmp3lame
+%if %{build_lame}
+	--enable-libmp3lame
 %endif
 
 %make
@@ -473,13 +451,15 @@ install -m644 database/* %{buildroot}%{_datadir}/mythtv/initialdb
 #install -p settings.pro %{buildroot}%{_datadir}/mythtv/build/
 
 # install a few useful contrib scripts
-install -m755 contrib/myth.rebuilddatabase.pl %{buildroot}%{_bindir}
-install -m755 contrib/mythrename.pl %{buildroot}%{_bindir}
-install -m755 contrib/mythname.pl %{buildroot}%{_bindir}
-install -m755 contrib/optimize_mythdb.pl %{buildroot}%{_bindir}
+mkdir -p %{buildroot}%{_datadir}/%{name}
+cp -ar contrib %{buildroot}%{_datadir}/%{name}
 
 # Remove python egg-info as it's pointless
 rm -f %{buildroot}%{py_puresitedir}/MythTV-*.egg-info
+
+# (cg) This is needed for the %doc stuff on the subpackages for some reason...
+mkdir -p %{buildroot}%{_docdir}/%{name}-backend
+mkdir -p %{buildroot}%{_docdir}/%{name}-doc
 
 %clean
 rm -rf %{buildroot}
@@ -493,14 +473,6 @@ rm -rf %{buildroot}
 %postun backend
 %_postun_userdel mythtv
 
-%if %mdkversion < 200900
-%post -n %{lib_name} -p /sbin/ldconfig
-%endif
-
-%if %mdkversion < 200900
-%postun -n %{lib_name} -p /sbin/ldconfig
-%endif
-
 %post backend
 %_post_service mythbackend
 
@@ -508,32 +480,17 @@ rm -rf %{buildroot}
 %_preun_service mythbackend
 
 %post frontend
-%if %mdkversion < 200900
-%{update_menus}
-%endif
 %{make_session}
 
 %postun frontend
-%if %mdkversion < 200900
-%{clean_menus}
-%endif
 %{make_session}
-
-%if %mdkversion < 200900
-%post setup
-%{update_menus}
-%endif
-
-%if %mdkversion < 200900
-%postun setup
-%{clean_menus}
-%endif
 
 %files doc
 %defattr(-,root,root)
 %doc README UPGRADING AUTHORS COPYING FAQ
 %doc keys.txt
 %doc docs/*.html docs/*.png docs/*.txt docs/i18n contrib
+%{_datadir}/%{name}/contrib
 
 %files backend
 %defattr(-,root,root)
@@ -542,10 +499,8 @@ rm -rf %{buildroot}
 %{_bindir}/mythbackend
 %{_bindir}/mythfilldatabase
 %{_bindir}/mythjobqueue
-%{_bindir}/myth.rebuilddatabase.pl
-%{_bindir}/mythname.pl
-%{_bindir}/mythrename.pl
-%{_bindir}/optimize_mythdb.pl
+%{_datadir}/%{name}/mythconverg_backup.pl
+%{_datadir}/%{name}/mythconverg_restore.pl
 %attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv
 %attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv/recordings
 %attr(-,mythtv,mythtv) %dir %{_var}/cache/mythtv
@@ -563,13 +518,13 @@ rm -rf %{buildroot}
 %{_datadir}/mythtv/*.xml
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
-%{_bindir}/mythtv
 %{_bindir}/mythcommflag
 %{_bindir}/mythlcdserver
 %{_bindir}/mythtranscode
 %{_bindir}/mythtvosd
 %{_bindir}/mythreplex
 %{_bindir}/mythshutdown
+%{_bindir}/mythavtest
 %dir %{_libdir}/mythtv
 %{_libdir}/mythtv/filters
 %{_libdir}/mythtv/plugins
