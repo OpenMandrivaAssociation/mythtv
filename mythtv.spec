@@ -1,7 +1,7 @@
 
 %define name    mythtv
 %define version 0.22
-%define rel     0.1
+%define rel     0.2
 %define fixes 22355
 
 %define release	%mkrel %fixes.%rel
@@ -82,7 +82,8 @@ BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
 BuildRequires:  python-devel
-#BuildRequires	fftw3-devel
+BuildRequires:  fftw3-devel
+BuildRequires:  vdpau-devel
 %if %build_lame
 BuildRequires:	lame-devel
 %endif
@@ -337,31 +338,36 @@ perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pr
 %build
 
 ./configure --prefix=%{_prefix} \
-	--libdir-name=%{_lib} \
-	--enable-dvb \
-	--enable-opengl-vsync --enable-opengl-video \
-	--enable-xvmc --enable-xvmc-pro \
+  --libdir-name=%{_lib} \
+  --enable-dvb \
+  --enable-opengl-vsync --enable-opengl-video \
+  --enable-xvmc --enable-xvmc-pro \
   --without-bindings=perl \
-	--extra-cxxflags="%{optflags}" \
-  --enable-firewire \
+  --extra-cxxflags="%{optflags}" \
+  --enable-vdpau \
+  --enable-libfftw3 \
+%if %with plf
+  --enable-nonfree \
+%endif
 %if %{build_x264}
-	--enable-x264 \
+  --enable-x264 \
 %endif
 %if %{build_xvid}
-	--enable-libxvid \
+  --enable-libxvid \
 %endif
 %if %{build_faac}
-	--enable-libfaac \
+  --enable-libfaac \
 %endif
 %if %{build_faad}
-	--enable-libfaad \
+  --enable-libfaad \
 %endif
 %if !%{build_directfb}
-	--disable-directfb \
+  --disable-directfb \
 %endif
 %if %{build_lame}
-	--enable-libmp3lame
+  --enable-libmp3lame \
 %endif
+  --enable-firewire
 
 %make
 
