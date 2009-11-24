@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.22
 %define rel     1
-%define fixes 22807
+%define fixes 22890
 
 %define release	%mkrel %fixes.%rel
 
@@ -31,8 +31,7 @@
 %define build_faac		1
 %define build_faad		1
 %define build_lame		1
-# broken as of 0.20 13107
-%define build_x264		0
+%define build_x264		1
 %define build_xvid		1
 %endif
 
@@ -337,8 +336,10 @@ perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pr
 
 %build
 
-./configure --prefix=%{_prefix} \
+./configure \
+  --prefix=%{_prefix} \
   --libdir-name=%{_lib} \
+  --enable-runtime-cpudetect \
   --enable-dvb \
   --enable-opengl-vsync --enable-opengl-video \
   --enable-xvmc --enable-xvmc-pro \
@@ -350,7 +351,7 @@ perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pr
   --enable-nonfree \
 %endif
 %if %{build_x264}
-  --enable-x264 \
+  --enable-libx264 \
 %endif
 %if %{build_xvid}
   --enable-libxvid \
