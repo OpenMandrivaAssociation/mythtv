@@ -1,8 +1,8 @@
 
 %define name    mythtv
 %define version 0.22
-%define rel     1
 %define fixes 22890
+%define rel 1
 
 %define release	%mkrel %fixes.%rel
 
@@ -178,7 +178,8 @@ This package is based on the MythTV "fixes" branch at revision %fixes
 Obsoletes:	mythtv-themes < 0.20-5
 Summary:	Base themes for mythtv's frontend
 Group:		Video
-Conflicts: mythtv-themes-myththemes < 0.22
+Conflicts:	mythtv-themes-myththemes < 0.22
+Conflicts:	mythtv-plugin-controls < 0.22
 
 %description themes-base
 MythTV provides a unified graphical interface for recording and viewing
@@ -192,6 +193,7 @@ Summary:	Client component of mythtv (a PVR)
 Group:		Video
 Requires:	mythtv-themes-base = %{version}-%{release}
 Requires:	qt4-database-plugin-mysql
+Obsoletes:	mythtv-plugin-controls
 
 %description frontend
 MythTV provides a unified graphical interface for recording and viewing
