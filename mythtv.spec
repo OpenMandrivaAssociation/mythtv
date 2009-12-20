@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.22
 %define fixes 22890
-%define rel 2
+%define rel 3
 
 %define release	%mkrel %fixes.%rel
 
@@ -70,6 +70,7 @@ Source6:	%name-32.png
 Source7:	%name-48.png
 Patch1: mythtv-0.22-nolame.patch
 Patch2: mythtv-0.22-enable-pulseaudio-by-default.patch
+Patch3: mythtv-0.22-x264-configure.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -303,6 +304,7 @@ This package contains the python bindings for MythTV.
 %setup -q
 %patch1 -p0 -b .lame
 %patch2 -p0 -b .pulse
+%patch3 -p0 -b .x264
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
