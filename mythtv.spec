@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.22
 %define fixes 22890
-%define rel 3
+%define rel 4
 
 %define release	%mkrel %fixes.%rel
 
@@ -31,7 +31,8 @@
 %define build_faac		1
 %define build_faad		1
 %define build_lame		1
-%define build_x264		1
+# build broken against current x264 as of 2010-01, re-enable when fixed
+%define build_x264		0
 %define build_xvid		1
 %endif
 
