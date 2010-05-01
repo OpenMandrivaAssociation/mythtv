@@ -337,7 +337,7 @@ perl -pi -e's|/mnt/store|%{_localstatedir}/lib/mythtv/recordings|' programs/myth
 perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
 
 # Fix the version reporting (which assumes svn checkout)
-perl -pi -e's|svnversion \$\${SVNTREEDIR} 2>/dev/null|echo %{fixes}|' version.pro
+echo "SOURCE_VERSION=%version-%release" >VERSION
 
 %build
 
