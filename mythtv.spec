@@ -1,8 +1,8 @@
 
 %define name    mythtv
 %define version 0.22
-%define fixes 22890
-%define rel 4
+%define fixes 24255
+%define rel 1
 
 %define release	%mkrel %fixes.%rel
 
@@ -585,4 +585,4 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %dir %{py_puresitedir}/MythTV
 %{py_puresitedir}/MythTV/*.py
-%{py_puresitedir}/MythTV/*.pyc
+#%{py_puresitedir}/MythTV/*.pyc
