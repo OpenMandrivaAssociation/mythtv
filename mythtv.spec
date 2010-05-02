@@ -69,7 +69,8 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
-Patch0: mythtv-0.23-enable-pulseaudio-with-alsa-default.patch
+Patch0: mythtv-0.23-nolame.patch
+Patch1: mythtv-0.23-enable-pulseaudio-with-alsa-default.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -301,7 +302,8 @@ This package contains the python bindings for MythTV.
 
 %prep
 %setup -q
-%patch0 -p0 -b .pulse
+%patch0 -p0 -b .lame
+%patch1 -p0 -b .pulse
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
