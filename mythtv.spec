@@ -1,13 +1,13 @@
 
 %define name    mythtv
-%define version 0.22
-%define fixes 24255
+%define version 0.23
+%define fixes 24334
 %define rel 1
 
 %define release	%mkrel %fixes.%rel
 
 %define lib_name_orig	libmyth
-%define lib_major	0.22
+%define lib_major	0.23
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
@@ -69,9 +69,7 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
-Patch1: mythtv-0.22-nolame.patch
-Patch2: mythtv-0.22-enable-pulseaudio-by-default.patch
-Patch3: mythtv-0.22-x264-configure.patch
+Patch0: mythtv-0.23-enable-pulseaudio-with-alsa-default.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -303,9 +301,7 @@ This package contains the python bindings for MythTV.
 
 %prep
 %setup -q
-%patch1 -p0 -b .lame
-%patch2 -p0 -b .pulse
-%patch3 -p0 -b .x264
+%patch0 -p0 -b .pulse
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
@@ -585,4 +581,8 @@ rm -rf %{buildroot}
 %defattr(-,root,root)
 %dir %{py_puresitedir}/MythTV
 %{py_puresitedir}/MythTV/*.py
+%dir %{py_puresitedir}/MythTV/tmdb
+%{py_puresitedir}/MythTV/tmdb/*.py
+%dir %{py_puresitedir}/MythTV/ttvdb
+%{py_puresitedir}/MythTV/ttvdb/*.py
 #%{py_puresitedir}/MythTV/*.pyc
