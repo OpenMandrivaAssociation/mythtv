@@ -582,9 +582,8 @@ rm -rf %{buildroot}
 %files -n python-mythtv
 %defattr(-,root,root)
 %dir %{py_puresitedir}/MythTV
-%{py_puresitedir}/MythTV/*.py
+%{py_puresitedir}/MythTV/*.py*
 %dir %{py_puresitedir}/MythTV/tmdb
-%{py_puresitedir}/MythTV/tmdb/*.py
+%{py_puresitedir}/MythTV/tmdb/*.py*
 %dir %{py_puresitedir}/MythTV/ttvdb
-%{py_puresitedir}/MythTV/ttvdb/*.py
-#%{py_puresitedir}/MythTV/*.pyc
+%{py_puresitedir}/MythTV/ttvdb/*.py*
