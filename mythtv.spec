@@ -1,7 +1,7 @@
 
 %define name    mythtv
 %define version 0.23
-%define fixes 24334
+%define fixes 24821
 %define rel 1
 
 %define release	%mkrel %fixes.%rel
