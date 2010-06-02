@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.23
 %define fixes 24821
-%define rel 1
+%define rel 2
 
 %define release	%mkrel %fixes.%rel
 
@@ -195,6 +195,7 @@ Group:		Video
 Requires:	mythtv-themes-base = %{version}-%{release}
 Requires:	qt4-database-plugin-mysql
 Obsoletes:	mythtv-plugin-controls
+Conflicts:	mythtv-backend < 0.23-24821.2
 
 %description frontend
 MythTV provides a unified graphical interface for recording and viewing
@@ -218,6 +219,7 @@ Summary:	Server component of mythtv (a PVR)
 Group:		Video
 Requires:	%{lib_name} = %{version}-%{release}
 Requires:	qt4-database-plugin-mysql
+Conflicts:	mythtv-frontend < 0.23-24821.2
 
 %description backend
 MythTV provides a unified graphical interface for recording and viewing
@@ -507,6 +509,7 @@ rm -rf %{buildroot}
 %doc README.install.urpmi
 #%config(noreplace) %{_datadir}/mythtv/mysql.txt
 %{_bindir}/mythbackend
+%{_bindir}/mythcommflag
 %{_bindir}/mythfilldatabase
 %{_bindir}/mythjobqueue
 %{_datadir}/%{name}/mythconverg_backup.pl
@@ -528,7 +531,6 @@ rm -rf %{buildroot}
 %{_datadir}/mythtv/*.xml
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
-%{_bindir}/mythcommflag
 %{_bindir}/mythlcdserver
 %{_bindir}/mythtranscode
 %{_bindir}/mythtvosd
