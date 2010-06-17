@@ -1,8 +1,8 @@
 
 %define name    mythtv
 %define version 0.23
-%define fixes 24821
-%define rel 2
+%define fixes 25073
+%define rel 1
 
 %define release	%mkrel %fixes.%rel
 
@@ -71,6 +71,7 @@ Source6:	%name-32.png
 Source7:	%name-48.png
 Patch0: mythtv-0.23-nolame.patch
 Patch1: mythtv-0.23-enable-pulseaudio-with-alsa-default.patch
+Patch2: vuvuzela-fixes.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -306,6 +307,7 @@ This package contains the python bindings for MythTV.
 %setup -q
 %patch0 -p0 -b .lame
 %patch1 -p0 -b .pulse
+%patch2 -p1 -b .vuvuzela
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
