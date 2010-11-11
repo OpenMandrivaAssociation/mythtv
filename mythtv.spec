@@ -1,13 +1,13 @@
 
 %define name    mythtv
-%define version 0.23
-%define fixes 25073
+%define version 0.24
+%define fixes 27162
 %define rel 1
 
 %define release	%mkrel %fixes.%rel
 
 %define lib_name_orig	libmyth
-%define lib_major	0.23
+%define lib_major	0.24
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
@@ -59,7 +59,7 @@ Name:		%{name}
 Version:	%{version}
 Release: 	%{release}
 URL:		http://www.mythtv.org/
-License:	GPL
+License:	GPL + GPLv3
 Group:		Video
 Source0:	%{name}-%{version}-%{fixes}.tar.bz2
 Source1:	mythbackend.sysconfig.in
@@ -69,9 +69,8 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
-Patch0: mythtv-0.23-nolame.patch
-Patch1: mythtv-0.23-enable-pulseaudio-with-alsa-default.patch
-Patch2: vuvuzela-fixes.patch
+Patch0: mythtv-0.24-nolame.patch
+Patch1: mythtv-0.24-enable-pulseaudio-with-alsa-default.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -307,7 +306,6 @@ This package contains the python bindings for MythTV.
 %setup -q
 %patch0 -p0 -b .lame
 %patch1 -p0 -b .pulse
-%patch2 -p1 -b .vuvuzela
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
@@ -471,9 +469,18 @@ cp -ar contrib %{buildroot}%{_datadir}/%{name}
 # Remove python egg-info as it's pointless
 rm -f %{buildroot}%{py_puresitedir}/MythTV-*.egg-info
 
+# (cg) We cover the package license so no need to include it separately
+rm -f %{buildroot}%{_datadir}/%{name}/fonts/tiresias_gpl3.txt
+
 # (cg) This is needed for the %doc stuff on the subpackages for some reason...
 mkdir -p %{buildroot}%{_docdir}/%{name}-backend
 mkdir -p %{buildroot}%{_docdir}/%{name}-doc
+
+# (cg) For some reason the FFmpeg stuff is included in two build roots :s
+if [ -d %{buildroot}%{buildroot}%{_includedir}/%{name} ]; then
+  mv %{buildroot}%{buildroot}%{_includedir}/%{name}/* %{buildroot}%{_includedir}/%{name}
+  rmdir -p %{buildroot}%{buildroot}%{_includedir}/%{name} || /bin/true
+fi
 
 %clean
 rm -rf %{buildroot}
@@ -514,6 +521,8 @@ rm -rf %{buildroot}
 %{_bindir}/mythcommflag
 %{_bindir}/mythfilldatabase
 %{_bindir}/mythjobqueue
+%{_bindir}/mythpreviewgen
+%{_bindir}/mythwikiscripts
 %{_datadir}/%{name}/mythconverg_backup.pl
 %{_datadir}/%{name}/mythconverg_restore.pl
 %attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv
@@ -526,6 +535,8 @@ rm -rf %{buildroot}
 %dir %{_datadir}/%{name}
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
+%dir %{_datadir}/mythtv/internetcontent
+%{_datadir}/mythtv/internetcontent/*
 
 %files frontend
 %defattr(-,root,root)
@@ -543,9 +554,14 @@ rm -rf %{buildroot}
 %{_libdir}/mythtv/filters
 %{_libdir}/mythtv/plugins
 %dir %{_datadir}/mythtv
-%{_datadir}/mythtv/*.ttf
+%dir %{_datadir}/mythtv/fonts
+%{_datadir}/mythtv/fonts/*.ttf
 %{_datadir}/mythtv/i18n
 %{_datadir}/applications/mandriva-mythtv-frontend.desktop
+%dir %{_datadir}/mythtv/metadata
+%{_datadir}/mythtv/metadata/*
+%dir %{_datadir}/mythtv/locales
+%{_datadir}/mythtv/locales/*
 
 %files setup
 %defattr(-,root,root)
@@ -564,7 +580,7 @@ rm -rf %{buildroot}
 
 %files -n %{lib_name}
 %defattr(-,root,root)
-%{_libdir}/*-%lib_major.so.*
+%{_libdir}/*.so.*
 
 %files -n %{lib_name_devel}
 %defattr(-,root,root)
@@ -573,7 +589,7 @@ rm -rf %{buildroot}
 %endif
 %{_includedir}/mythtv
 # FIXME: Manually multiarch mythconfig.mak
-%{_libdir}/*-%lib_major.so
+%{_libdir}/*.so
 %{_libdir}/*.a
 #%{_datadir}/mythtv/build/settings.pro
 
@@ -585,9 +601,6 @@ rm -rf %{buildroot}
 
 %files -n python-mythtv
 %defattr(-,root,root)
+%{_bindir}/mythpython
 %dir %{py_puresitedir}/MythTV
-%{py_puresitedir}/MythTV/*.py*
-%dir %{py_puresitedir}/MythTV/tmdb
-%{py_puresitedir}/MythTV/tmdb/*.py*
-%dir %{py_puresitedir}/MythTV/ttvdb
-%{py_puresitedir}/MythTV/ttvdb/*.py*
+%{py_puresitedir}/MythTV/*
