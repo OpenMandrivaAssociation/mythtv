@@ -82,6 +82,8 @@ BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
 BuildRequires:	X11-devel
 BuildRequires:  python-devel
+BuildRequires:  python-mysql
+BuildRequires:  python-lxml
 BuildRequires:  fftw3-devel
 BuildRequires:  vdpau-devel
 %if %build_lame
