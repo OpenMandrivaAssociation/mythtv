@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.24
 %define fixes 27162
-%define rel 1
+%define rel 2
 
 %define release	%mkrel %fixes.%rel
 
@@ -297,6 +297,8 @@ This package contains the perl bindings for MythTV.
 %package -n python-mythtv
 Summary:	Python bindings for MythTV
 Group:		Development/Python
+Requires: python-mysql
+Requires: python-lxml
 
 %description -n python-mythtv
 MythTV provides a unified graphical interface for recording and viewing
@@ -349,7 +351,7 @@ echo "SOURCE_VERSION=%version-%release" >VERSION
   --enable-runtime-cpudetect \
   --enable-dvb \
   --enable-opengl-vsync --enable-opengl-video \
-  --enable-xvmc --enable-xvmc-pro \
+  --enable-xvmc \
   --without-bindings=perl \
   --extra-cxxflags="%{optflags}" \
   --enable-vdpau \
@@ -365,9 +367,6 @@ echo "SOURCE_VERSION=%version-%release" >VERSION
 %endif
 %if %{build_faac}
   --enable-libfaac \
-%endif
-%if %{build_faad}
-  --enable-libfaad \
 %endif
 %if !%{build_directfb}
   --disable-directfb \
