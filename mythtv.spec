@@ -2,7 +2,7 @@
 %define name    mythtv
 %define version 0.24
 %define fixes 27162
-%define rel 2
+%define rel 3
 
 %define release	%mkrel %fixes.%rel
 
@@ -80,7 +80,13 @@ BuildRequires:	libalsa-devel
 BuildRequires:	libdvdnav-devel
 BuildRequires:	libjack-devel
 BuildRequires:	lirc-devel
-BuildRequires:	X11-devel
+BuildRequires:	libx11-devel
+BuildRequires:	libxext-devel
+BuildRequires:	libxinerama-devel
+BuildRequires:	libxrandr-devel
+BuildRequires:	libxv-devel
+BuildRequires:	libxvmc-devel
+BuildRequires:	libxxf86vm-devel
 BuildRequires:  python-devel
 BuildRequires:  python-mysql
 BuildRequires:  python-lxml
