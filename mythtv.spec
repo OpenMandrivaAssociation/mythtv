@@ -26,6 +26,10 @@
 # --with plf
 %bcond_with plf
 %if %with plf
+%if %mdvver >= 201100
+# make EVR of plf build higher than regular to allow update, needed with rpm5 mkrel
+%define extrarelsuffix plf
+%endif
 %define distsuffix		plf
 %define build_dts		1
 %define build_faac		1
@@ -57,7 +61,7 @@
 Summary:	A personal video recorder (PVR) application
 Name:		%{name}
 Version:	%{version}
-Release: 	%{release}
+Release: 	%{release}%{?extrarelsuffix}
 URL:		http://www.mythtv.org/
 License:	GPL + GPLv3
 Group:		Video
