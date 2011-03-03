@@ -573,8 +573,7 @@ rm -rf %{buildroot}
 %{_datadir}/mythtv/*.xml
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
-%{_bindir}/mythffplay
-%{_bindir}/mythffmpeg
+%{_bindir}/mythff*
 %{_bindir}/mythlcdserver
 %{_bindir}/mythtranscode
 %{_bindir}/mythtvosd
