@@ -1,13 +1,17 @@
-
 %define name    mythtv
 %define version 0.24
-%define fixes 27162
-%define rel 3
+%define gitversion v0.24-199-g53677
+%define fixesdate 20110303
+%define rel 1
 
-%define release	%mkrel %fixes.%rel
+%if %{fixesdate}
+%define release	%mkrel %fixesdate.%rel
+%else
+%define release	%mkrel %rel
+%endif
 
 %define lib_name_orig	libmyth
-%define lib_major	0.24
+%define lib_major	%{version}
 %define lib_name	%mklibname myth %{lib_major}
 %define lib_name_devel	%mklibname myth -d
 
@@ -65,7 +69,7 @@ Release: 	%{release}%{?extrarelsuffix}
 URL:		http://www.mythtv.org/
 License:	GPL + GPLv3
 Group:		Video
-Source0:	%{name}-%{version}-%{fixes}.tar.bz2
+Source0:	%{name}-%{version}.tar.bz2
 Source1:	mythbackend.sysconfig.in
 Source2:	mythbackend.init.in
 Source3:	mythbackend.logrotate.in
@@ -73,8 +77,15 @@ Source4:	99MythFrontend
 Source5:	%name-16.png
 Source6:	%name-32.png
 Source7:	%name-48.png
-Patch0: mythtv-0.24-nolame.patch
-Patch1: mythtv-0.24-enable-pulseaudio-with-alsa-default.patch
+
+# (cg) This is just a patch to deal with a difference caused by SVN -> Git migration
+Patch0: svn-convert-fixes.patch
+%if %{fixesdate}
+Patch1: fixes-%{gitversion}.patch
+%endif
+# (cg) git format-patch --start-number 100 --relative=mythtv fixes/0.24..mga-0.24-patches
+Patch100: 0100-lame-Allow-building-without-lame-libraries.patch
+Patch101: 0101-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 
 BuildRoot:	%{_tmppath}/%{name}-root
 
@@ -145,8 +156,8 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package -n %{lib_name}
@@ -163,8 +174,8 @@ television programs.
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package -n %{lib_name_devel}
@@ -183,8 +194,8 @@ add-ons for mythtv.
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package themes-base
@@ -222,8 +233,8 @@ reachable via the network.
 This package is in PLF because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package backend
@@ -250,8 +261,8 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package setup
@@ -278,8 +289,8 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-%if %fixes
-This package is based on the MythTV "fixes" branch at revision %fixes
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package doc
@@ -318,8 +329,11 @@ This package contains the python bindings for MythTV.
 
 %prep
 %setup -q
-%patch0 -p0 -b .lame
-%patch1 -p0 -b .pulse
+%apply_patches
+
+# (cg) The installer is dumb and installs our patch backup files...
+# This can be removed after 0.25
+rm -f programs/scripts/database/mythconverg_restore.pl.*
 
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
@@ -492,6 +506,10 @@ if [ -d %{buildroot}%{buildroot}%{_includedir}/%{name} ]; then
   mv %{buildroot}%{buildroot}%{_includedir}/%{name}/* %{buildroot}%{_includedir}/%{name}
   rmdir -p %{buildroot}%{buildroot}%{_includedir}/%{name} || /bin/true
 fi
+if [ -f %{buildroot}%{buildroot}%{_bindir}/mythffmpeg ]; then
+  mv %{buildroot}%{buildroot}%{_bindir}/mythff* %{buildroot}%{_bindir}
+  rmdir -p %{buildroot}%{buildroot}%{_bindir} || /bin/true
+fi
 
 %clean
 rm -rf %{buildroot}
@@ -555,6 +573,8 @@ rm -rf %{buildroot}
 %{_datadir}/mythtv/*.xml
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
+%{_bindir}/mythffplay
+%{_bindir}/mythffmpeg
 %{_bindir}/mythlcdserver
 %{_bindir}/mythtranscode
 %{_bindir}/mythtvosd
