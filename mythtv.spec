@@ -79,7 +79,7 @@ Source6:	%name-32.png
 Source7:	%name-48.png
 
 # (cg) This is just a patch to deal with a difference caused by SVN -> Git migration
-%Patch0: svn-convert-fixes.patch
+#Patch0: svn-convert-fixes.patch
 %if %{fixesdate}
 Patch1: fixes-%{gitversion}.patch
 %endif
