@@ -1,13 +1,13 @@
 %define name    mythtv
-%define version 0.24
+%define version 0.24.2
 %define gitversion v0.24-199-g53677
-%define fixesdate 20110303
+%define fixesdate 0
 %define rel 1
 
 %if %{fixesdate}
-%define release	%mkrel %fixesdate.%rel
+%define release	%fixesdate.%rel
 %else
-%define release	%mkrel %rel
+%define release	%rel
 %endif
 
 %define lib_name_orig	libmyth
@@ -40,7 +40,7 @@
 %define build_faad		1
 %define build_lame		1
 # build broken against current x264 as of 2010-01, re-enable when fixed
-%define build_x264		0
+%define build_x264		1
 %define build_xvid		1
 %endif
 
@@ -67,7 +67,7 @@ Name:		%{name}
 Version:	%{version}
 Release: 	%{release}%{?extrarelsuffix}
 URL:		http://www.mythtv.org/
-License:	GPL + GPLv3
+License:	GPLv2 and GPLv3
 Group:		Video
 Source0:	%{name}-%{version}.tar.bz2
 Source1:	mythbackend.sysconfig.in
@@ -79,7 +79,7 @@ Source6:	%name-32.png
 Source7:	%name-48.png
 
 # (cg) This is just a patch to deal with a difference caused by SVN -> Git migration
-Patch0: svn-convert-fixes.patch
+%Patch0: svn-convert-fixes.patch
 %if %{fixesdate}
 Patch1: fixes-%{gitversion}.patch
 %endif
@@ -87,21 +87,19 @@ Patch1: fixes-%{gitversion}.patch
 Patch100: 0100-lame-Allow-building-without-lame-libraries.patch
 Patch101: 0101-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 
-BuildRoot:	%{_tmppath}/%{name}-root
-
 BuildRequires:	imagemagick
 BuildRequires:	qt4-devel
-BuildRequires:	libalsa-devel
-BuildRequires:	libdvdnav-devel
-BuildRequires:	libjack-devel
+BuildRequires:	pkgconfig(alsa)
+BuildRequires:	pkgconfig(dvdnav)
+BuildRequires:	jackit-devel
 BuildRequires:	lirc-devel
-BuildRequires:	libx11-devel
-BuildRequires:	libxext-devel
-BuildRequires:	libxinerama-devel
-BuildRequires:	libxrandr-devel
-BuildRequires:	libxv-devel
-BuildRequires:	libxvmc-devel
-BuildRequires:	libxxf86vm-devel
+BuildRequires:	pkgconfig(x11)
+BuildRequires:	pkgconfig(xext)
+BuildRequires:	pkgconfig(xinerama)
+BuildRequires:	pkgconfig(xrandr)
+BuildRequires:	pkgconfig(xv)
+BuildRequires:	pkgconfig(xvmc)
+BuildRequires:	pkgconfig(xxf86vm)
 BuildRequires:  python-devel
 BuildRequires:  python-mysql
 BuildRequires:  python-lxml
@@ -126,10 +124,10 @@ BuildRequires:	libfaac-devel
 BuildRequires:	libfaad2-devel
 %endif
 %if %{build_directfb}
-BuildRequires:	libdirectfb-devel
+BuildRequires:	%{_lib}directfb-devel
 %endif
-BuildRequires:	libavc1394-devel
-BuildRequires:	libiec61883-devel
+BuildRequires:	pkgconfig(libavc1394)
+BuildRequires:	pkgconfig(libiec61883)
 BuildRequires:	mesaglu-devel
 %if %maenable
 BuildRequires:  multiarch-utils
@@ -242,6 +240,7 @@ Summary:	Server component of mythtv (a PVR)
 Group:		Video
 Requires:	%{lib_name} = %{version}-%{release}
 Requires:	qt4-database-plugin-mysql
+Requires(pre,post,preun,postun): rpm-helper
 Conflicts:	mythtv-frontend < 0.23-24821.2
 
 %description backend
@@ -367,6 +366,11 @@ perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
 # Fix the version reporting (which assumes svn checkout)
 echo "SOURCE_VERSION=%version-%release" >VERSION
 
+# Fix file permissions
+find programs/scripts/internetcontent/nv_python_libs/ -name '__init__.py' -exec chmod 0644 {} \;
+find . -name '*.h' -exec chmod 0644 {} \;
+find . -name '*.cpp' -exec chmod 0644 {} \;
+
 %build
 
 ./configure \
@@ -433,7 +437,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
 install -p mythbackend.init %{buildroot}%{_initrddir}/mythbackend
 install -p mythbackend.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
-install -p mythbackend.logrotate  %{buildroot}%{_sysconfdir}/logrotate.d
+install -p mythbackend.logrotate  %{buildroot}%{_sysconfdir}/logrotate.d/mythtv-backend
 
 # wmsession.d for mythfrontend
 mkdir -p %{buildroot}%{_sysconfdir}/X11/wmsession.d
@@ -511,9 +515,6 @@ if [ -f %{buildroot}%{buildroot}%{_bindir}/mythffmpeg ]; then
   rmdir -p %{buildroot}%{buildroot}%{_bindir} || /bin/true
 fi
 
-%clean
-rm -rf %{buildroot}
-
 %pre backend
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
@@ -564,13 +565,18 @@ rm -rf %{buildroot}
 %dir %{_datadir}/%{name}
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
-%dir %{_datadir}/mythtv/internetcontent
-%{_datadir}/mythtv/internetcontent/*
+%{_datadir}/mythtv/internetcontent/
 
 %files frontend
 %defattr(-,root,root)
 %config(noreplace) %{_sysconfdir}/X11/wmsession.d/99MythFrontend
-%{_datadir}/mythtv/*.xml
+%{_datadir}/mythtv/CDS_scpd.xml
+%{_datadir}/mythtv/CMGR_scpd.xml
+%{_datadir}/mythtv/devicemaster.xml
+%{_datadir}/mythtv/deviceslave.xml
+%{_datadir}/mythtv/MFEXML_scpd.xml
+%{_datadir}/mythtv/MSRR_scpd.xml
+%{_datadir}/mythtv/MXML_scpd.xml
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
 %{_bindir}/mythff*
@@ -601,7 +607,7 @@ rm -rf %{buildroot}
 %{_datadir}/mythtv/setup.xml
 
 %files themes-base
-%defattr(-,root,root)
+%defattr(0644,root,root,0755)
 %dir %{_datadir}/mythtv
 %{_datadir}/mythtv/themes
 %{_iconsdir}/%name.png
@@ -615,7 +621,8 @@ rm -rf %{buildroot}
 %files -n %{lib_name_devel}
 %defattr(-,root,root)
 %if %maenable
-%multiarch %{multiarch_includedir}/mythtv/mythconfig.h
+#%multiarch %{multiarch_includedir}/mythtv/mythconfig.h
+%{multiarch_includedir}/mythtv/mythconfig.h
 %endif
 %{_includedir}/mythtv
 # FIXME: Manually multiarch mythconfig.mak
@@ -630,7 +637,6 @@ rm -rf %{buildroot}
 %{perl_vendorlib}/IO/Socket/INET/MythTV.pm
 
 %files -n python-mythtv
-%defattr(-,root,root)
+%defattr(0755,root,root,0755)
 %{_bindir}/mythpython
-%dir %{py_puresitedir}/MythTV
-%{py_puresitedir}/MythTV/*
+%{py_puresitedir}/MythTV
