@@ -87,10 +87,12 @@ Patch1: fixes-%{gitversion}.patch
 Patch100: 0100-lame-Allow-building-without-lame-libraries.patch
 Patch101: 0101-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 
+BuildRequires:	yasm
 BuildRequires:	imagemagick
 BuildRequires:	qt4-devel
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(dvdnav)
+BuildRequires:	pulseaudio-devel
 BuildRequires:	jackit-devel
 BuildRequires:	lirc-devel
 BuildRequires:	pkgconfig(x11)
@@ -105,6 +107,10 @@ BuildRequires:  python-mysql
 BuildRequires:  python-lxml
 BuildRequires:  fftw3-devel
 BuildRequires:  vdpau-devel
+BuildRequires:	perl-devel
+BuildRequires:	perl(DBD::mysql)
+BuildRequires:	perl(DBI)
+BuildRequires:	perl(Date::Manip)
 %if %build_lame
 BuildRequires:	lame-devel
 %endif
