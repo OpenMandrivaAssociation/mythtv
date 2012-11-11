@@ -1,0 +1,307 @@
+From 55b9e56d32970721058279b5a1d79275e9b8dace Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <cguthrie@mandriva.org>
+Date: Thu, 3 Mar 2011 16:21:26 +0000
+Subject: [PATCH 100/101] lame: Allow building without lame libraries.
+
+---
+ configure                              |    8 +++-----
+ libs/libmythtv/NuppelVideoRecorder.cpp |   30 ++++++++++++++++++++++++++++--
+ libs/libmythtv/NuppelVideoRecorder.h   |    5 +++++
+ libs/libmythtv/libmythtv.pro           |    7 ++++++-
+ libs/libmythtv/recordingprofile.cpp    |   16 +++++++++++++++-
+ 5 files changed, 57 insertions(+), 9 deletions(-)
+
+diff --git a/configure b/configure
+index 1efe803..fde8be9 100755
+--- a/configure
++++ b/configure
+@@ -1924,7 +1924,7 @@ enable hdhomerun
+ enable hdpvr
+ enable iptv
+ enable ivtv
+-enable lamemp3
++disable libmp3lame
+ enable lirc
+ enable mheg
+ enable mythtranscode
+@@ -3931,10 +3931,6 @@ int main(void) {
+ }
+ EOF
+ 
+-# Check that all MythTV build "requirements" are met:
+-enabled lamemp3 && check_lib2 lame/lame.h lame_init -lmp3lame -lm ||
+-    die "ERROR! You must have the Lame MP3 encoding library installed to compile MythTV."
+-
+ # Qt dependency checks
+ qt_inc="-I${sysroot}/$(${qmake} -query QT_INSTALL_HEADERS)"
+ qt_libs="-L${sysroot}/$(${qmake} -query QT_INSTALL_LIBS)"
+@@ -4556,6 +4552,8 @@ enabled audio_oss         && append CCONFIG "using_oss"
+ enabled audio_pulse       && append CCONFIG "using_pulse"
+ enabled audio_pulseoutput && append CCONFIG "using_pulseoutput"
+ 
++enabled libmp3lame        && append CCONFIG "using_lame"
++
+ if enabled darwin_da; then
+   append CCONFIG "darwin_da"
+   echo "SLIB_UNINSTALL_EXTRA_CMD=${SLIB_UNINSTALL_EXTRA_CMD}" >> $MYTH_CONFIG_MAK
+diff --git a/libs/libmythtv/NuppelVideoRecorder.cpp b/libs/libmythtv/NuppelVideoRecorder.cpp
+index 739634d..dd14039 100644
+--- a/libs/libmythtv/NuppelVideoRecorder.cpp
++++ b/libs/libmythtv/NuppelVideoRecorder.cpp
+@@ -82,7 +82,11 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
+     pid = pid2 = 0;
+     inputchannel = 1;
+     compression = 1;
++#ifdef LAME
+     compressaudio = 1;
++#else
++    compressaudio = 0;
++#endif
+     usebttv = 1;
+     width  = 352;
+     height = 240;
+@@ -94,11 +98,13 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel)
+     framerate_multiplier = 1.0;
+     height_multiplier = 1.0;
+ 
++#ifdef LAME
+     mp3quality = 3;
+     gf = NULL;
++    mp3buf = NULL;
++#endif
+     rtjc = NULL;
+     strm = NULL;
+-    mp3buf = NULL;
+ 
+     transcoding = false;
+ 
+@@ -197,10 +203,12 @@ NuppelVideoRecorder::~NuppelVideoRecorder(void)
+     }
+     if (rtjc)
+         delete rtjc;
++#ifdef LAME
+     if (mp3buf)
+         delete [] mp3buf;
+     if (gf)
+         lame_close(gf);
++#endif
+     if (strm)
+         delete [] strm;
+     if (audio_device)
+@@ -321,8 +329,10 @@ void NuppelVideoRecorder::SetOption(const QString &opt, int value)
+         hmjpg_vdecimation = value;
+     else if (opt == "audiocompression")
+         compressaudio = value;
++#ifdef LAME
+     else if (opt == "mp3quality")
+         mp3quality = value;
++#endif
+     else if (opt == "samplerate")
+         audio_samplerate = value;
+     else if (opt == "audioframesize")
+@@ -416,13 +426,16 @@ void NuppelVideoRecorder::SetOptionsFromProfile(RecordingProfile *profile,
+     if ((tmp = profile->byName("audiocodec")))
+         setting = tmp->getValue();
+ 
++#ifdef LAME
+     if (setting == "MP3")
+     {
+         SetOption("audiocompression", 1);
+         SetIntOption(profile, "mp3quality");
+         SetIntOption(profile, "samplerate");
+     }
+-    else if (setting == "Uncompressed")
++    else
++#endif
++         if (setting == "Uncompressed")
+     {
+         SetOption("audiocompression", 0);
+         SetIntOption(profile, "samplerate");
+@@ -791,6 +804,7 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
+ 
+     if (compressaudio)
+     {
++#ifdef LAME
+         gf = lame_init();
+         lame_set_bWriteVbrTag(gf, 0);
+         lame_set_quality(gf, mp3quality);
+@@ -811,9 +825,17 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
+                     "AudioInit(): lame support requires 16bit audio");
+             compressaudio = false;
+         }
++#else
++        VERBOSE(VB_IMPORTANT, LOC_ERR +
++                "AudioInit(): support for LAME MP3 compression not enabled, disabling");
++        compressaudio = false;
++#endif
+     }
++
++#ifdef LAME
+     mp3buf_size = (int)(1.25 * 16384 + 7200);
+     mp3buf = new char[mp3buf_size];
++#endif
+ 
+     return 0;
+ }
+@@ -2124,6 +2146,7 @@ void NuppelVideoRecorder::WriteHeader(void)
+         moredata.rtjpeg_chroma_filter = M2;
+     }
+ 
++#ifdef LAME
+     if (compressaudio)
+     {
+         moredata.audio_fourcc = FOURCC_LAME;
+@@ -2131,6 +2154,7 @@ void NuppelVideoRecorder::WriteHeader(void)
+         moredata.audio_quality = mp3quality;
+     }
+     else
++#endif
+     {
+         moredata.audio_fourcc = FOURCC_RAWA;
+     }
+@@ -3326,6 +3350,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
+         }
+     }
+ 
++#ifdef LAME
+     if (compressaudio)
+     {
+         char mp3gapless[7200];
+@@ -3382,6 +3407,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
+         audiobytes += audio_buffer_size;
+     }
+     else
++#endif
+     {
+         frameheader.comptype = '0'; // uncompressed audio
+         frameheader.packetlength = audio_buffer_size;
+diff --git a/libs/libmythtv/NuppelVideoRecorder.h b/libs/libmythtv/NuppelVideoRecorder.h
+index 71ba88f..0b5e240 100644
+--- a/libs/libmythtv/NuppelVideoRecorder.h
++++ b/libs/libmythtv/NuppelVideoRecorder.h
+@@ -7,6 +7,8 @@
+ #include <sys/time.h>
+ #include <time.h>
+ #include <pthread.h>
++
++#ifdef LAME
+ #ifdef MMX
+ #undef MMX
+ #define MMXBLAH
+@@ -15,6 +17,7 @@
+ #ifdef MMXBLAH
+ #define MMX
+ #endif
++#endif
+ 
+ #undef HAVE_AV_CONFIG_H
+ extern "C" {
+@@ -170,10 +173,12 @@ class MPUBLIC NuppelVideoRecorder : public RecorderBase, public CC608Input
+ 
+     bool transcoding;
+ 
++#ifdef LAME
+     int mp3quality;
+     char *mp3buf;
+     int mp3buf_size;
+     lame_global_flags *gf;
++#endif
+ 
+     RTjpeg *rtjc;
+ 
+diff --git a/libs/libmythtv/libmythtv.pro b/libs/libmythtv/libmythtv.pro
+index 9635faf..2415814 100644
+--- a/libs/libmythtv/libmythtv.pro
++++ b/libs/libmythtv/libmythtv.pro
+@@ -62,7 +62,6 @@ LIBS += -lmythbluray-$$LIBVERSION    -lmythdb-$$LIBVERSION
+ using_mheg: LIBS += -L../libmythfreemheg -lmythfreemheg-$$LIBVERSION
+ using_live: LIBS += -L../libmythlivemedia -lmythlivemedia-$$LIBVERSION
+ using_hdhomerun: LIBS += -L../libmythhdhomerun -lmythhdhomerun-$$LIBVERSION
+-using_backend: LIBS += -lmp3lame
+ LIBS += $$EXTRA_LIBS $$QMAKE_LIBS_DYNLOAD
+ !contains( CONFIG_LIBMPEG2EXTERNAL, yes) {
+         DEPENDPATH  += ../libmythmpeg2
+@@ -565,6 +564,12 @@ using_backend {
+         DEFINES += USING_DVB
+     }
+ 
++    # LAME MP3 Compression enabled
++    using_lame {
++        DEFINES += LAME
++        LIBS += -lmp3lame
++    }
++
+     DEFINES += USING_BACKEND
+ }
+ 
+diff --git a/libs/libmythtv/recordingprofile.cpp b/libs/libmythtv/recordingprofile.cpp
+index 9905844..52a39ac 100644
+--- a/libs/libmythtv/recordingprofile.cpp
++++ b/libs/libmythtv/recordingprofile.cpp
+@@ -80,6 +80,7 @@ class AudioCodecName: public ComboBoxSetting, public RecordingProfileStorage
+     }
+ };
+ 
++#ifdef LAME
+ class MP3Quality : public SliderSetting, public CodecParamStorage
+ {
+   public:
+@@ -94,6 +95,7 @@ class MP3Quality : public SliderSetting, public CodecParamStorage
+                     "numbers) requires more CPU."));
+     };
+ };
++#endif
+ 
+ class BTTVVolume : public SliderSetting, public CodecParamStorage
+ {
+@@ -403,12 +405,16 @@ class AudioCompressionSettings : public TriggeredConfigurationGroup
+         addChild(codecName);
+         setTrigger(codecName);
+ 
+-        ConfigurationGroup* params = new VerticalConfigurationGroup(false);
++        ConfigurationGroup* params;
++
++#ifdef LAME
++        params = new VerticalConfigurationGroup(false);
+         params->setLabel("MP3");
+         params->addChild(new SampleRate(parent));
+         params->addChild(new MP3Quality(parent));
+         params->addChild(new BTTVVolume(parent));
+         addTarget("MP3", params);
++#endif
+ 
+         params = new VerticalConfigurationGroup(false, false, true, true);
+         params->setLabel("MPEG-2 Hardware Encoder");
+@@ -449,13 +455,17 @@ class AudioCompressionSettings : public TriggeredConfigurationGroup
+             else
+             {
+                 // V4L, TRANSCODE (and any undefined types)
++#ifdef LAME
+                 codecName->addSelection("MP3");
++#endif
+                 codecName->addSelection("Uncompressed");
+             }
+         }
+         else
+         {
++#ifdef LAME
+             codecName->addSelection("MP3");
++#endif
+             codecName->addSelection("Uncompressed");
+             codecName->addSelection("MPEG-2 Hardware Encoder");
+         }
+@@ -1452,7 +1462,11 @@ void RecordingProfileEditor::open(int id)
+                 "(:NAME, :VIDEOCODEC, :AUDIOCODEC, :PROFILEGROUP);");
+         query.bindValue(":NAME", profName);
+         query.bindValue(":VIDEOCODEC", "MPEG-4");
++#ifdef LAME
+         query.bindValue(":AUDIOCODEC", "MP3");
++#else
++        query.bindValue(":AUDIOCODEC", "Uncompressed");
++#endif
+         query.bindValue(":PROFILEGROUP", group);
+         if (!query.exec())
+         {
+-- 
+1.7.4.1
+

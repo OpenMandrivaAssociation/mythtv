@@ -1,0 +1,9 @@
+sources:
+  "99MythFrontend:"	09a058b886e5f0c161dfe1444d6e7a2818ca5075
+  "mythbackend.init.in:"	03bf81f3d6168cdf93c2d50b81a3a20d8b1565e7
+  "mythbackend.logrotate.in:"	5d4887a3e13ef037b8953b50efb8d4f122721b05
+  "mythbackend.sysconfig.in:"	a5b9a12e914302ecfa2b0d1becd357e229279b9a
+  "mythtv-0.24.2.tar.bz2:"	34b38bc8944c64e9dbfabebb31c4fa14d21b9ea7
+  "mythtv-16.png:"	896bc8aea677e09baf70e7960f3c33669d335014
+  "mythtv-32.png:"	7d8d039295bdc6be3da713dab438696311f5f5a0
+  "mythtv-48.png:"	70f97eb21814d1b63bdaa10ca5cf8f21526f2fe4
