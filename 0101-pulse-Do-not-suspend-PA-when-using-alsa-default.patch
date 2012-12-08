@@ -1,20 +1,20 @@
-From e203d58a6ceab763571e40f0415323eb198151d6 Mon Sep 17 00:00:00 2001
+From 2c11b1bbb9a696fc4615860176aec430e91623aa Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <cguthrie@mandriva.org>
 Date: Thu, 3 Mar 2011 16:28:15 +0000
-Subject: [PATCH 101/101] pulse: Do not suspend PA when using alsa:default
+Subject: [PATCH 101/102] pulse: Do not suspend PA when using alsa:default
 
 This makes no sense as 99 times out of 100, a system with PA enabled
 will also map ALSA's default device to PA and issuing a suspend would
 result in a kind of deadlock.
 ---
- libs/libmyth/audiooutput.cpp |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ mythtv/libs/libmyth/audio/audiooutput.cpp |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/libs/libmyth/audiooutput.cpp b/libs/libmyth/audiooutput.cpp
-index 12cebd5..35c67af3 100644
---- a/libs/libmyth/audiooutput.cpp
-+++ b/libs/libmyth/audiooutput.cpp
-@@ -127,7 +127,8 @@ AudioOutput *AudioOutput::OpenAudio(AudioSettings &settings,
+diff --git mythtv/libs/libmyth/audio/audiooutput.cpp mythtv/libs/libmyth/audio/audiooutput.cpp
+index 42c27a3..1b2f5b5 100644
+--- mythtv/libs/libmyth/audio/audiooutput.cpp
++++ mythtv/libs/libmyth/audio/audiooutput.cpp
+@@ -128,7 +128,8 @@ AudioOutput *AudioOutput::OpenAudio(AudioSettings &settings,
              delete alsadevs;
          }
  #endif
@@ -25,5 +25,5 @@ index 12cebd5..35c67af3 100644
              ispulse = true;
          }
 -- 
-1.7.4.1
+1.7.10
 

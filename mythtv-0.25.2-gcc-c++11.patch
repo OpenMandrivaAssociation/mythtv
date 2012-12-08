@@ -1,0 +1,48 @@
+diff -urN mythtv-0.25.2/libs/libmythsoundtouch/cpu_detect_x86_gcc.cpp mythtv-0.25.2-patched/libs/libmythsoundtouch/cpu_detect_x86_gcc.cpp
+--- mythtv-0.25.2/libs/libmythsoundtouch/cpu_detect_x86_gcc.cpp	2012-07-17 02:21:00.000000000 +1100
++++ mythtv-0.25.2-patched/libs/libmythsoundtouch/cpu_detect_x86_gcc.cpp	2012-09-16 23:29:10.477152978 +1100
+@@ -82,9 +82,9 @@
+ /* ebx saving is necessary for PIC. gcc seems unable to see it alone */
+ #define cpuid(index,eax,ebx,ecx,edx)\
+     __asm __volatile\
+-        ("mov %%"REG_b", %%"REG_S"\n\t"\
++        ("mov %%" REG_b ", %%" REG_S "\n\t"\
+          "cpuid\n\t"\
+-         "xchg %%"REG_b", %%"REG_S\
++         "xchg %%" REG_b ", %%" REG_S\
+          : "=a" (eax), "=S" (ebx),\
+            "=c" (ecx), "=d" (edx)\
+          : "0" (index));
+diff -urN mythtv-0.25.2/libs/libmythtv/mythplayer.cpp mythtv-0.25.2-patched/libs/libmythtv/mythplayer.cpp
+--- mythtv-0.25.2/libs/libmythtv/mythplayer.cpp	2012-07-17 02:21:00.000000000 +1100
++++ mythtv-0.25.2-patched/libs/libmythtv/mythplayer.cpp	2012-09-16 23:25:54.001155058 +1100
+@@ -794,7 +794,7 @@
+ void MythPlayer::SetVideoParams(int width, int height, double fps,
+                                 FrameScanType scan)
+ {
+-    if (width < 1 || height < 1 || isnan(fps))
++    if (width < 1 || height < 1 || ::isnan(fps))
+         return;
+ 
+     video_dim      = QSize((width + 15) & ~0xf, (height + 15) & ~0xf);
+diff -urN mythtv-0.25.2/libs/libmythtv/util-opengl.cpp mythtv-0.25.2-patched/libs/libmythtv/util-opengl.cpp
+--- mythtv-0.25.2/libs/libmythtv/util-opengl.cpp	2012-07-17 02:21:00.000000000 +1100
++++ mythtv-0.25.2-patched/libs/libmythtv/util-opengl.cpp	2012-09-17 00:53:48.529099203 +1100
+@@ -100,7 +100,7 @@
+ }
+ 
+ static mmx_t mmx_0s = {0x0000000000000000LL};
+-static mmx_t round  = {0x0002000200020002LL};
++static mmx_t round_custom  = {0x0002000200020002LL};
+ 
+ static inline void mmx_interp_start(uint8_t *left, uint8_t *right)
+ {
+@@ -110,7 +110,7 @@
+     movq_r2r  (mm5, mm4);
+     paddw_r2r (mm4, mm4);
+     paddw_r2r (mm5, mm4);
+-    paddw_m2r (round, mm4);
++    paddw_m2r (round_custom, mm4);
+ 
+     movd_m2r  (*right, mm5);
+     punpcklbw_m2r (mmx_0s, mm5);
