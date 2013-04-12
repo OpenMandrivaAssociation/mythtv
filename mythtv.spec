@@ -1,6 +1,6 @@
-%define gitversion v0.25.2-16-gd5192
-%define fixesdate 20120829
-%define rel 2
+%define gitversion v0.26.0-138-g69cd7
+%define fixesdate 20130328
+%define rel 1
 
 %if %{fixesdate}
 %define release %{fixesdate}.%{rel}
@@ -62,7 +62,7 @@
 
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.25.2
+Version:	0.26.0
 Release:	%{release}%{?extrarelsuffix}
 URL:		http://www.mythtv.org/
 License:	GPLv2 and GPLv3
@@ -83,7 +83,8 @@ Patch0:		fixes-%{gitversion}.patch
 Patch100:	0100-lame-Allow-building-without-lame-libraries.patch
 Patch101:	0101-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch102:	0102-Fix-dns-sd-detection.patch
-Patch103:	mythtv-0.25.2-gcc-c++11.patch
+Patch103:	0103-Fix-installation-of-zeromq.patch
+Patch104:	0104-Support-libcec-2.x.patch
 
 BuildRequires:	yasm
 BuildRequires:	imagemagick
@@ -564,6 +565,14 @@ if [ -f %{buildroot}%{buildroot}%{_bindir}/mythffmpeg ]; then
   rmdir -p %{buildroot}%{buildroot}%{_bindir} || /bin/true
 fi
 
+# (cg) Clean up some stuff we don't want to include
+rm -f %{buildroot}%{_libdir}/libmythqjson.prl \
+rm -f %{buildroot}%{_includedir}/zmq*.h* \
+      %{buildroot}%{_libdir}/pkgconfig/libmythzmq.pc
+
+find %{buildroot} -name *.la -delete
+find %{buildroot} -name *.a -delete
+
 %pre backend
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
@@ -583,6 +592,7 @@ fi
 %doc README UPGRADING AUTHORS COPYING FAQ
 %doc keys.txt
 %doc contrib
+%{_datadir}/%{name}/fonts/*.txt
 %{_datadir}/%{name}/contrib
 %{_datadir}/%{name}/html
 
@@ -594,6 +604,7 @@ fi
 %{_bindir}/mythwikiscripts
 %{_bindir}/mythmetadatalookup
 %{_bindir}/mythutil
+%{_bindir}/mythlogserver
 %dir %{_datadir}/%{name}
 %{_datadir}/%{name}/mythconverg*.pl
 %dir %{_datadir}/%{name}/locales
@@ -638,6 +649,7 @@ fi
 %dir %{_datadir}/mythtv
 %dir %{_datadir}/mythtv/fonts
 %{_datadir}/mythtv/fonts/*.ttf
+%{_datadir}/mythtv/fonts/*.otf
 %{_datadir}/mythtv/i18n
 %{_datadir}/applications/mandriva-mythtv-frontend.desktop
 
@@ -664,7 +676,6 @@ fi
 %{_includedir}/mythtv
 # FIXME: Manually multiarch mythconfig.mak
 %{_libdir}/*.so
-%{_libdir}/*.a
 #%{_datadir}/mythtv/build/settings.pro
 
 %files -n perl-MythTV

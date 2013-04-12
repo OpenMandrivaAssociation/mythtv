@@ -1,17 +1,17 @@
-From ec069ed675f816be3168a7638f4700979bfb288b Mon Sep 17 00:00:00 2001
+From 0d2b13bef95ee45272782c875ab1af0260b2091f Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Sun, 22 Apr 2012 02:37:38 +0100
-Subject: [PATCH 103/103] Fix dns-sd detection
+Subject: [PATCH 102/102] Fix dns-sd detection
 
 ---
- mythtv/configure |   11 ++++++++++-
+ mythtv/configure | 11 ++++++++++-
  1 file changed, 10 insertions(+), 1 deletion(-)
 
 diff --git mythtv/configure mythtv/configure
-index b1d930f..a1d8f67 100755
+index 1d083dc..bdb1738 100755
 --- mythtv/configure
 +++ mythtv/configure
-@@ -4162,7 +4162,16 @@ fi
+@@ -4554,7 +4554,16 @@ fi
  enabled libcrypto && check_lib openssl/rsa.h RSA_new -lcrypto || disable libcrypto
  
  if test $target_os != darwin ; then
@@ -30,5 +30,5 @@ index b1d930f..a1d8f67 100755
  
  if enabled libxml2 ; then
 -- 
-1.7.10
+1.8.1
 
