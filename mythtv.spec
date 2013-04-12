@@ -80,6 +80,7 @@ Source10:	%{name}.rpmlintrc
 %if %{fixesdate}
 Patch0:		fixes-%{gitversion}.patch
 %endif
+Patch1:		mythtv-0.26.0-gcc-c++11.patch
 Patch100:	0100-lame-Allow-building-without-lame-libraries.patch
 Patch101:	0101-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch102:	0102-Fix-dns-sd-detection.patch
