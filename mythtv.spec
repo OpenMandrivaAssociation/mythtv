@@ -1,6 +1,6 @@
 %define gitversion v0.27.3-164-g629f7
 %define fixesdate 20140923
-%define rel 1
+%define rel 2
 
 %if %{fixesdate}
 %define release %{fixesdate}.%{rel}
@@ -562,6 +562,8 @@ echo "SOURCE_VERSION=%{version}-%{release}" >VERSION
 %build
 pushd mythtv
 ./configure \
+	--cc=clang \
+	--cxx=clang++ \
 	--prefix=%{_prefix} \
 	--libdir-name=%{_lib} \
 	--python=%{__python2} \
@@ -569,7 +571,7 @@ pushd mythtv
 	--enable-dvb \
 	--enable-opengl-video \
 	--without-bindings=perl \
-	--extra-cxxflags="%{optflags} -fno-devirtualize" \
+	--extra-cxxflags="%{optflags}" \
 	--extra-ldflags="%{ldflags}" \
 	--enable-vdpau \
 	--enable-vaapi \
