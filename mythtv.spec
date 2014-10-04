@@ -1,5 +1,5 @@
-%define gitversion v0.27.3-110-g5e37f9
-%define fixesdate 20140728
+%define gitversion v0.27.3-164-g629f7
+%define fixesdate 20140923
 %define rel 1
 
 %if %{fixesdate}
@@ -569,7 +569,7 @@ pushd mythtv
 	--enable-dvb \
 	--enable-opengl-video \
 	--without-bindings=perl \
-	--extra-cxxflags="%{optflags}" \
+	--extra-cxxflags="%{optflags} -fno-devirtualize" \
 	--extra-ldflags="%{ldflags}" \
 	--enable-vdpau \
 	--enable-vaapi \
