@@ -124,7 +124,7 @@ BuildRequires:	python-urlgrabber
 BuildRequires:	python2-oauth
 BuildRequires:	yasm
 BuildRequires:	perl-devel
-BuildRequires:	qt4-devel
+BuildRequires:	qt5-devel
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(avahi-compat-libdns_sd)
 BuildRequires:	pkgconfig(dvdnav)
