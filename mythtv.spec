@@ -112,6 +112,8 @@ Patch105: 0105-Use-system-build-flags.patch
 Patch106: 0106-Fix-zeromq-libdir-path-on-some-systems.patch
 
 BuildRequires:	gdb
+BuildRequires:	libtool
+BuildRequires:	autoconf
 BuildRequires:	imagemagick
 BuildRequires:	perl(Date::Manip)
 BuildRequires:	perl(DBD::mysql)
