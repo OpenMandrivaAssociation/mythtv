@@ -1,0 +1,25 @@
+From 0b8a02a2751b519a0cfe126bd57dc73618c7b544 Mon Sep 17 00:00:00 2001
+From: Funda Wang <fwang@mageia.org>
+Date: Sun, 22 Sep 2013 20:45:17 +0100
+Subject: [PATCH] Use system build flags
+
+---
+ mythtv/configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mythtv/configure b/mythtv/configure
+index 86fafa4..1e53650 100755
+--- a/mythtv/configure
++++ b/mythtv/configure
+@@ -6075,7 +6075,7 @@ ARCH=$arch
+ CC=$cc
+ CXX=$cxx
+ AS=$as
+-QMAKE=$qmakeconf
++QMAKE=$qmakeconf QMAKE_CFLAGS="$CFLAGS" QMAKE_LFLAGS="$LDFLAGS"
+ QMAKE_CC=$cc
+ QMAKE_CXX=$cxx
+ QMAKE_LINK=$cxx
+-- 
+1.8.4
+

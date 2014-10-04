@@ -1,0 +1,23 @@
+From e001130934acc369ba7b886ae1e5bd9f97d68f18 Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
+Date: Mon, 23 Sep 2013 14:19:32 +0100
+Subject: [PATCH 106/106] Fix zeromq libdir path on some systems.
+
+If you specify --libdir-name argument then this is not propigated
+through correctly to zeromq's configure script.
+---
+ mythtv/configure | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/mythtv/configure b/mythtv/configure
+index 1e53650..100dff3 100755
+--- a/mythtv/configure
++++ b/mythtv/configure
+@@ -6501,6 +6501,7 @@
+     fi
+     (cd external/zeromq ; \
+              ./configure --quiet --without-documentation --prefix=${prefix} \
++	     		 --libdir=${libdir_default} \
+                          --includedir=${prefix}/include/mythtv/zeromq)
+     echo "Configuring nzmqt..."
+     (cd external/nzmqt/src ; \

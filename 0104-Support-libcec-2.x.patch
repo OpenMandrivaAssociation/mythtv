@@ -1,7 +1,7 @@
-From 81f11bbfcf31097c09397617224236717a202032 Mon Sep 17 00:00:00 2001
+From 536fbf71da56a8e5069b0e6d37ea7fd986a60ad4 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 28 Mar 2013 22:06:39 +0000
-Subject: [PATCH] Support libcec 2.x
+Subject: [PATCH 105/105] Support libcec 2.x
 
 This is a patch from http://code.mythtv.org/trac/ticket/11338
 
@@ -13,10 +13,10 @@ libcec-2-support.2.patch updated 30th January 2013
  3 files changed, 205 insertions(+), 67 deletions(-)
 
 diff --git a/mythtv/configure b/mythtv/configure
-index bdb1738..10738f1 100755
---- mythtv/configure
-+++ mythtv/configure
-@@ -4543,10 +4543,12 @@ using namespace std;
+index a7da12f..86fafa4 100755
+--- a/mythtv/configure
++++ b/mythtv/configure
+@@ -5468,10 +5468,12 @@ using namespace std;
  using namespace CEC;
  #include <libcec/cecloader.h>
  int main(void) {
@@ -32,8 +32,8 @@ index bdb1738..10738f1 100755
  fi
 diff --git a/mythtv/libs/libmythui/cecadapter.cpp b/mythtv/libs/libmythui/cecadapter.cpp
 index edad8f6..135f3c8 100644
---- mythtv/libs/libmythui/cecadapter.cpp
-+++ mythtv/libs/libmythui/cecadapter.cpp
+--- a/mythtv/libs/libmythui/cecadapter.cpp
++++ b/mythtv/libs/libmythui/cecadapter.cpp
 @@ -14,9 +14,28 @@
  #include "cecadapter.h"
  #include <vector>
@@ -463,8 +463,8 @@ index edad8f6..135f3c8 100644
  }
 diff --git a/mythtv/libs/libmythui/cecadapter.h b/mythtv/libs/libmythui/cecadapter.h
 index e9cf6d6..bb5eba8 100644
---- mythtv/libs/libmythui/cecadapter.h
-+++ mythtv/libs/libmythui/cecadapter.h
+--- a/mythtv/libs/libmythui/cecadapter.h
++++ b/mythtv/libs/libmythui/cecadapter.h
 @@ -7,6 +7,7 @@
  #define LIBCEC_ENABLED     QString("libCECEnabled")
  #define LIBCEC_DEVICE      QString("libCECDevice")
@@ -474,5 +474,5 @@ index e9cf6d6..bb5eba8 100644
  #define POWEROFFTV_ALLOWED QString("PowerOffTVAllowed")
  #define POWEROFFTV_ONEXIT  QString("PowerOffTVOnExit")
 -- 
-1.8.1.5
+1.8.4
 

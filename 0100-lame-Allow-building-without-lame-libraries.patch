@@ -1,22 +1,22 @@
-From d247094c700afc4ef4627d12fd5e067edfb49add Mon Sep 17 00:00:00 2001
-From: Colin Guthrie <cguthrie@mandriva.org>
+From cfa737c73d5a2eb365b3d472582eea224c1c20cf Mon Sep 17 00:00:00 2001
+From: Colin Guthrie <colin@mageia.org>
 Date: Thu, 3 Mar 2011 16:21:26 +0000
-Subject: [PATCH 100/102] lame: Allow building without lame libraries.
+Subject: [PATCH 100/105] lame: Allow building without lame libraries.
 
 ---
- mythtv/configure                              |  8 +++----
- mythtv/libs/libmythtv/NuppelVideoRecorder.cpp | 32 ++++++++++++++++++++++++---
- mythtv/libs/libmythtv/NuppelVideoRecorder.h   |  5 +++++
- mythtv/libs/libmythtv/libmythtv.pro           |  7 +++++-
- mythtv/libs/libmythtv/recordingprofile.cpp    | 16 +++++++++++++-
+ mythtv/configure                                   |  8 ++----
+ mythtv/libs/libmythtv/libmythtv.pro                |  7 ++++-
+ .../libmythtv/recorders/NuppelVideoRecorder.cpp    | 32 ++++++++++++++++++++--
+ .../libs/libmythtv/recorders/NuppelVideoRecorder.h |  5 ++++
+ mythtv/libs/libmythtv/recordingprofile.cpp         | 16 ++++++++++-
  5 files changed, 58 insertions(+), 10 deletions(-)
 
-diff --git mythtv/configure mythtv/configure
-index 27958e1..1d083dc 100755
---- mythtv/configure
-+++ mythtv/configure
-@@ -2240,7 +2240,7 @@ enable hdpvr
- enable iptv
+diff --git a/mythtv/configure b/mythtv/configure
+index 4aa8727..8551480 100755
+--- a/mythtv/configure
++++ b/mythtv/configure
+@@ -2620,7 +2620,7 @@ enable ceton
+ enable hdpvr
  enable ivtv
  enable asi
 -enable lamemp3
@@ -24,7 +24,7 @@ index 27958e1..1d083dc 100755
  enable libass
  enable libcec
  enable libcrypto
-@@ -4453,10 +4453,6 @@ enabled asi && check_cc <<EOF || disable asi
+@@ -5377,10 +5377,6 @@ enabled asi && check_cc <<EOF || disable asi
  int main(void) { return 1; }
  EOF
  
@@ -35,7 +35,7 @@ index 27958e1..1d083dc 100755
  # Qt dependency checks
  if test $target_os = mingw32 ; then
      qt_inc="-I`cd $(${qmake} -query QT_INSTALL_HEADERS); pwd`"
-@@ -5210,6 +5206,8 @@ enabled audio_oss         && append CCONFIG "using_oss"
+@@ -6189,6 +6185,8 @@ enabled audio_oss         && append CCONFIG "using_oss"
  enabled audio_pulse       && append CCONFIG "using_pulse"
  enabled audio_pulseoutput && append CCONFIG "using_pulseoutput"
  
@@ -44,10 +44,35 @@ index 27958e1..1d083dc 100755
  if enabled darwin_da; then
    append CCONFIG "darwin_da"
    echo "SLIB_UNINSTALL_EXTRA_CMD=${SLIB_UNINSTALL_EXTRA_CMD}" >> $TMPMAK
-diff --git mythtv/libs/libmythtv/NuppelVideoRecorder.cpp mythtv/libs/libmythtv/NuppelVideoRecorder.cpp
-index a9fbad8..4ce879b 100644
---- mythtv/libs/libmythtv/NuppelVideoRecorder.cpp
-+++ mythtv/libs/libmythtv/NuppelVideoRecorder.cpp
+diff --git a/mythtv/libs/libmythtv/libmythtv.pro b/mythtv/libs/libmythtv/libmythtv.pro
+index c74cbce..25ed783 100644
+--- a/mythtv/libs/libmythtv/libmythtv.pro
++++ b/mythtv/libs/libmythtv/libmythtv.pro
+@@ -756,6 +756,12 @@ using_backend {
+         DEFINES += USING_ASI
+     }
+ 
++    # LAME MP3 Compression enabled
++    using_lame {
++        DEFINES += LAME
++        LIBS += -lmp3lame
++    }
++
+     DEFINES += USING_BACKEND
+ }
+ 
+@@ -798,7 +804,6 @@ LIBS += -lmythservicecontracts-$$LIBVERSION
+ using_mheg: LIBS += -L../libmythfreemheg -lmythfreemheg-$$LIBVERSION
+ using_live: LIBS += -L../libmythlivemedia -lmythlivemedia-$$LIBVERSION
+ using_hdhomerun: LIBS += -L../../external/libhdhomerun -lmythhdhomerun-$$LIBVERSION
+-using_backend: LIBS += -lmp3lame
+ LIBS += $$EXTRA_LIBS $$QMAKE_LIBS_DYNLOAD
+ 
+ POST_TARGETDEPS += ../libmyth/libmyth-$${MYTH_SHLIB_EXT}
+diff --git a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp b/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp
+index 681bf5d..9712ce0 100644
+--- a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp
++++ b/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp
 @@ -94,7 +94,11 @@ NuppelVideoRecorder::NuppelVideoRecorder(TVRec *rec, ChannelBase *channel) :
      pid = pid2 = 0;
      inputchannel = 1;
@@ -75,7 +100,7 @@ index a9fbad8..4ce879b 100644
  
      transcoding = false;
  
-@@ -204,10 +210,12 @@ NuppelVideoRecorder::~NuppelVideoRecorder(void)
+@@ -205,10 +211,12 @@ NuppelVideoRecorder::~NuppelVideoRecorder(void)
      }
      if (rtjc)
          delete rtjc;
@@ -88,7 +113,7 @@ index a9fbad8..4ce879b 100644
      if (strm)
          delete [] strm;
      if (audio_device)
-@@ -328,8 +336,10 @@ void NuppelVideoRecorder::SetOption(const QString &opt, int value)
+@@ -329,8 +337,10 @@ void NuppelVideoRecorder::SetOption(const QString &opt, int value)
          hmjpg_vdecimation = value;
      else if (opt == "audiocompression")
          compressaudio = value;
@@ -99,7 +124,7 @@ index a9fbad8..4ce879b 100644
      else if (opt == "samplerate")
          audio_samplerate = value;
      else if (opt == "audioframesize")
-@@ -429,13 +439,16 @@ void NuppelVideoRecorder::SetOptionsFromProfile(RecordingProfile *profile,
+@@ -430,13 +440,16 @@ void NuppelVideoRecorder::SetOptionsFromProfile(RecordingProfile *profile,
      if ((tmp = profile->byName("audiocodec")))
          setting = tmp->getValue();
  
@@ -117,7 +142,7 @@ index a9fbad8..4ce879b 100644
      {
          SetOption("audiocompression", 0);
          SetIntOption(profile, "samplerate");
-@@ -752,7 +765,6 @@ void NuppelVideoRecorder::Initialize(void)
+@@ -753,7 +766,6 @@ void NuppelVideoRecorder::Initialize(void)
  int NuppelVideoRecorder::AudioInit(bool skipdevice)
  {
      int blocksize;
@@ -125,7 +150,7 @@ index a9fbad8..4ce879b 100644
  
      if (!skipdevice)
      {
-@@ -790,6 +802,8 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
+@@ -791,6 +803,8 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
  
      if (compressaudio)
      {
@@ -134,7 +159,7 @@ index a9fbad8..4ce879b 100644
          gf = lame_init();
          lame_set_bWriteVbrTag(gf, 0);
          lame_set_quality(gf, mp3quality);
-@@ -810,9 +824,17 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
+@@ -811,9 +825,17 @@ int NuppelVideoRecorder::AudioInit(bool skipdevice)
                  "AudioInit(): lame support requires 16bit audio");
              compressaudio = false;
          }
@@ -152,7 +177,7 @@ index a9fbad8..4ce879b 100644
  
      return 0;
  }
-@@ -2156,6 +2178,7 @@ void NuppelVideoRecorder::WriteHeader(void)
+@@ -2165,6 +2187,7 @@ void NuppelVideoRecorder::WriteHeader(void)
          moredata.rtjpeg_chroma_filter = M2;
      }
  
@@ -160,7 +185,7 @@ index a9fbad8..4ce879b 100644
      if (compressaudio)
      {
          moredata.audio_fourcc = FOURCC_LAME;
-@@ -2163,6 +2186,7 @@ void NuppelVideoRecorder::WriteHeader(void)
+@@ -2172,6 +2195,7 @@ void NuppelVideoRecorder::WriteHeader(void)
          moredata.audio_quality = mp3quality;
      }
      else
@@ -168,7 +193,7 @@ index a9fbad8..4ce879b 100644
      {
          moredata.audio_fourcc = FOURCC_RAWA;
      }
-@@ -3149,6 +3173,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
+@@ -3145,6 +3169,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
          }
      }
  
@@ -176,7 +201,7 @@ index a9fbad8..4ce879b 100644
      if (compressaudio)
      {
          char mp3gapless[7200];
-@@ -3209,6 +3234,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
+@@ -3205,6 +3230,7 @@ void NuppelVideoRecorder::WriteAudio(unsigned char *buf, int fnum, int timecode)
          audiobytes += audio_buffer_size;
      }
      else
@@ -184,10 +209,10 @@ index a9fbad8..4ce879b 100644
      {
          frameheader.comptype = '0'; // uncompressed audio
          frameheader.packetlength = audio_buffer_size;
-diff --git mythtv/libs/libmythtv/NuppelVideoRecorder.h mythtv/libs/libmythtv/NuppelVideoRecorder.h
-index 33cc2a7..fb54dd8 100644
---- mythtv/libs/libmythtv/NuppelVideoRecorder.h
-+++ mythtv/libs/libmythtv/NuppelVideoRecorder.h
+diff --git a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.h b/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.h
+index 2b8ff1c..9aaae05 100644
+--- a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.h
++++ b/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.h
 @@ -6,6 +6,8 @@
  
  #include <sys/time.h>
@@ -203,9 +228,9 @@ index 33cc2a7..fb54dd8 100644
  #endif
 +#endif
  
- #undef HAVE_AV_CONFIG_H
- extern "C" {
-@@ -181,10 +184,12 @@ class MTV_PUBLIC NuppelVideoRecorder : public V4LRecorder, public CC608Input
+ #include "mythconfig.h"
+ 
+@@ -182,10 +185,12 @@ class MTV_PUBLIC NuppelVideoRecorder : public V4LRecorder, public CC608Input
  
      bool transcoding;
  
@@ -218,35 +243,10 @@ index 33cc2a7..fb54dd8 100644
  
      RTjpeg *rtjc;
  
-diff --git mythtv/libs/libmythtv/libmythtv.pro mythtv/libs/libmythtv/libmythtv.pro
-index c815431..ee43f1e 100644
---- mythtv/libs/libmythtv/libmythtv.pro
-+++ mythtv/libs/libmythtv/libmythtv.pro
-@@ -664,6 +664,12 @@ using_backend {
-         DEFINES += USING_ASI
-     }
- 
-+    # LAME MP3 Compression enabled
-+    using_lame {
-+        DEFINES += LAME
-+        LIBS += -lmp3lame
-+    }
-+
-     DEFINES += USING_BACKEND
- }
- 
-@@ -708,7 +714,6 @@ LIBS += -lmythservicecontracts-$$LIBVERSION
- using_mheg: LIBS += -L../libmythfreemheg -lmythfreemheg-$$LIBVERSION
- using_live: LIBS += -L../libmythlivemedia -lmythlivemedia-$$LIBVERSION
- using_hdhomerun: LIBS += -L../libmythhdhomerun -lmythhdhomerun-$$LIBVERSION
--using_backend: LIBS += -lmp3lame
- LIBS += $$EXTRA_LIBS $$QMAKE_LIBS_DYNLOAD
- 
- POST_TARGETDEPS += ../libmyth/libmyth-$${MYTH_SHLIB_EXT}
-diff --git mythtv/libs/libmythtv/recordingprofile.cpp mythtv/libs/libmythtv/recordingprofile.cpp
-index baa73ab..332d261 100644
---- mythtv/libs/libmythtv/recordingprofile.cpp
-+++ mythtv/libs/libmythtv/recordingprofile.cpp
+diff --git a/mythtv/libs/libmythtv/recordingprofile.cpp b/mythtv/libs/libmythtv/recordingprofile.cpp
+index 71ed05a..042a7e0 100644
+--- a/mythtv/libs/libmythtv/recordingprofile.cpp
++++ b/mythtv/libs/libmythtv/recordingprofile.cpp
 @@ -79,6 +79,7 @@ class AudioCodecName: public ComboBoxSetting, public RecordingProfileStorage
      }
  };
@@ -312,5 +312,5 @@ index baa73ab..332d261 100644
          if (!query.exec())
          {
 -- 
-1.8.1
+1.8.4
 
