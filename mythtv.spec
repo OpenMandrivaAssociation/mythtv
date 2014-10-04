@@ -411,7 +411,7 @@ This package contains the PHP bindings for MythTV.
 %package plugin-browser
 Summary:        Full web browser for MythTV
 URL:            http://www.mythtv.org/
-Group:          Video/Television
+Group:          Video
 Obsoletes:      mythbrowser < 0.20a-7
 Requires:       mythtv-frontend >= %{version}
 
@@ -420,7 +420,7 @@ MythBrowser is a full web browser for MythTV.
 
 %package plugin-gallery
 Summary:        Gallery/slideshow module for MythTV
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 Obsoletes:      mythgallery < 0.20a-7
 
@@ -429,7 +429,7 @@ A gallery/slideshow module for MythTV.
 
 %package plugin-game
 Summary:        Game frontend for MythTV
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 Obsoletes:      mythgame < 0.20a-7
 
@@ -438,7 +438,7 @@ A game frontend for MythTV.
 
 %package plugin-music
 Summary:        The music player add-on module for MythTV
-Group:          Video/Television
+Group:          Video
 #Requires:       cdparanoia
 Requires:       mythtv-frontend >= %{version}
 Obsoletes:      mythmusic < 0.20a-7
@@ -453,7 +453,7 @@ codecs that may be covered by software patents.
 
 %package plugin-netvision
 Summary:        NetVision for MythTV
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 Requires:	python2-oauth
 
@@ -462,7 +462,7 @@ NetVision for MythTV. View popular media website content.
 
 %package plugin-news
 Summary:        RSS News feed plugin for MythTV
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 Obsoletes:      mythnews < 0.20a-7
 
@@ -471,7 +471,7 @@ An RSS News feed plugin for MythTV.
 
 %package plugin-weather
 Summary:        MythTV module that displays a weather forecast
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 Obsoletes:      mythweather < 0.20a-7
 
@@ -480,7 +480,7 @@ A MythTV module that displays a weather forcast.
 
 %package plugin-zoneminder
 Summary:        Security camera plugin for MythTV
-Group:          Video/Television
+Group:          Video
 Requires:       mythtv-frontend >= %{version}
 
 %description plugin-zoneminder
@@ -488,7 +488,7 @@ A security camera plugin for MythTV.
 
 %package plugin-archive
 Summary:        Creates DVDs from your recorded shows
-Group:          Video/Television
+Group:          Video
 Requires:       dvd+rw-tools
 Requires:       dvdauthor
 Requires:       ffmpeg
@@ -761,6 +761,9 @@ fi
 rm -f %{buildroot}%{_libdir}/libmythqjson.prl \
 rm -f %{buildroot}%{_includedir}/zmq*.h* \
       %{buildroot}%{_libdir}/pkgconfig/libmythzmq.pc
+
+rm -f %{buildroot}%{_datadir}/mythtv/contrib/development/tsc-calibrate/tsc-calibrate.c
+rm -f %{buildroot}%{_datadir}/mythtv/mytharchive/themes/burnthemestrings.h
 
 find %{buildroot} -name *.a -delete
 
