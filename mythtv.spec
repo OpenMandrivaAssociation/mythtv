@@ -343,7 +343,7 @@ Group:		Video
 Requires:	%{libname} = %{version}-%{release}
 Requires:	mythtv-common = %{version}-%{release}
 Requires:	qt4-database-plugin-mysql
-Requires(pre,post,preun,postun):	rpm-helper
+Requires(pre,postun):	rpm-helper
 
 %description backend
 This package contains only the server software, which provides video
@@ -795,12 +795,6 @@ find %{buildroot} -name *.a -delete
 
 %postun backend
 %_postun_userdel mythtv
-
-%post backend
-%_post_service mythbackend
-
-%preun backend
-%_preun_service mythbackend
 
 %files doc
 %doc mythtv/README mythtv/UPGRADING mythtv/AUTHORS mythtv/COPYING mythtv/FAQ
