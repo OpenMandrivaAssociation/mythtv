@@ -1,11 +1,6 @@
-%define gitversion v0.27.3-164-g629f7
-%define fixesdate 20140923
-%define rel 2
-
-%if %{fixesdate}
-%define release %{fixesdate}.%{rel}
-%else
-%define release %{rel}
+%if "%{distepoch}" < "2015.0"
+%define	__python2	%{_bindir}/python2
+%define	py2_puresitedir	%{py_puresitedir}
 %endif
 
 %define api	0.27
@@ -83,10 +78,24 @@
 %{?_with_x264:			%global build_x264 1}
 %{?_with_xvid:			%global build_xvid 1}
 
+%if "%{disttag}" == "mdk"
+%define build_directfb		1
+%define build_dts		1
+%define build_faac		1
+%define build_faad		1
+%define build_lame		1
+%define build_x264		1
+%define build_xvid		1
+# Can be enabled later
+%define build_crystalhd		1
+%endif
+
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.27.3
-Release:	%{release}%{?extrarelsuffix}
+Version:	0.27.4
+%define	gitrev	v0.27.4-4-gb305e
+%define	fixesdate 20141022
+Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
@@ -101,15 +110,20 @@ Source7:	%{name}-48.png
 Source10:	%{name}.rpmlintrc
 
 %if %{fixesdate}
-Patch0:		fixes-%{gitversion}.patch
+Patch0:		fixes-%{gitrev}.patch
 %endif
-Patch100: 0100-lame-Allow-building-without-lame-libraries.patch
-Patch101: 0101-lame-Allow-building-plugins-without-lame-libraries.patch
-Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
-Patch103: 0103-Fix-dns-sd-detection.patch
-Patch104: 0104-Support-libcec-2.x.patch
-Patch105: 0105-Use-system-build-flags.patch
-Patch106: 0106-Fix-zeromq-libdir-path-on-some-systems.patch
+Patch100:	0100-lame-Allow-building-without-lame-libraries.patch
+Patch101:	0101-lame-Allow-building-plugins-without-lame-libraries.patch
+Patch102:	0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
+Patch103:	0103-Fix-dns-sd-detection.patch
+Patch104:	0104-Support-libcec-2.x.patch
+Patch105:	0105-Use-system-build-flags.patch
+Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
+
+Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
+Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
+Patch202:	0001-try-fix-auto-generation-of-perl-Makefile.patch
+Patch203:	0001-fix-to-use-mythtv-s-own-header.patch
 
 BuildRequires:	gdb
 BuildRequires:	libtool
@@ -118,10 +132,10 @@ BuildRequires:	imagemagick
 BuildRequires:	perl(Date::Manip)
 BuildRequires:	perl(DBD::mysql)
 BuildRequires:	perl(DBI)
-BuildRequires:	python2-lxml
+BuildRequires:	pythonegg(lxml)
 BuildRequires:	python-mysql
 BuildRequires:	python-urlgrabber
-BuildRequires:	python2-oauth
+BuildRequires:	pythonegg(oauth)
 BuildRequires:	yasm
 BuildRequires:	perl-devel
 BuildRequires:	qt5-devel
@@ -222,7 +236,7 @@ into the NuppelVideo format.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %package -n %{libname}
@@ -239,7 +253,7 @@ codecs that may be covered by software patents.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %define mythtvlibs libmyth libmavc libmavd libmavfi libmavfo libmavu libmythbase libmythfreemheg libmythhdhomerun libmythmetadata libmnzmqt libmpp libmythprotoserver libmqjson libmythservicecontracts libmswr libmsws libmythui libmythupnp libmzmq 
@@ -277,7 +291,7 @@ codecs that may be covered by software patents.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %package themes-base
@@ -320,7 +334,7 @@ codecs that may be covered by software patents.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %package backend
@@ -347,7 +361,7 @@ into the NuppelVideo format.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %package setup
@@ -372,7 +386,7 @@ into the NuppelVideo format.
 %endif
 %if %{fixesdate}
 This package is based on the MythTV "fixes" branch at 
-revision %{gitversion}
+revision %{gitrev}
 %endif
 
 %package doc
@@ -455,7 +469,7 @@ codecs that may be covered by software patents.
 Summary:        NetVision for MythTV
 Group:          Video
 Requires:       mythtv-frontend >= %{version}
-Requires:	python2-oauth
+Requires:	pythonegg(oauth)
 
 %description plugin-netvision
 NetVision for MythTV. View popular media website content.
@@ -537,7 +551,7 @@ for file in mythbackend.service \
             mythbackend.sysconfig \
             mythbackend.logrotate; do
   sed -e's|@logdir@|%{_logdir}|g' \
-      -e's|@rundir@|%{_var}/run|g' \
+      -e's|@rundir@|%{_varrun}|g' \
       -e's|@sysconfdir@|%{_sysconfdir}|g' \
       -e's|@sysconfigdir@|%{_sysconfdir}/sysconfig|g' \
       -e's|@initdir@|%{_initrddir}|g' \
@@ -561,56 +575,85 @@ echo "SOURCE_VERSION=%{version}-%{release}" >VERSION
 
 %build
 pushd mythtv
-./configure \
-	--cc=clang \
-	--cxx=clang++ \
-	--prefix=%{_prefix} \
-	--libdir-name=%{_lib} \
-	--python=%{__python2} \
-	--enable-runtime-cpudetect \
-	--enable-dvb \
-	--enable-opengl-video \
-	--without-bindings=perl \
-	--extra-cxxflags="%{optflags}" \
-	--extra-ldflags="%{ldflags}" \
-	--enable-vdpau \
-	--enable-vaapi \
+%global debugcflags -gdwarf-4 -Wstrict-aliasing=2
+./configure	--cc=clang \
+		--cxx=clang++ \
+		--logfile=config.log \
+		--prefix=%{_prefix} \
+		--libdir-name=%{_lib} \
+		--python=%{__python2} \
+		--enable-runtime-cpudetect \
+		--enable-dvb \
+		--enable-opengl-video \
+		--with-bindings=perl,php,python \
+		--extra-cxxflags="%{optflags} -Ofast" \
+		--extra-ldflags="%{ldflags}" \
+		--enable-sdl \
+		--enable-vdpau \
+		--enable-vaapi \
 %if %{build_crystalhd}
-	--enable-crystalhd \
+		--enable-crystalhd \
 %endif
-	--enable-libfftw3 \
-	--enable-libdns-sd \
-	--enable-libvpx \
+		--enable-libfftw3 \
+		--enable-libdns-sd \
+		--enable-libvpx \
 %if %{build_plf}
-	--enable-nonfree \
+		--enable-nonfree \
 %endif
-%if %{build_x264}
-	--enable-libx264 \
+		--enable-dvb \
+		--enable-opengl-video \
+		--with-bindings=perl,php,python \
+		--enable-libass \
+		--enable-v4l2 \
+		--enable-firewire \
+		--disable-libfdk-aac \
+		--enable-libfdk-aac-dlopen \
+		--disable-libopencore-amrnb \
+		--enable-libopencore-amrnb-dlopen \
+		--disable-libopencore-amrwb \
+		--enable-libopencore-amrwb-dlopen \
+		--disable-libfaac \
+%if %{with faac}
+		--enable-libfaac-dlopen \
 %endif
-%if %{build_xvid}
-	--enable-libxvid \
-%endif
-%if %{build_faac}
-	--enable-libfaac \
-%endif
-%if %{build_lame}
-	--enable-libmp3lame \
-%endif
-	--enable-firewire
-
+		--disable-libx264 \
+		--enable-libx264-dlopen \
+		--disable-libxvid \
+		--enable-libxvid-dlopen \
+		--disable-libmp3lame \
+		--enable-libmp3lame-dlopen \
+		--enable-postproc \
+		--enable-pthreads \
+		--enable-libtheora \
+		--enable-libdc1394 \
+		--enable-libschroedinger \
+		--enable-librtmp \
+		--enable-libspeex \
+		--enable-libfreetype \
+		--enable-libnut \
+		--enable-libgsm \
+		--enable-libcelt \
+		--enable-libopenjpeg \
+		--enable-libmodplug \
+		--enable-libv4l2 \
+		--enable-openal \
+		--enable-libsoxr \
+		--enable-libtwolame \
+		--enable-libopus \
+		--enable-libilbc \
+		--enable-libiec61883 \
+		--enable-libbluray \
+		--enable-fontconfig \
+		--enable-libflite \
+		--disable-decoder=aac \
+		--disable-encoder=aac
 %make
-
-# This is easier to do ourselves
-pushd bindings/perl
-%__perl Makefile.PL INSTALLDIRS=vendor
-%make
-popd
 popd
 
 # Install temporarily to compile plugins
-mkdir temp
-temp=$(pwd)/temp
-make -C mythtv install INSTALL_ROOT=$temp
+mkdir -p temp
+temp=$PWD/temp
+make -C mythtv install INSTALL_ROOT=$temp DESTDIR=$temp
 export LD_LIBRARY_PATH=$temp%{_libdir}:$LD_LIBRARY_PATH
 
 pushd mythplugins
@@ -629,18 +672,14 @@ echo "INCLUDEPATH += %{_includedir}" >> settings.pro
 echo "LIBS *= -L$temp%{_libdir}" >> settings.pro
 echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 
-./configure \
-  --prefix=${temp}%{_prefix} \
-  --libdir=${_libdir} \
-  --libdir-name=${_lib} \
-  --python=%{__python2} \
-  --enable-all \
-  --libdir-name=%{_lib} \
-%if %{build_plf}
-  --enable-mp3lame
-%else
-  --disable-mp3lame
-%endif
+./configure	--prefix=${temp}%{_prefix} \
+		--libdir=%{_libdir} \
+		--libdir-name=%{_lib} \
+		--python=%{__python2} \
+		--enable-all \
+		--enable-new-exif \
+		--disable-mp3lame \
+		--enable-mp3lame-dlopen
 
 %make
 
@@ -650,42 +689,29 @@ popd
 %install
 INSTALL_ROOT=%{buildroot}; export INSTALL_ROOT
 
-pushd mythtv
-%makeinstall_std
+%makeinstall_std -C mythtv
 
-pushd bindings/perl
-%makeinstall_std
-popd
+%makeinstall_std -C mythtv/bindings/perl
 
 %if %{maenable}
 %multiarch_includes %{buildroot}%{_includedir}/mythtv/mythconfig.h
 %endif
 
-mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv/recordings
 mkdir -p %{buildroot}%{_var}/cache/mythtv
 mkdir -p %{buildroot}%{_logdir}/mythtv
-mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
-mkdir -p %{buildroot}%{_unitdir}
-mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
-install -p mythbackend.service %{buildroot}%{_unitdir}/mythbackend.service
-install -p mythbackend.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
-install -p mythbackend.logrotate  %{buildroot}%{_sysconfdir}/logrotate.d
+install -p -m644 mythbackend.service -D %{buildroot}%{_unitdir}/mythbackend.service
+install -p -m644 mythbackend.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
+install -p -m644 mythbackend.logrotate -D %{buildroot}%{_sysconfdir}/logrotate.d/mythbackend.logrotate
 
 # wmsession.d for mythfrontend
-mkdir -p %{buildroot}%{_sysconfdir}/X11/wmsession.d
-install -p %{SOURCE4} %{buildroot}%{_sysconfdir}/X11/wmsession.d
+install -p -m644 %{SOURCE4} -D %{buildroot}%{_sysconfdir}/X11/wmsession.d/99MythFrontend
 
 # icon
-install -d -m755 %{buildroot}/%{_miconsdir}
-install -m755 %{SOURCE5} %{buildroot}/%{_miconsdir}/%{name}.png
-
-install -d -m755 %{buildroot}/%{_iconsdir}
-install -m755 %{SOURCE6} %{buildroot}/%{_iconsdir}/%{name}.png
-
-install -d -m755 %{buildroot}/%{_liconsdir}
-install -m755 %{SOURCE7} %{buildroot}/%{_liconsdir}/%{name}.png
+install -p -m755 %{SOURCE5} -D %{buildroot}%{_miconsdir}/%{name}.png
+install -p -m755 %{SOURCE6} -D %{buildroot}%{_iconsdir}/%{name}.png
+install -p -m755 %{SOURCE7} -D %{buildroot}%{_liconsdir}/%{name}.png
 
 # Mandriva Menu entrys
 install -d -m755 %{buildroot}%{_datadir}/applications
@@ -719,16 +745,12 @@ EOF
 mkdir -p %{buildroot}%{_libdir}/mythtv/plugins
 
 install -d -m755 %{buildroot}%{_datadir}/mythtv/initialdb
-install -m644 database/* %{buildroot}%{_datadir}/mythtv/initialdb
+install -m644 mythtv/database/* %{buildroot}%{_datadir}/mythtv/initialdb
 
 # install a few useful contrib scripts
-mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -ar contrib %{buildroot}%{_datadir}/%{name}
+cp -a mythtv/contrib %{buildroot}%{_datadir}/mythtv
 
-popd
-
-pushd mythplugins
-%makeinstall_std
+%makeinstall_std -C mythplugins
 
 #mythgallery
 mkdir -p %{buildroot}%{_localstatedir}/lib/pictures
@@ -736,11 +758,6 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/pictures
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythmusic
 
 mkdir -p %{buildroot}{%_docdir}/mythtv-plugin-{browser,gallery,game,music,netvision,news,weather,video,zoneminder}
-
-popd
-
-# Remove python egg-info as it's pointless
-rm -f %{buildroot}%{py2_puresitedir}/MythTV-*.egg-info
 
 # (cg) We cover the package license so no need to include it separately
 rm -f %{buildroot}%{_datadir}/%{name}/fonts/tiresias_gpl3.txt
@@ -1211,6 +1228,7 @@ find %{buildroot} -name *.a -delete
 %files -n python-mythtv
 %{_bindir}/mythpython
 %{py2_puresitedir}/MythTV
+%{py2_puresitedir}/MythTV*.egg-info
 
 %files -n php-mythtv
 %{_datadir}/%{name}/bindings/php
