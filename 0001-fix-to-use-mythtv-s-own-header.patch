@@ -1,0 +1,27 @@
+From bd9a875f17d3819d9d512326ae67180fe5e01bb8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Per=20=C3=98yvind=20Karlsen=20=28proyvind=29?=
+ <peroyvind@mandriva.org>
+Date: Sun, 30 Nov 2014 06:45:31 +0100
+Subject: [PATCH] fix to use mythtv's own header..
+
+---
+ mythtv/external/FFmpeg/libavdevice/iec61883.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/mythtv/external/FFmpeg/libavdevice/iec61883.c b/mythtv/external/FFmpeg/libavdevice/iec61883.c
+index a63566e..5b43a02 100644
+--- a/mythtv/external/FFmpeg/libavdevice/iec61883.c
++++ b/mythtv/external/FFmpeg/libavdevice/iec61883.c
+@@ -29,7 +29,8 @@
+ #include <libavc1394/rom1394.h>
+ #include <libiec61883/iec61883.h>
+ #include "libavformat/dv.h"
+-#include "libavformat/mpegts.h"
++//#include "libavformat/mpegts.h"
++#include "libavformat/mpegts-mythtv.h"
+ #include "libavutil/opt.h"
+ #include "avdevice.h"
+ 
+-- 
+1.9.0
+
