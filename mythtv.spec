@@ -675,6 +675,7 @@ echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 ./configure	--prefix=${temp}%{_prefix} \
 		--libdir=%{_libdir} \
 		--libdir-name=%{_lib} \
+		--logfile=config.log \
 		--python=%{__python2} \
 		--enable-all \
 		--enable-new-exif \
