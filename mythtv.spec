@@ -791,6 +791,7 @@ find %{buildroot} -name *.a -delete
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
 %{_bindir}/gpasswd -a mythtv audio &>/dev/null
+%{_bindir}/gpasswd -a mythtv tty &>/dev/null
 %{_bindir}/gpasswd -a mythtv video &>/dev/null
 
 %postun backend
