@@ -37,7 +37,7 @@ After=network.target mysqld.service
 
 [Service]
 Type=simple
-Environment=MYTHCONFDIR=@syscondir@/mythtv
+Environment=MYTHCONFDIR=@sysconfdir@/mythtv
 User=mythtv
 ExecStart=@bindir@/mythbackend --logpath @logdir@/mythtv/
 
