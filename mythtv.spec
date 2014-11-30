@@ -122,7 +122,6 @@ Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
 
 Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
 Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
-Patch202:	0001-try-fix-auto-generation-of-perl-Makefile.patch
 Patch203:	0001-fix-to-use-mythtv-s-own-header.patch
 
 BuildRequires:	gdb
@@ -603,6 +602,7 @@ pushd mythtv
 		--enable-dvb \
 		--enable-opengl-video \
 		--with-bindings=perl,php,python \
+		--perl-config-opts=INSTALLDIRS=vendor \
 		--enable-libass \
 		--enable-v4l2 \
 		--enable-firewire \
@@ -791,6 +791,7 @@ find %{buildroot} -name *.a -delete
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
 %{_bindir}/gpasswd -a mythtv audio &>/dev/null
+%{_bindir}/gpasswd -a mythtv input &>/dev/null
 %{_bindir}/gpasswd -a mythtv tty &>/dev/null
 %{_bindir}/gpasswd -a mythtv video &>/dev/null
 
