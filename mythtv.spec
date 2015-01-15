@@ -779,7 +779,7 @@ Type=Application
 Categories=Qt;AudioVideo;Video;TV;Recorder;X-MandrivaLinux-Multimedia-Video;
 EOF
 
-cat > README.install.urpmi <<EOF
+cat > mythtv/README.install.urpmi <<EOF
 You can import the initial database by running:
 mysql -u root -p < %{_datadir}/mythtv/initialdb/mc.sql
 (you can omit -p if you do not have the password set)
