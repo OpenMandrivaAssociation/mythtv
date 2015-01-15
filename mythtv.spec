@@ -41,6 +41,7 @@
 %define build_dts		0
 %define build_faac		0
 %define build_faad		0
+%define build_fdk_aac		0
 %define build_lame		0
 %define build_x264		0
 %define build_xvid		0
@@ -55,6 +56,7 @@
 %define build_dts		1
 %define build_faac		1
 %define build_faad		1
+%define build_fdk_aac		1
 %define build_lame		1
 # build broken against current x264 as of 2010-01, re-enable when fixed
 %define build_x264		1
@@ -66,6 +68,7 @@
 %{?_without_dts:		%global build_dts 0}
 %{?_without_faac:		%global build_faac 0}
 %{?_without_faad:		%global build_faad 0}
+%{?_without_fdk_aac:               %global build_fdk_aac 0}
 %{?_without_lame:		%global build_lame 0}
 %{?_without_x264:		%global build_x264 0}
 %{?_without_xvid:		%global build_xvid 0}
@@ -74,6 +77,7 @@
 %{?_with_dts:			%global build_dts 1}
 %{?_with_faac:			%global build_faac 1}
 %{?_with_faad:			%global build_faad 1}
+%{?_with_fdk_aac:               %global build_fdk_aac 1}
 %{?_with_lame:			%global build_lame 1}
 %{?_with_x264:			%global build_x264 1}
 %{?_with_xvid:			%global build_xvid 1}
@@ -83,6 +87,7 @@
 %define build_dts		1
 %define build_faac		1
 %define build_faad		1
+%define build_fdk_aac		1
 %define build_lame		1
 %define build_x264		1
 %define build_xvid		1
@@ -201,6 +206,9 @@ BuildRequires:	libfaac-devel
 %endif
 %if %{build_faad}
 BuildRequires:	libfaad2-devel
+%endif
+%if %{build_fdk_aac}
+BuildRequires:	pkgconfig(fdk-aac)
 %endif
 %if %{build_directfb}
 BuildRequires:	pkgconfig(directfb)
@@ -604,7 +612,7 @@ pushd mythtv
 		--enable-dvb \
 		--enable-opengl-video \
 		--with-bindings=perl,php,python \
-		--extra-cxxflags="%{optflags} -Ofast" \
+		--extra-cxxflags="%{optflags} -fPIC -Ofast" \
 		--extra-ldflags="%{ldflags}" \
 		--enable-sdl \
 		--enable-vdpau \
@@ -625,14 +633,16 @@ pushd mythtv
 		--enable-libass \
 		--enable-v4l2 \
 		--enable-firewire \
-		--disable-libfdk-aac \
-		--enable-libfdk-aac-dlopen \
+                --disable-libfdk-aac \
+%if %{build_fdk_aac}
+                --enable-libfdk-aac-dlopen \
+%endif
 		--disable-libopencore-amrnb \
 		--enable-libopencore-amrnb-dlopen \
 		--disable-libopencore-amrwb \
 		--enable-libopencore-amrwb-dlopen \
 		--disable-libfaac \
-%if %{with faac}
+%if %{build_faac}
 		--enable-libfaac-dlopen \
 %endif
 		--disable-libx264 \
