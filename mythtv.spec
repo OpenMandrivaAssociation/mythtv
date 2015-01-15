@@ -180,6 +180,7 @@ BuildRequires:  pkgconfig(opus)
 BuildRequires:  pkgconfig(libilbc)
 BuildRequires:  pkgconfig(libmodplug)
 BuildRequires:  pkgconfig(libv4l2)
+BuildRequires:	dc1394-devel
 %if %{build_crystalhd}
 BuildRequires:	crystalhd-devel
 %endif
