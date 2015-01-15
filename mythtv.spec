@@ -164,6 +164,22 @@ BuildRequires:	pkgconfig(xv)
 BuildRequires:	pkgconfig(xvmc)
 BuildRequires:	pkgconfig(xxf86vm)
 BuildRequires:	pkgconfig(vdpau)
+BuildRequires:  gsm-devel
+BuildRequires:  pkgconfig(theora)
+BuildRequires:  pkgconfig(schroedinger-1.0)
+BuildRequires:  pkgconfig(librtmp)
+BuildRequires:  pkgconfig(speex)
+BuildRequires:  libnut-devel
+BuildRequires:  pkgconfig(freetype2)
+BuildRequires:  pkgconfig(celt)
+BuildRequires:  openjpeg-devel
+BuildRequires:  pkgconfig(openal)
+BuildRequires:  pkgconfig(soxr)
+BuildRequires:  pkgconfig(twolame)
+BuildRequires:  pkgconfig(opus)
+BuildRequires:  pkgconfig(libilbc)
+BuildRequires:  pkgconfig(libmodplug)
+BuildRequires:  pkgconfig(libv4l2)
 %if %{build_crystalhd}
 BuildRequires:	crystalhd-devel
 %endif
