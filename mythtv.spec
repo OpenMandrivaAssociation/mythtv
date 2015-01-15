@@ -128,6 +128,7 @@ BuildRequires:	gdb
 BuildRequires:	libtool
 BuildRequires:	autoconf
 BuildRequires:	imagemagick
+BuildRequires:	flite-devel
 BuildRequires:	perl(Date::Manip)
 BuildRequires:	perl(DBD::mysql)
 BuildRequires:	perl(DBI)
