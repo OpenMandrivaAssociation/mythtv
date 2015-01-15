@@ -124,6 +124,7 @@ Patch103:	0103-Fix-dns-sd-detection.patch
 Patch104:	0104-Support-libcec-2.x.patch
 Patch105:	0105-Use-system-build-flags.patch
 Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
+Patch107:	0107-add-missing-qt5-include.patch
 
 Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
 Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
