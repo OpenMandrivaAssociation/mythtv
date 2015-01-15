@@ -1,0 +1,186 @@
+diff --git a/mythtv/libs/libmythbase/mythversion.h b/mythtv/libs/libmythbase/mythversion.h
+index b097b21..26d37ff 100644
+--- a/mythtv/libs/libmythbase/mythversion.h
++++ b/mythtv/libs/libmythbase/mythversion.h
+@@ -12,7 +12,7 @@
+ /// Update this whenever the plug-in ABI changes.
+ /// Including changes in the libmythbase, libmyth, libmythtv, libmythav* and
+ /// libmythui class methods in exported headers.
+-#define MYTH_BINARY_VERSION "0.27.20140719-1"
++#define MYTH_BINARY_VERSION "0.27.20141016-1"
+ 
+ /** \brief Increment this whenever the MythTV network protocol changes.
+  *
+diff --git a/mythtv/libs/libmythtv/datadirect.cpp b/mythtv/libs/libmythtv/datadirect.cpp
+index 77cdef5..714a0c1 100644
+--- a/mythtv/libs/libmythtv/datadirect.cpp
++++ b/mythtv/libs/libmythtv/datadirect.cpp
+@@ -539,8 +539,8 @@ DataDirectProcessor::DataDirectProcessor(uint lp, QString user, QString pass) :
+     m_userid(user),                   m_password(pass),
+     m_tmpDir("/tmp"),                 m_cacheData(false),
+     m_inputFilename(""),              m_tmpPostFile(QString::null),
+-    m_tmpResultFile(QString::null),   m_cookieFile(QString::null),
+-    m_cookieFileDT()
++    m_tmpResultFile(QString::null),   m_tmpDDPFile(QString::null),
++    m_cookieFile(QString::null),      m_cookieFileDT()
+ {
+     {
+         QMutexLocker locker(&user_agent_lock);
+@@ -579,6 +579,12 @@ DataDirectProcessor::~DataDirectProcessor()
+         unlink(tmp.constData());
+     }
+ 
++    if (!m_tmpDDPFile.isEmpty())
++    {
++        QByteArray tmp = m_tmpDDPFile.toLatin1();
++        unlink(tmp.constData());
++    }
++
+     if (!m_cookieFile.isEmpty())
+     {
+         QByteArray tmp = m_cookieFile.toLatin1();
+@@ -1006,8 +1012,16 @@ bool DataDirectProcessor::DDPost(QString    ddurl,        QString   &inputFile,
+     postdata += "</SOAP-ENV:Body>\n";
+     postdata += "</SOAP-ENV:Envelope>\n";
+ 
+-    if (inputFile.isEmpty()) {
+-        inputFile = QString("/tmp/mythtv_ddp_data");
++    if (inputFile.isEmpty())
++    {
++        bool ok;
++        inputFile = GetDDPFilename(ok);
++        if (!ok)
++        {
++            LOG(VB_GENERAL, LOG_ERR, LOC +
++            "Failure creating temp ddp file");
++            return false;
++        }
+     }
+ 
+     QHash<QByteArray, QByteArray> headers;
+@@ -1039,7 +1053,11 @@ bool DataDirectProcessor::DDPost(QString    ddurl,        QString   &inputFile,
+         uncompressed = postdata;
+ 
+     QFile file(inputFile);
+-    file.open(QIODevice::WriteOnly);
++    if (!file.open(QIODevice::WriteOnly))
++    {
++        LOG(VB_GENERAL, LOG_ERR, LOC + QString("Failed to open temporary file: %1").arg(inputFile));
++        return false;
++    }
+     file.write(uncompressed);
+     file.close();
+ 
+@@ -1099,7 +1117,11 @@ bool DataDirectProcessor::GrabNextSuggestedTime(void)
+         .arg(postdata.size()));
+ 
+     QFile file(resultFilename);
+-    file.open(QIODevice::WriteOnly);
++    if (!file.open(QIODevice::WriteOnly))
++    {
++        LOG(VB_GENERAL, LOG_ERR, LOC + QString("Failed to open result file: %1").arg(resultFilename));
++        return false;
++    }
+     file.write(postdata);
+     file.close();
+ 
+@@ -1833,6 +1855,18 @@ QString DataDirectProcessor::GetCookieFilename(bool &ok) const
+     return m_cookieFile;
+ }
+ 
++QString DataDirectProcessor::GetDDPFilename(bool &ok) const
++{
++    ok = true;
++    if (m_tmpDDPFile.isEmpty())
++    {
++        CreateTemp(m_tmpDir + "/mythtv_ddp_XXXXXX",
++                   "Failed to create temp ddp file",
++                   false, m_tmpDDPFile, ok);
++    }
++    return m_tmpDDPFile;
++}
++
+ void DataDirectProcessor::SetUserID(const QString &uid)
+ {
+     m_userid = uid;
+@@ -1877,7 +1911,11 @@ bool DataDirectProcessor::Post(QString url, const PostList &list,
+         return true;
+ 
+     QFile file(documentFile);
+-    file.open(QIODevice::WriteOnly);
++    if (!file.open(QIODevice::WriteOnly))
++    {
++        LOG(VB_GENERAL, LOG_ERR, LOC + QString("Failed to open document file: %1").arg(documentFile));
++        return false;
++    }
+     file.write(postdata);
+     file.close();
+ 
+diff --git a/mythtv/libs/libmythtv/datadirect.h b/mythtv/libs/libmythtv/datadirect.h
+index 1cc84a1..83a6c53 100644
+--- a/mythtv/libs/libmythtv/datadirect.h
++++ b/mythtv/libs/libmythtv/datadirect.h
+@@ -405,6 +405,7 @@ class MTV_PUBLIC DataDirectProcessor
+                     bool directory, QString &filename, bool &ok) const;
+ 
+     QString GetResultFilename(bool &ok) const;
++    QString GetDDPFilename(bool &ok) const;
+     QString GetCookieFilename(bool &ok) const;
+ 
+     void SetAll(const QString &lineupid, bool val);
+@@ -442,6 +443,7 @@ class MTV_PUBLIC DataDirectProcessor
+     RawLineupMap    m_rawLineups;
+     mutable QString m_tmpPostFile;
+     mutable QString m_tmpResultFile;
++    mutable QString m_tmpDDPFile;
+     mutable QString m_cookieFile;
+     QDateTime       m_cookieFileDT;
+ 
+diff --git a/mythtv/libs/libmythupnp/ssdp.cpp b/mythtv/libs/libmythupnp/ssdp.cpp
+index 9e503eb..ebe3bcb 100644
+--- a/mythtv/libs/libmythupnp/ssdp.cpp
++++ b/mythtv/libs/libmythupnp/ssdp.cpp
+@@ -314,6 +314,33 @@ void SSDP::run()
+ 
+ void SSDP::ProcessData( MSocketDevice *pSocket )
+ {
++    QHostAddress  peerAddress = pSocket->peerAddress();
++    quint16       peerPort    = pSocket->peerPort   ();
++
++    // Mitigate against SSDP Reflection DDOS attacks
++    // Disallow device discovery from non-local addresses
++    // Security Advisory (Akamai):
++    // https://www.prolexic.com/kcresources/prolexic-threat-advisories/prolexic-threat-advisory-ssdp-reflection-ddos-attacks/ssdp-reflection-attacks-cybersecurity-locked.html
++    // https://www.prolexic.com/knowledge-center-ddos-threat-advisory-ssdp-reflection-ddos-attacks.html
++    //
++    // TODO: We may want to restrict this to the same subnet as the server
++    //       for added security
++    if (((peerAddress.protocol() == QAbstractSocket::IPv4Protocol) &&
++            (!peerAddress.isInSubnet(QHostAddress("172.16.0.0"), 12) &&
++            !peerAddress.isInSubnet(QHostAddress("192.168.0.0"), 16) &&
++            !peerAddress.isInSubnet(QHostAddress("10.0.0.0"), 8))) ||
++        ((peerAddress.protocol() == QAbstractSocket::IPv6Protocol) &&
++            !peerAddress.isInSubnet(pSocket->address(), 64))) // default subnet size is assumed to be /64
++    {
++        LOG(VB_GENERAL, LOG_CRIT, QString("SSDP Request from WAN IP "
++                                            "address (%1). Possible SSDP "
++                                            "Reflection attempt. Ignoring as "
++                                            "security risk.")
++                                                .arg(peerAddress.toString()));
++        pSocket->readAll(); // Discard the data in the socket buffer
++        return;
++    }
++
+     QByteArray buffer;
+     long nBytes = 0;
+     int retries = 0;
+@@ -365,9 +392,6 @@ void SSDP::ProcessData( MSocketDevice *pSocket )
+         if (buffer.isEmpty())
+             continue;
+ 
+-        QHostAddress  peerAddress = pSocket->peerAddress();
+-        quint16       peerPort    = pSocket->peerPort   ();
+-
+         // ------------------------------------------------------------------
+         QString     str          = QString(buffer.constData());
+         QStringList lines        = str.split("\r\n", QString::SkipEmptyParts);
