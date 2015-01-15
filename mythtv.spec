@@ -572,6 +572,8 @@ find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local
 echo "QMAKE_PROJECT_DEPTH = 0" >> mythtv.pro
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
 
+sed -i 's/-fno-exceptions//' settings.pro
+
 cp -a %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 for file in mythbackend.service \
             mythbackend.sysconfig \
@@ -638,19 +640,29 @@ pushd mythtv
                 --enable-libfdk-aac-dlopen \
 %endif
 		--disable-libopencore-amrnb \
+%if %{build_plf}
 		--enable-libopencore-amrnb-dlopen \
+%endif
 		--disable-libopencore-amrwb \
+%if %{build_plf}
 		--enable-libopencore-amrwb-dlopen \
+%endif
 		--disable-libfaac \
 %if %{build_faac}
 		--enable-libfaac-dlopen \
 %endif
 		--disable-libx264 \
+%if %{build_x264}
 		--enable-libx264-dlopen \
+%endif
 		--disable-libxvid \
+%if %{build_xvid}
 		--enable-libxvid-dlopen \
+%endif
 		--disable-libmp3lame \
+%if %{build_lame}
 		--enable-libmp3lame-dlopen \
+%endif
 		--enable-postproc \
 		--enable-pthreads \
 		--enable-libtheora \
