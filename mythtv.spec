@@ -744,9 +744,9 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv/recordings
 mkdir -p %{buildroot}%{_var}/cache/mythtv
 mkdir -p %{buildroot}%{_logdir}/mythtv
 
-install -p -m644 mythbackend.service -D %{buildroot}%{_unitdir}/mythbackend.service
-install -p -m644 mythbackend.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
-install -p -m644 mythbackend.logrotate -D %{buildroot}%{_sysconfdir}/logrotate.d/mythbackend.logrotate
+install -p -m644 mythtv/mythbackend.service -D %{buildroot}%{_unitdir}/mythbackend.service
+install -p -m644 mythtv/mythbackend.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
+install -p -m644 mythtv/mythbackend.logrotate -D %{buildroot}%{_sysconfdir}/logrotate.d/mythbackend.logrotate
 
 # wmsession.d for mythfrontend
 install -p -m644 %{SOURCE4} -D %{buildroot}%{_sysconfdir}/X11/wmsession.d/99MythFrontend
