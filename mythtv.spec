@@ -829,6 +829,10 @@ rm -f %{buildroot}%{_datadir}/mythtv/mytharchive/themes/burnthemestrings.h
 
 find %{buildroot} -name *.a -delete
 
+#cb fix odd install location
+mkdir -p %{buildroot}%{perl_vendorlib}
+mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
+
 %pre backend
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
