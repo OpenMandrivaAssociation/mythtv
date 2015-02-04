@@ -100,7 +100,7 @@ Name:		mythtv
 Version:	0.27.4
 %define	gitrev	v0.27.4-4-gb305e
 %define	fixesdate 20141022
-Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
+Release:	%{?fixesdate:%{fixesdate}.}2%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
