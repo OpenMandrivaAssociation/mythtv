@@ -1,6 +1,6 @@
 %define gitversion v0.26.0-138-g69cd7
 %define fixesdate 20130328
-%define rel 2
+%define rel 3
 
 %if %{fixesdate}
 %define release %{fixesdate}.%{rel}
