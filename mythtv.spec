@@ -3,6 +3,9 @@
 %define	py2_puresitedir	%{py_puresitedir}
 %endif
 
+%define _disable_lto 1
+%define _disable_rebuild_configure 1
+
 %define api	0.27
 %define major	0
 %define avcmaj	54
@@ -97,14 +100,14 @@
 
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.27.4
-%define	gitrev	v0.27.4-4-gb305e
-%define	fixesdate 20141022
-Release:	%{?fixesdate:%{fixesdate}.}3%{?extrarelsuffix}
+Version:	0.27.5
+%define	gitrev	v0.27.5-69-g31b27
+%define	fixesdate 20151212
+Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
-Source0:	v%{version}.tar.gz
+Source0:	%{name}-%{version}.tar.gz
 Source1:	mythbackend.sysconfig.in
 Source2:	mythbackend.service.in
 Source3:	mythbackend.logrotate.in
@@ -124,7 +127,7 @@ Patch103:	0103-Fix-dns-sd-detection.patch
 Patch104:	0104-Support-libcec-2.x.patch
 Patch105:	0105-Use-system-build-flags.patch
 Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
-Patch107:	0107-add-missing-qt5-include.patch
+Patch107:	0107-clang.patch
 
 Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
 Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
@@ -574,7 +577,7 @@ find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local
 echo "QMAKE_PROJECT_DEPTH = 0" >> mythtv.pro
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
 
-sed -i 's/-fno-exceptions//' settings.pro
+sed -i 's/-fno-exceptions//' settings.pro external/FFmpeg/tools/build_libstagefright
 
 cp -a %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 for file in mythbackend.service \
@@ -690,7 +693,10 @@ pushd mythtv
 		--enable-libflite \
 		--disable-decoder=aac \
 		--disable-encoder=aac
-%make
+
+find . -name Makefile -exec sed -i 's/-fno-exceptions//' {} \;
+
+make
 popd
 
 # Install temporarily to compile plugins
@@ -725,7 +731,9 @@ echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 		--disable-mp3lame \
 		--enable-mp3lame-dlopen
 
-%make
+find . -name Makefile -exec sed -i 's/-fno-exceptions//' {} \;
+
+make
 
 popd
 
