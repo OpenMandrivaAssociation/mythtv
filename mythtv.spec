@@ -230,7 +230,6 @@ BuildRequires:  pkgconfig(libexif)
 BuildRequires:  id3tag-devel
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  pkgconfig(flac)
-BuildRequires:  cdaudio-devel
 BuildRequires:  cdda-devel
 BuildRequires:  tiff-devel
 BuildRequires:  mysql-devel
