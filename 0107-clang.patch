@@ -109,4 +109,25 @@
 +        PosMapEntry e = {(long long)it.key(), (long long)it.key() * keyframedist, (long long)*it};
          m_positionMap.push_back(e);
      }
+
+--- ./mythplugins/mythzoneminder/mythzmserver/zmserver.cpp.orig 2015-12-17 23:37:23.984853197 +0000
++++ ./mythplugins/mythzoneminder/mythzmserver/zmserver.cpp      2015-12-17 23:37:39.832386581 +0000
+@@ -272,7 +272,7 @@
+         if (shm_ptr == MAP_FAILED)
+         {
+             cout << "Failed to map shared memory from file ["
+-                 << mmap_filename << "] " << "for monitor: "
++                 << mmap_filename.str() << "] " << "for monitor: "
+                  << mon_id << endl;
+             status = "Error";
  
+@@ -291,7 +291,7 @@
+         // using the legacy shared memory support
+         if (debug)
+         {
+-            cout << "Failed to open mmap file [" << mmap_filename << "] "
++            cout << "Failed to open mmap file [" << mmap_filename.str() << "] "
+                  << "for monitor: " << mon_id
+                  << " : " << strerror(errno) << endl;
+             cout << "Falling back to the legacy shared memory method" << endl;
+

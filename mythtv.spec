@@ -576,7 +576,6 @@ find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local
 echo "QMAKE_PROJECT_DEPTH = 0" >> mythtv.pro
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
 
-sed -i 's/-fno-exceptions//' settings.pro external/FFmpeg/tools/build_libstagefright
 
 cp -a %{SOURCE1} %{SOURCE2} %{SOURCE3} .
 for file in mythbackend.service \
@@ -693,15 +692,14 @@ pushd mythtv
 		--disable-decoder=aac \
 		--disable-encoder=aac
 
-find . -name Makefile -exec sed -i 's/-fno-exceptions//' {} \;
 
-make
+%make
 popd
 
 # Install temporarily to compile plugins
 mkdir -p temp
 temp=$PWD/temp
-make -C mythtv install INSTALL_ROOT=$temp DESTDIR=$temp
+%make -C mythtv install INSTALL_ROOT=$temp DESTDIR=$temp
 export LD_LIBRARY_PATH=$temp%{_libdir}:$LD_LIBRARY_PATH
 
 pushd mythplugins
@@ -730,9 +728,8 @@ echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 		--disable-mp3lame \
 		--enable-mp3lame-dlopen
 
-find . -name Makefile -exec sed -i 's/-fno-exceptions//' {} \;
 
-make
+%make
 
 popd
 

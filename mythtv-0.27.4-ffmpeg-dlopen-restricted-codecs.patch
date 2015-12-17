@@ -49,9 +49,19 @@ index 20ef80c..df95a5c 100755
          echo "HEADERS += lameencoder.h" >> ./mythmusic/mythmusic/config.pro
          echo "SOURCES += lameencoder.cpp" >> ./mythmusic/mythmusic/config.pro
      else
---- a/mythplugins/mythmusic/mythmusic/lameencoder.cpp
-+++ b/mythplugins/mythmusic/mythmusic/lameencoder.cpp
-@@ -40,6 +40,65 @@
+--- a/mythplugins/mythmusic/mythmusic/lameencoder.cpp.0200~   2015-06-16 17:03:30.000000000 +0100
++++ a/mythplugins/mythmusic/mythmusic/lameencoder.cpp 2015-12-17 23:31:10.039678918 +0000
+@@ -32,14 +32,87 @@
+ #include <mythlogging.h>
+ #include "musicmetadata.h"
+ #include "metaioid3.h"
++#include <id3tag.h>
+ 
+ // mythmusic
+ #include "lameencoder.h"
+-
++#include "config.h"
+ // c++
  #include <iostream>
  using namespace std;
  
@@ -59,26 +69,35 @@ index 20ef80c..df95a5c 100755
 +#include "../../../mythtv/external/FFmpeg/dlopen.h"
 +
 +static lame_global_flags* (*dl_lame_init) (void);
-+#define lame_init			dl_lame_init
++#define lame_init                      dl_lame_init
 +static int  (*dl_lame_close) (lame_global_flags *);
-+#define lame_close			dl_lame_close
++#define lame_close                     dl_lame_close
 +static int (*dl_lame_set_VBR) (lame_global_flags *, vbr_mode);
-+#define lame_set_VBR			dl_lame_set_VBR
++#define lame_set_VBR                   dl_lame_set_VBR
 +static int (*dl_lame_set_mode) (lame_global_flags *, MPEG_mode);
-+#define lame_set_mode			dl_lame_set_mode
++#define lame_set_mode                  dl_lame_set_mode
 +static int (*dl_lame_set_preset) (lame_global_flags*  gfp, int);
-+#define lame_set_preset			dl_lame_set_preset
++#define lame_set_preset                        dl_lame_set_preset
 +static int (*dl_lame_init_params) (lame_global_flags *);
-+#define lame_init_params		dl_lame_init_params
++#define lame_init_params               dl_lame_init_params
 +static int (*dl_lame_encode_flush) (lame_global_flags *  gfp, unsigned char* mp3buf, int size);
-+#define lame_encode_flush		dl_lame_encode_flush
++#define lame_encode_flush              dl_lame_encode_flush
 +static int (*dl_lame_encode_buffer_interleaved) (lame_global_flags*  gfp, short int pcm[], int num_samples, unsigned char* mp3buf, int mp3buf_size );
-+#define lame_encode_buffer_interleaved	dl_lame_encode_buffer_interleaved
++#define lame_encode_buffer_interleaved dl_lame_encode_buffer_interleaved
 +static void (*dl_lame_mp3_tags_fid) (lame_global_flags *, FILE* fid);
-+#define dl_lame_mp3_tags_fid	dl_lame_mp3_tags_fid
-+#define	MP3LAME_LIB			"libmp3lame.so.0"
++#define lame_mp3_tags_fid      dl_lame_mp3_tags_fid
 +
-+static int loadLibMp3Lame(void);
++static void (*dl_id3tag_init) (lame_global_flags *);
++#define id3tag_init dl_id3tag_init
++
++static void (*dl_id3tag_set_title) (lame_global_flags *, char *);
++#define id3tag_set_title dl_id3tag_set_title
++
++static void (*dl_id3tag_v2_only) (lame_global_flags *);
++#define id3tag_v2_only dl_id3tag_v2_only
++
++#define        MP3LAME_LIB                     "libmp3lame.so.0"
++
 +static int loadLibMp3Lame(void) {
 +    static void *libmp3lame = NULL;
 +    const char *err = NULL;
@@ -86,30 +105,34 @@ index 20ef80c..df95a5c 100755
 +    libmp3lame = dlopen(MP3LAME_LIB, RTLD_LAZY);
 +    if ((err = dlerror())) {
 +        LOG(VB_GENERAL, LOG_ERR,
-+            QString("%1\n%2 is missing, libmp3lame support disabled").arg(err).arg(MP#LAME_LIB));
-+	if (libmp3lame)
-+	    dlclose(libmp3lame);
-+	return -1;
++            QString("%1\n%2 is missing, libmp3lame support disabled").arg(err).arg(MP3LAME_LIB));
++       if (libmp3lame)
++           dlclose(libmp3lame);
++       return -1;
 +    }
 +
 +    dl_sym(lame_init, (lame_global_flags* (*) (void)), libmp3lame);
 +    dl_sym(lame_set_VBR, (int (*) (lame_global_flags *, vbr_mode)), libmp3lame);
 +    dl_sym(lame_set_mode, (int (*) (lame_global_flags *, MPEG_mode)), libmp3lame);
-+    dl_sym(lame_set_preset, (int (*) ((lame_global_flags*  gfp, int)), libmp3lame);
++    dl_sym(lame_set_preset, (int (*) (lame_global_flags*  gfp, int)), libmp3lame);
 +    dl_sym(lame_init_params, (int (*) (lame_global_flags *)), libmp3lame);
 +    dl_sym(lame_close, (int (*) (lame_global_flags*)), libmp3lame);
 +    dl_sym(lame_encode_flush, (int (*) (lame_global_flags* gfp, unsigned char* mp3buf, int size)), libmp3lame);
 +    dl_sym(lame_encode_buffer_interleaved, (int (*) (lame_global_flags* gfp, short int pcm[], int num_samples, unsigned char* mp3buf, int mp3buf_size)), libmp3lame);
-+    dl_sym(lame_mp3_tags_fid), (void (*) (lame_global_flags *, FILE* fid));
++    dl_sym(lame_mp3_tags_fid, (void (*) (lame_global_flags *, FILE* fid)),libmp3lame);
++    dl_sym(id3tag_init, (void (*) (lame_global_flags *)), libmp3lame);
++    dl_sym(id3tag_set_title, (void (*) (lame_global_flags *, char *)), libmp3lame);
++    dl_sym(id3tag_v2_only, (void (*) (lame_global_flags *)), libmp3lame);
 +
 +    return 0;
 +
 +error:
 +    LOG(VB_GENERAL, LOG_ERR,
-+	QString("libmp3lame: Missing symbols in %1: %2 "
-+	    "mp3lame support disabled\n").arg(MP3LAME_LIB).arg(err));
++       QString("libmp3lame: Missing symbols in %1: %2 "
++           "mp3lame support disabled\n").arg(MP3LAME_LIB).arg(err));
 +    dlclose(libmp3lame);
 +    return 1;
++
 +
 +}
 +#endif
@@ -117,13 +140,13 @@ index 20ef80c..df95a5c 100755
  static int write_buffer(char *buf, int bufsize, FILE *fp)
  {
      return fwrite(buf, 1, bufsize, fp);
-@@ -65,6 +124,11 @@ int LameEncoder::init_encoder(lame_global_flags *gf, int quality, bool vbr)
+@@ -65,6 +138,11 @@
      int meanbitrate = 128;
      int preset = STANDARD;
  
 +#ifdef CONFIG_LIBMP3LAME_DLOPEN
 +    if (loadLibMp3Lame())
-+	return -1;
++       return -1;
 +#endif
 +
      switch (quality)
