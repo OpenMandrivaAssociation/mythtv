@@ -103,7 +103,7 @@ Name:		mythtv
 Version:	0.27.5
 %define	gitrev	v0.27.5-69-g31b27
 %define	fixesdate 20151212
-Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
+Release:	%{?fixesdate:%{fixesdate}.}2%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
@@ -132,6 +132,7 @@ Patch107:	0107-clang.patch
 Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
 Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
 Patch203:	0001-fix-to-use-mythtv-s-own-header.patch
+Patch204:	ffmpeg-libvpxenc-remove-some-unused-ctrl-id-mappings.patch
 
 BuildRequires:	gdb
 BuildRequires:	libtool
