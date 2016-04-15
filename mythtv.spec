@@ -448,7 +448,6 @@ This package contains the python bindings for MythTV.
 Summary:	PHP bindings for MythTV
 Group:		Development/PHP
 BuildArch:	noarch
-Requires:	php-mysql
 
 %description -n php-mythtv
 This package contains the PHP bindings for MythTV.
