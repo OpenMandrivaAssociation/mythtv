@@ -1,9 +1,9 @@
 #!/bin/bash
 
 PACKAGE=mythtv
-VERSION=0.27.5
+VERSION=0.28
 REPO=https://github.com/MythTV/mythtv.git
-FIXES=fixes/0.27
+FIXES=fixes/0.28
 
 echo "Updating Fixes Source"
 if [ ! -d clone ]; then

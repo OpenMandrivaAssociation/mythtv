@@ -1107,9 +1107,9 @@ diff --git a/mythtv/external/FFmpeg/libavcodec/libxvid_rc.c b/mythtv/external/FF
 index 4a5842f..575f1b4 100644
 --- a/mythtv/external/FFmpeg/libavcodec/libxvid_rc.c
 +++ b/mythtv/external/FFmpeg/libavcodec/libxvid_rc.c
-@@ -31,12 +31,52 @@
- #undef NDEBUG
- #include <assert.h>
+@@ -31,13 +31,53 @@
+ #include "libxvid.h"
+ #include "mpegvideo.h"
  
 +#ifdef CONFIG_LIBXVID_DLOPEN
 +#include "dlopen.h"
@@ -1146,7 +1146,8 @@ index 4a5842f..575f1b4 100644
 +}
 +#endif
 +
- int ff_xvid_rate_control_init(MpegEncContext *s){
+ av_cold int ff_xvid_rate_control_init(MpegEncContext *s)
+ {
      char *tmp_name;
      int fd, i;
      xvid_plg_create_t xvid_plg_create = { 0 };
@@ -1157,6 +1158,6 @@ index 4a5842f..575f1b4 100644
 +        return -1;
 +#endif
 +
-     fd=av_tempfile("xvidrc.", &tmp_name, 0, s->avctx);
-     if (fd == -1) {
+     fd = av_tempfile("xvidrc.", &tmp_name, 0, s->avctx);
+     if (fd < 0) {
          av_log(NULL, AV_LOG_ERROR, "Can't create temporary pass2 file.\n");

@@ -24,17 +24,17 @@ index 4aa8727..8551480 100755
  enable libass
  enable libcec
  enable libcrypto
-@@ -5377,10 +5377,6 @@ enabled asi && check_cc <<EOF || disable asi
- int main(void) { return 1; }
- EOF
+@@ -7249,10 +7249,6 @@
+    fi
+ fi
  
 -# Check that all MythTV build "requirements" are met:
 -enabled lamemp3 && check_lib2 lame/lame.h lame_init -lmp3lame -lm ||
 -    die "ERROR! You must have the Lame MP3 encoding library installed to compile MythTV."
 -
- # Qt dependency checks
- if test $target_os = mingw32 ; then
-     qt_inc="-I`cd $(${qmake} -query QT_INSTALL_HEADERS); pwd`"
+ enabled exiv2 && $(pkg-config --exists exiv2) ||
+     die "ERROR! You must have the Exiv2 image tag reader library installed to compile MythTV."
+ 
 @@ -6189,6 +6185,8 @@ enabled audio_oss         && append CCONFIG "using_oss"
  enabled audio_pulse       && append CCONFIG "using_pulse"
  enabled audio_pulseoutput && append CCONFIG "using_pulseoutput"
@@ -66,9 +66,9 @@ index c74cbce..25ed783 100644
  using_live: LIBS += -L../libmythlivemedia -lmythlivemedia-$$LIBVERSION
  using_hdhomerun: LIBS += -L../../external/libhdhomerun -lmythhdhomerun-$$LIBVERSION
 -using_backend: LIBS += -lmp3lame
+ using_backend: LIBS += -L../../external/minilzo -lmythminilzo-$$LIBVERSION
  LIBS += $$EXTRA_LIBS $$QMAKE_LIBS_DYNLOAD
  
- POST_TARGETDEPS += ../libmyth/libmyth-$${MYTH_SHLIB_EXT}
 diff --git a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp b/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp
 index 681bf5d..9712ce0 100644
 --- a/mythtv/libs/libmythtv/recorders/NuppelVideoRecorder.cpp
@@ -97,9 +97,9 @@ index 681bf5d..9712ce0 100644
      rtjc = NULL;
      strm = NULL;
 -    mp3buf = NULL;
- 
+     mp3buf_size = 0;
+
      transcoding = false;
- 
 @@ -205,10 +211,12 @@ NuppelVideoRecorder::~NuppelVideoRecorder(void)
      }
      if (rtjc)
@@ -264,8 +264,8 @@ index 71ed05a..042a7e0 100644
  class BTTVVolume : public SliderSetting, public CodecParamStorage
  {
 @@ -402,12 +404,16 @@ class AudioCompressionSettings : public TriggeredConfigurationGroup
-         addChild(codecName);
-         setTrigger(codecName);
+         addChild(m_codecName);
+         setTrigger(m_codecName);
  
 -        ConfigurationGroup* params = new VerticalConfigurationGroup(false);
 +        ConfigurationGroup* params;
@@ -273,9 +273,9 @@ index 71ed05a..042a7e0 100644
 +#ifdef LAME
 +        params = new VerticalConfigurationGroup(false);
          params->setLabel("MP3");
-         params->addChild(new SampleRate(parent));
-         params->addChild(new MP3Quality(parent));
-         params->addChild(new BTTVVolume(parent));
+         params->addChild(new SampleRate(m_parent));
+         params->addChild(new MP3Quality(m_parent));
+         params->addChild(new BTTVVolume(m_parent));
          addTarget("MP3", params);
 +#endif
  
@@ -286,18 +286,18 @@ index 71ed05a..042a7e0 100644
              {
                  // V4L, TRANSCODE (and any undefined types)
 +#ifdef LAME
-                 codecName->addSelection("MP3");
+                 m_codecName->addSelection("MP3");
 +#endif
-                 codecName->addSelection("Uncompressed");
+                 m_codecName->addSelection("Uncompressed");
              }
          }
          else
          {
 +#ifdef LAME
-             codecName->addSelection("MP3");
+             m_codecName->addSelection("MP3");
 +#endif
-             codecName->addSelection("Uncompressed");
-             codecName->addSelection("MPEG-2 Hardware Encoder");
+             m_codecName->addSelection("Uncompressed");
+             m_codecName->addSelection("MPEG-2 Hardware Encoder");
          }
 @@ -1489,7 +1499,11 @@ void RecordingProfileEditor::open(int id)
                  "(:NAME, :VIDEOCODEC, :AUDIOCODEC, :PROFILEGROUP);");

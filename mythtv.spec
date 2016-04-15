@@ -100,10 +100,11 @@
 
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.27.5
-%define	gitrev	v0.27.5-69-g31b27
-%define	fixesdate 20151212
-Release:	%{?fixesdate:%{fixesdate}.}2%{?extrarelsuffix}
+Version:	0.28
+%define gitrev  v0.28-2-g15cf42
+
+%define	fixesdate 20160415
+Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
@@ -124,15 +125,14 @@ Patch100:	0100-lame-Allow-building-without-lame-libraries.patch
 Patch101:	0101-lame-Allow-building-plugins-without-lame-libraries.patch
 Patch102:	0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103:	0103-Fix-dns-sd-detection.patch
-Patch104:	0104-Support-libcec-2.x.patch
-Patch105:	0105-Use-system-build-flags.patch
-Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
-Patch107:	0107-clang.patch
+#Patch104:	0104-Support-libcec-2.x.patch
+#Patch105:	0105-Use-system-build-flags.patch
+#Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
+#Patch107:	0107-clang.patch
 
 Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
-Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
+#Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
 Patch203:	0001-fix-to-use-mythtv-s-own-header.patch
-Patch204:	ffmpeg-libvpxenc-remove-some-unused-ctrl-id-mappings.patch
 
 BuildRequires:	gdb
 BuildRequires:	libtool

@@ -32,9 +32,9 @@ index bda1fbc..bf2e5ec 100755
  
  enable $PLUGIN_LIST $CONFIG_LIST $DEPEND_LIST
 @@ -349,6 +349,7 @@ MythGame related options:
- MythMusic related options:
    --enable-mythmusic       build the mythmusic plugin [$music]
    --enable-fftw            enable fftw visualizers [$fftw]
+   --enable-cdio            enable cd playback [$cdio]
 +  --enable-libmp3lame      enable MP3 encoding support using LAME [$mp3lame]
  
  MythNetvision related options:
@@ -102,9 +102,9 @@ index 3608947..8cec6cb 100644
 +#ifdef LAME
      bool mp3usevbr = gCoreContext->GetNumSetting("Mp3UseVBR", 0);
 +#endif
- 
-     m_totalSectors = 0;
-     m_totalSectorsDone = 0;
+
+     QApplication::postEvent(m_parent,
+         new RipStatusEvent(RipStatusEvent::kOverallStartEvent, m_totalSectors));
 @@ -300,6 +305,7 @@ void CDRipperThread::run(void)
  
                  if (m_quality < 3)
@@ -112,15 +112,15 @@ index 3608947..8cec6cb 100644
 +#ifdef LAME
                      if (encodertype == "mp3")
                      {
-                         outfile += ".mp3";
+                         outfile = QString("track%1.mp3").arg(trackno);
 @@ -307,6 +313,7 @@ void CDRipperThread::run(void)
                                                        titleTrack, mp3usevbr));
                      }
                      else // ogg
 +#endif
                      {
-                         outfile += ".ogg";
-                         encoder.reset(new VorbisEncoder(getMusicDirectory() + outfile, m_quality,
+                         outfile = QString("track%1.ogg").arg(trackno);
+                         encoder.reset(new VorbisEncoder(saveDir + outfile, m_quality,
 diff --git a/mythplugins/mythmusic/mythmusic/importsettings.cpp b/mythplugins/mythmusic/mythmusic/importsettings.cpp
 index a5611e2..9aaceb8 100644
 --- a/mythplugins/mythmusic/mythmusic/importsettings.cpp
