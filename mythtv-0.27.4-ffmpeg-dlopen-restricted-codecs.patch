@@ -1013,25 +1013,25 @@ index 9157ab3..586cd41 100644
  typedef struct X264Context {
      AVClass        *class;
      x264_param_t    params;
-@@ -282,6 +396,11 @@ static av_cold int X264_init(AVCodecContext *avctx)
-     X264Context *x4 = avctx->priv_data;
+@@ -396,6 +510,11 @@ static av_cold int X264_init(AVCodecContext *avctx)
+     AVCPBProperties *cpb_props;
      int sw,sh;
- 
+
 +#ifdef CONFIG_LIBX264_DLOPEN
 +    if (loadLibX264(avctx))
-+	return -1;
++       return -1;
 +#endif
 +
-     x264_param_default(&x4->params);
- 
-     x4->params.b_deblocking_filter         = avctx->flags & CODEC_FLAG_LOOP_FILTER;
+     if (avctx->global_quality > 0)
+         av_log(avctx, AV_LOG_WARNING, "-qscale is ignored, -crf is recommended.\n");
+
 diff --git a/mythtv/external/FFmpeg/libavcodec/libxvid.c b/mythtv/external/FFmpeg/libavcodec/libxvid.c
 index 05a12db..7db73ee 100644
 --- a/mythtv/external/FFmpeg/libavcodec/libxvid.c
 +++ b/mythtv/external/FFmpeg/libavcodec/libxvid.c
 @@ -43,6 +43,61 @@
- #define BUFFER_REMAINING(x)         (BUFFER_SIZE - strlen(x))
- #define BUFFER_CAT(x)               (&((x)[strlen(x)]))
+ #define BUFFER_REMAINING(x) (BUFFER_SIZE - strlen(x))
+ #define BUFFER_CAT(x)       (&((x)[strlen(x)]))
  
 +#ifdef CONFIG_LIBXVID_DLOPEN
 +#include "dlopen.h"
@@ -1092,8 +1092,8 @@ index 05a12db..7db73ee 100644
   * Structure for the private Xvid context.
   * This stores all the private context for the codec.
 @@ -359,6 +414,11 @@ static av_cold int xvid_encode_init(AVCodecContext *avctx)  {
-     xvid_enc_create_t xvid_enc_create = { 0 };
-     xvid_enc_plugin_t plugins[7];
+     xvid_enc_create_t         xvid_enc_create = { 0 };
+     xvid_enc_plugin_t         plugins[4];
  
 +#ifdef CONFIG_LIBXVID_DLOPEN
 +    if (loadLibXVID(avctx))
