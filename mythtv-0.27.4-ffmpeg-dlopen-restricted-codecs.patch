@@ -11,8 +11,8 @@ index 20ef80c..df95a5c 100755
  newexif
  dcraw
 @@ -350,6 +351,8 @@ MythMusic related options:
-   --enable-mythmusic       build the mythmusic plugin [$music]
    --enable-fftw            enable fftw visualizers [$fftw]
+   --enable-cdio            enable cd playback [$cdio]
    --enable-libmp3lame      enable MP3 encoding support using LAME [$mp3lame]
 +  --enable-libmp3lame-dlopen
 +                           enable MP3 encoding support using dlopen()'ed LAME [$mp3lame]
@@ -152,236 +152,6 @@ index 20ef80c..df95a5c 100755
      switch (quality)
      {
          case 0:                         // low, always use CBR
-diff --git a/mythtv/configure b/mythtv/configure
-index e8db8b9..a94867f 100755
---- a/mythtv/configure
-+++ b/mythtv/configure
-@@ -304,7 +304,9 @@ External library support:
-   --enable-libdc1394       enable IIDC-1394 grabbing using libdc1394
-                            and libraw1394 [no]
-   --enable-libfaac         enable AAC encoding via libfaac [no]
-+  --enable-libfaac-dlopen  enable FAAC support via dlopen()'ed libfaac [no]
-   --enable-libfdk-aac      enable AAC encoding via libfdk-aac [no]
-+  --enable-libfdk-aac-dlopen enable AAC de/encoding via dlopen()'ed libfdk-aac [no]
-   --enable-libflite        enable flite (voice synthesis) support via libflite [no]
-   --enable-libfreetype     enable libfreetype [no]
-   --enable-libgsm          enable GSM de/encoding via libgsm [no]
-@@ -312,10 +314,13 @@ External library support:
-   --enable-libilbc         enable iLBC de/encoding via libilbc [no]
-   --enable-libmodplug      enable ModPlug via libmodplug [no]
-   --enable-libmp3lame      enable MP3 encoding via libmp3lame [no]
-+  --enable-libmp3lame-dlopen enable MP3 encoding via dlopen()'ed libmp3lame [no]
-   --enable-libnut          enable NUT (de)muxing via libnut,
-                            native (de)muxer exists [no]
-   --enable-libopencore-amrnb enable AMR-NB de/encoding via libopencore-amrnb [no]
-+  --enable-libopencore-amrnb-dlopen enable AMR-NB de/encoding via dlopen()'ed libopencore-amrnb [no]
-   --enable-libopencore-amrwb enable AMR-WB decoding via libopencore-amrwb [no]
-+  --enable-libopencore-amrwb-dlopen enable AMR-WB decoding via dlopen()'ed libopencore-amrwb [no]
-   --enable-libopencv       enable video filtering via libopencv [no]
-   --enable-libopenjpeg     enable JPEG 2000 de/encoding via OpenJPEG [no]
-   --enable-libopus         enable Opus decoding via libopus [no]
-@@ -335,9 +340,11 @@ External library support:
-                            native implementation exists [no]
-   --enable-libvpx          enable VP8 and VP9 de/encoding via libvpx [no]
-   --enable-libx264         enable H.264 encoding via x264 [no]
-+  --enable-libx264-dlopen  enable H.264 encoding via dlopen()'ed x264 [no]
-   --enable-libxavs         enable AVS encoding via xavs [no]
-   --enable-libxvid         enable Xvid encoding via xvidcore,
-                            native MPEG-4/Xvid encoder exists [no]
-+  --enable-libxvid-dlopen  enable Xvid encoding via dlopen()'ed xvidcore
-   --enable-openal          enable OpenAL 1.1 capture support [no]
-   --enable-openssl         enable openssl [no]
-   --enable-x11grab         enable X11 grabbing [no]
-@@ -1390,7 +1397,9 @@ EXTERNAL_LIBRARY_LIST="
-     libcelt
-     libdc1394
-     libfaac
-+    libfaac_dlopen
-     libfdk_aac
-+    libfdk_aac_dlopen
-     libflite
-     libfreetype
-     libgsm
-@@ -1398,9 +1407,12 @@ EXTERNAL_LIBRARY_LIST="
-     libilbc
-     libmodplug
-     libmp3lame
-+    libmp3lame_dlopen
-     libnut
-     libopencore_amrnb
-+    libopencore_amrnb_dlopen
-     libopencore_amrwb
-+    libopencore_amrwb_dlopen
-     libopencv
-     libopenjpeg
-     libopus
-@@ -1419,8 +1431,10 @@ EXTERNAL_LIBRARY_LIST="
-     libvorbis
-     libvpx
-     libx264
-+    libx264_dlopen
-     libxavs
-     libxvid
-+    libxvid_dlopen
-     openal
-     openssl
-     x11grab
-@@ -5005,7 +5019,9 @@ enabled libcelt    && require libcelt celt/celt.h celt_decode -lcelt0 &&
-                         die "ERROR: libcelt must be installed and version must be >= 0.11.0."; }
- enabled libcaca    && require_pkg_config caca caca.h caca_create_canvas
- enabled libfaac    && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
-+enabled libfaac_dlopen && enable libfaac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libfdk_aac && require  libfdk_aac fdk-aac/aacenc_lib.h aacEncOpen -lfdk-aac
-+enabled libfdk_aac_dlopen && enable libfdk_aac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- flite_libs="-lflite_cmu_time_awb -lflite_cmu_us_awb -lflite_cmu_us_kal -lflite_cmu_us_kal16 -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite"
- enabled libflite   && require2 libflite "flite/flite.h" flite_init $flite_libs
- enabled libfreetype && require_pkg_config freetype2 "ft2build.h freetype/freetype.h" FT_Init_FreeType
-@@ -5015,9 +5031,12 @@ enabled libgsm     && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
- enabled libilbc    && require  libilbc ilbc.h WebRtcIlbcfix_InitDecode -lilbc
- enabled libmodplug && require  libmodplug libmodplug/modplug.h ModPlug_Load -lmodplug
- enabled libmp3lame && require  "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
-+enabled libmp3lame_dlopen && enable libmp3lame && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libnut     && require  libnut libnut.h nut_demuxer_init -lnut
- enabled libopencore_amrnb  && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
-+enabled libopencore_amrnb_dlopen && enable libopencore_amrnb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libopencore_amrwb  && require libopencore_amrwb opencore-amrwb/dec_if.h D_IF_init -lopencore-amrwb
-+enabled libopencore_amrwb_dlopen && enable libopencore_amrwb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libopencv  && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
- enabled libopenjpeg && { check_lib openjpeg-1.5/openjpeg.h opj_version -lopenjpeg ||
-                          check_lib openjpeg.h opj_version -lopenjpeg ||
-@@ -5050,8 +5069,10 @@ enabled libvpx     && {
- enabled libx264    && require  libx264 x264.h x264_encoder_encode -lx264 &&
-                       { check_cpp_condition x264.h "X264_BUILD >= 118" ||
-                         die "ERROR: libx264 must be installed and version must be >= 0.118."; }
-+enabled libx264_dlopen    && enable libx264 && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libxavs    && require  libxavs xavs.h xavs_encoder_encode -lxavs
- enabled libxvid    && require  libxvid xvid.h xvid_global -lxvidcore
-+enabled libxvid_dlopen    && enable libxvid && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled openal     && { { for al_libs in "${OPENAL_LIBS}" "-lopenal" "-lOpenAL32"; do
-                         check_lib 'AL/al.h' alGetError "${al_libs}" && break; done } ||
-                         die "ERROR: openal not found"; } &&
-@@ -6043,9 +6064,13 @@ echo ""
- 
- echo "# External Codec Options"
- echo "mp3lame                   ${libmp3lame-no}"
-+echo "mp3lame (dlopen)          ${libmp3lame_dlopen-no}"
- echo "faac                      ${libfaac-no}"
-+echo "faac (dlopen)             ${libfaac_dlopen-no}"
- echo "xvid                      ${libxvid-no}"
-+echo "xvid (dlopen)             ${libxvid_dlopen-no}"
- echo "x264                      ${libx264-no}"
-+echo "x264 (dlopen)             ${libx264_dlopen-no}"
- echo "vpx                       ${libvpx-no}"
- echo "SDL                       ${sdl-no}"
- echo ""
-diff --git a/mythtv/external/FFmpeg/configure b/mythtv/external/FFmpeg/configure
-index 6a5a190..64db68d 100755
---- a/mythtv/external/FFmpeg/configure
-+++ b/mythtv/external/FFmpeg/configure
-@@ -198,7 +198,9 @@ External library support:
-   --enable-libdc1394       enable IIDC-1394 grabbing using libdc1394
-                            and libraw1394 [no]
-   --enable-libfaac         enable AAC encoding via libfaac [no]
-+  --enable-libfaac-dlopen  enable FAAC support via dlopen()'ed libfaac [no]
-   --enable-libfdk-aac      enable AAC encoding via libfdk-aac [no]
-+  --enable-libfdk-aac-dlopen enable AAC de/encoding via dlopen()'ed libfdk-aac [no]
-   --enable-libflite        enable flite (voice synthesis) support via libflite [no]
-   --enable-libfreetype     enable libfreetype [no]
-   --enable-libgsm          enable GSM de/encoding via libgsm [no]
-@@ -206,10 +208,13 @@ External library support:
-   --enable-libilbc         enable iLBC de/encoding via libilbc [no]
-   --enable-libmodplug      enable ModPlug via libmodplug [no]
-   --enable-libmp3lame      enable MP3 encoding via libmp3lame [no]
-+  --enable-libmp3lame-dlopen enable MP3 encoding via dlopen()'ed libmp3lame [no]
-   --enable-libnut          enable NUT (de)muxing via libnut,
-                            native (de)muxer exists [no]
-   --enable-libopencore-amrnb enable AMR-NB de/encoding via libopencore-amrnb [no]
-+  --enable-libopencore-amrnb-dlopen enable AMR-NB de/encoding via dlopen()'ed libopencore-amrnb [no]
-   --enable-libopencore-amrwb enable AMR-WB decoding via libopencore-amrwb [no]
-+  --enable-libopencore-amrwb-dlopen enable AMR-WB decoding via dlopen()'ed libopencore-amrwb [no]
-   --enable-libopencv       enable video filtering via libopencv [no]
-   --enable-libopenjpeg     enable JPEG 2000 de/encoding via OpenJPEG [no]
-   --enable-libopus         enable Opus decoding via libopus [no]
-@@ -229,9 +234,11 @@ External library support:
-                            native implementation exists [no]
-   --enable-libvpx          enable VP8 and VP9 de/encoding via libvpx [no]
-   --enable-libx264         enable H.264 encoding via x264 [no]
-+  --enable-libx264-dlopen  enable H.264 encoding via dlopen()'ed x264 [no]
-   --enable-libxavs         enable AVS encoding via xavs [no]
-   --enable-libxvid         enable Xvid encoding via xvidcore,
-                            native MPEG-4/Xvid encoder exists [no]
-+  --enable-libxvid-dlopen  enable Xvid encoding via dlopen()'ed xvidcore
-   --enable-openal          enable OpenAL 1.1 capture support [no]
-   --enable-openssl         enable openssl [no]
-   --enable-x11grab         enable X11 grabbing [no]
-@@ -1166,7 +1173,9 @@ EXTERNAL_LIBRARY_LIST="
-     libcelt
-     libdc1394
-     libfaac
-+    libfaac_dlopen
-     libfdk_aac
-+    libfdk_aac_dlopen
-     libflite
-     libfreetype
-     libgsm
-@@ -1174,9 +1183,12 @@ EXTERNAL_LIBRARY_LIST="
-     libilbc
-     libmodplug
-     libmp3lame
-+    libmp3lame_dlopen
-     libnut
-     libopencore_amrnb
-+    libopencore_amrnb_dlopen
-     libopencore_amrwb
-+    libopencore_amrwb_dlopen
-     libopencv
-     libopenjpeg
-     libopus
-@@ -1195,8 +1207,10 @@ EXTERNAL_LIBRARY_LIST="
-     libvorbis
-     libvpx
-     libx264
-+    libx264_dlopen
-     libxavs
-     libxvid
-+    libxvid_dlopen
-     openal
-     openssl
-     x11grab
-@@ -3921,7 +3935,9 @@ enabled libcelt    && require libcelt celt/celt.h celt_decode -lcelt0 &&
-                         die "ERROR: libcelt must be installed and version must be >= 0.11.0."; }
- enabled libcaca    && require_pkg_config caca caca.h caca_create_canvas
- enabled libfaac    && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
-+enabled libfaac_dlopen && enable libfaac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libfdk_aac && require  libfdk_aac fdk-aac/aacenc_lib.h aacEncOpen -lfdk-aac
-+enabled libfdk_aac_dlopen && enable libfdk_aac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- flite_libs="-lflite_cmu_time_awb -lflite_cmu_us_awb -lflite_cmu_us_kal -lflite_cmu_us_kal16 -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite"
- enabled libflite   && require2 libflite "flite/flite.h" flite_init $flite_libs
- enabled libfreetype && require_libfreetype
-@@ -3931,9 +3947,12 @@ enabled libgsm     && { for gsm_hdr in "gsm.h" "gsm/gsm.h"; do
- enabled libilbc    && require  libilbc ilbc.h WebRtcIlbcfix_InitDecode -lilbc
- enabled libmodplug && require  libmodplug libmodplug/modplug.h ModPlug_Load -lmodplug
- enabled libmp3lame && require  "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
-+enabled libmp3lame_dlopen && enable libmp3lame && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libnut     && require  libnut libnut.h nut_demuxer_init -lnut
- enabled libopencore_amrnb  && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
-+enabled libopencore_amrnb_dlopen && enable libopencore_amrnb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libopencore_amrwb  && require libopencore_amrwb opencore-amrwb/dec_if.h D_IF_init -lopencore-amrwb
-+enabled libopencore_amrwb_dlopen && enable libopencore_amrwb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libopencv  && require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader
- enabled libopenjpeg && { check_lib openjpeg-1.5/openjpeg.h opj_version -lopenjpeg ||
-                          check_lib openjpeg.h opj_version -lopenjpeg ||
-@@ -3966,8 +3985,10 @@ enabled libvpx     && {
- enabled libx264    && require  libx264 x264.h x264_encoder_encode -lx264 &&
-                       { check_cpp_condition x264.h "X264_BUILD >= 118" ||
-                         die "ERROR: libx264 must be installed and version must be >= 0.118."; }
-+enabled libx264_dlopen    && enable libx264 && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled libxavs    && require  libxavs xavs.h xavs_encoder_encode -lxavs
- enabled libxvid    && require  libxvid xvid.h xvid_global -lxvidcore
-+enabled libxvid_dlopen    && enable libxvid && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
- enabled openal     && { { for al_libs in "${OPENAL_LIBS}" "-lopenal" "-lOpenAL32"; do
-                         check_lib 'AL/al.h' alGetError "${al_libs}" && break; done } ||
-                         die "ERROR: openal not found"; } &&
 diff --git a/mythtv/external/FFmpeg/dlopen.h b/mythtv/external/FFmpeg/dlopen.h
 new file mode 100644
 index 0000000..4f9869f
@@ -1161,3 +931,257 @@ index 4a5842f..575f1b4 100644
      fd = av_tempfile("xvidrc.", &tmp_name, 0, s->avctx);
      if (fd < 0) {
          av_log(NULL, AV_LOG_ERROR, "Can't create temporary pass2 file.\n");
+--- a/mythtv/configure	2016-04-16 10:30:41.384628591 +0000
++++ b/mythtv/configure	2016-04-16 10:39:09.411666710 +0000
+@@ -327,7 +327,9 @@
+                            and libraw1394 [no]
+   --enable-libdcadec       enable DCA decoding via libdcadec [no]
+   --enable-libfaac         enable AAC encoding via libfaac [no]
++  --enable-libfaac-dlopen  enable FAAC support via dlopen()'ed libfaac [no]
+   --enable-libfdk-aac      enable AAC de/encoding via libfdk-aac [no]
++  --enable-libfdk-aac-dlopen enable AAC de/encoding via dlopen()'ed libfdk-aac [no]
+   --enable-libflite        enable flite (voice synthesis) support via libflite [no]
+   --enable-libfreetype     enable libfreetype, needed for drawtext filter [no]
+   --enable-libfribidi      enable libfribidi, improves drawtext filter [no]
+@@ -339,10 +341,13 @@
+   --enable-libmfx          enable HW acceleration through libmfx
+   --enable-libmodplug      enable ModPlug via libmodplug [no]
+   --enable-libmp3lame      enable MP3 encoding via libmp3lame [no]
++  --enable-libmp3lame-dlopen enable MP3 encoding via dlopen()'ed libmp3lame [no]
+   --enable-libnut          enable NUT (de)muxing via libnut,
+                            native (de)muxer exists [no]
+   --enable-libopencore-amrnb enable AMR-NB de/encoding via libopencore-amrnb [no]
++  --enable-libopencore-amrnb-dlopen enable AMR-NB de/encoding via dlopen()'ed libopencore-amrnb [no]
+   --enable-libopencore-amrwb enable AMR-WB decoding via libopencore-amrwb [no]
++  --enable-libopencore-amrwb-dlopen enable AMR-WB decoding via dlopen()'ed libopencore-amrwb [no]
+   --enable-libopencv       enable video filtering via libopencv [no]
+   --enable-libopenh264     enable H.264 encoding via OpenH264 [no]
+   --enable-libopenjpeg     enable JPEG 2000 de/encoding via OpenJPEG [no]
+@@ -370,6 +375,7 @@
+   --enable-libwavpack      enable wavpack encoding via libwavpack [no]
+   --enable-libwebp         enable WebP encoding via libwebp [no]
+   --enable-libx264         enable H.264 encoding via x264 [no]
++  --enable-libx264-dlopen  enable H.264 encoding via dlopen()'ed x264 [no]
+   --enable-libx265         enable HEVC encoding via x265 [no]
+   --enable-libxavs         enable AVS encoding via xavs [no]
+   --enable-libxcb          enable X11 grabbing using XCB [autodetect]
+@@ -378,6 +384,7 @@
+   --enable-libxcb-shape    enable X11 grabbing shape rendering [autodetect]
+   --enable-libxvid         enable Xvid encoding via xvidcore,
+                            native MPEG-4/Xvid encoder exists [no]
++  --enable-libxvid-dlopen  enable Xvid encoding via dlopen()'ed xvidcore
+   --enable-libzimg         enable z.lib, needed for zscale filter [no]
+   --enable-libzmq          enable message passing via libzmq [no]
+   --enable-libzvbi         enable teletext support via libzvbi [no]
+@@ -1706,7 +1713,9 @@
+     libdc1394
+     libdcadec
+     libfaac
++    libfaac_dlopen
+     libfdk_aac
++    libfdk_aac_dlopen
+     libflite
+     libfontconfig
+     libfreetype
+@@ -1719,9 +1728,12 @@
+     libmfx
+     libmodplug
+     libmp3lame
++    libmp3lame_dlopen
+     libnut
+     libopencore_amrnb
++    libopencore_amrnb_dlopen
+     libopencore_amrwb
++    libopencore_amrwb_dlopen
+     libopencv
+     libopenh264
+     libopenjpeg
+@@ -1748,6 +1760,7 @@
+     libwavpack
+     libwebp
+     libx264
++    libx264_dlopen
+     libx265
+     libxavs
+     libxcb
+@@ -1755,6 +1768,7 @@
+     libxcb_shape
+     libxcb_xfixes
+     libxvid
++    libxvid_dlopen
+     libzimg
+     libzmq
+     libzvbi
+@@ -6674,9 +6688,11 @@
+ enabled libcaca           && require_pkg_config caca caca.h caca_create_canvas
+ enabled libdcadec         && require_pkg_config "dcadec >= 0.1.0" libdcadec/dca_context.h dcadec_context_create
+ enabled libfaac           && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
++enabled libfaac_dlopen    && enable libfaac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libfdk_aac        && { use_pkg_config fdk-aac "fdk-aac/aacenc_lib.h" aacEncOpen ||
+                                { require libfdk_aac fdk-aac/aacenc_lib.h aacEncOpen -lfdk-aac &&
+                                  warn "using libfdk without pkg-config"; } }
++enabled libfdk_aac_dlopen && enable libfdk_aac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ flite_libs="-lflite_cmu_time_awb -lflite_cmu_us_awb -lflite_cmu_us_kal -lflite_cmu_us_kal16 -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite"
+ enabled libflite          && require2 libflite "flite/flite.h" flite_init $flite_libs
+ enabled fontconfig        && enable libfontconfig
+@@ -6692,9 +6708,12 @@
+ enabled libmfx            && require_pkg_config libmfx "mfx/mfxvideo.h" MFXInit
+ enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
+ enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
++enabled libmp3lame_dlopen && enable libmp3lame && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
+ enabled libopencore_amrnb && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
++enabled libopencore_amrnb_dlopen && enable libopencore_amrnb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libopencore_amrwb && require libopencore_amrwb opencore-amrwb/dec_if.h D_IF_init -lopencore-amrwb
++enabled libopencore_amrwb_dlopen && enable libopencore_amrwb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libopencv         && { check_header opencv2/core/core_c.h &&
+                                require_pkg_config opencv opencv2/core/core_c.h cvCreateImageHeader ||
+                                require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader; }
+@@ -6764,11 +6783,13 @@
+                                die "ERROR: libx264 must be installed and version must be >= 0.118."; } &&
+                              { check_cpp_condition x264.h "X264_MPEG2" &&
+                                enable libx262; }
++enabled libx264_dlopen    && enable libx264 && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libx265           && require_pkg_config x265 x265.h x265_api_get &&
+                              { check_cpp_condition x265.h "X265_BUILD >= 68" ||
+                                die "ERROR: libx265 version must be >= 68."; }
+ enabled libxavs           && require libxavs xavs.h xavs_encoder_encode -lxavs
+ enabled libxvid           && require libxvid xvid.h xvid_global -lxvidcore
++enabled libxvid_dlopen    && enable libxvid && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libzimg           && require_pkg_config zimg zimg.h zimg_get_api_version
+ enabled libzmq            && require_pkg_config libzmq zmq.h zmq_ctx_new
+ enabled libzvbi           && require libzvbi libzvbi.h vbi_decoder_new -lzvbi &&
+@@ -6043,9 +6064,13 @@ echo ""
+
+ echo "# External Codec Options"
+ echo "mp3lame                   ${libmp3lame-no}"
++echo "mp3lame (dlopen)          ${libmp3lame_dlopen-no}"
+ echo "faac                      ${libfaac-no}"
++echo "faac (dlopen)             ${libfaac_dlopen-no}"
+ echo "xvid                      ${libxvid-no}"
++echo "xvid (dlopen)             ${libxvid_dlopen-no}"
+ echo "x264                      ${libx264-no}"
++echo "x264 (dlopen)             ${libx264_dlopen-no}"
+ echo "vpx                       ${libvpx-no}"
+ echo "SDL                       ${sdl-no}"
+ echo ""
+--- a/mythtv/external/FFmpeg/configure	2016-04-16 10:45:31.727695396 +0000
++++ b/mythtv-0.28/mythtv/external/FFmpeg/configure	2016-04-16 10:49:24.112712833 +0000
+@@ -218,7 +218,9 @@
+                            and libraw1394 [no]
+   --enable-libdcadec       enable DCA decoding via libdcadec [no]
+   --enable-libfaac         enable AAC encoding via libfaac [no]
++  --enable-libfaac-dlopen  enable FAAC support via dlopen()'ed libfaac [no]
+   --enable-libfdk-aac      enable AAC de/encoding via libfdk-aac [no]
++  --enable-libfdk-aac-dlopen enable AAC de/encoding via dlopen()'ed libfdk-aac [no]
+   --enable-libflite        enable flite (voice synthesis) support via libflite [no]
+   --enable-libfreetype     enable libfreetype, needed for drawtext filter [no]
+   --enable-libfribidi      enable libfribidi, improves drawtext filter [no]
+@@ -230,10 +232,13 @@
+   --enable-libmfx          enable HW acceleration through libmfx
+   --enable-libmodplug      enable ModPlug via libmodplug [no]
+   --enable-libmp3lame      enable MP3 encoding via libmp3lame [no]
++  --enable-libmp3lame-dlopen enable MP3 encoding via dlopen()'ed libmp3lame [no]
+   --enable-libnut          enable NUT (de)muxing via libnut,
+                            native (de)muxer exists [no]
+   --enable-libopencore-amrnb enable AMR-NB de/encoding via libopencore-amrnb [no]
++  --enable-libopencore-amrnb-dlopen enable AMR-NB de/encoding via dlopen()'ed libopencore-amrnb [no]
+   --enable-libopencore-amrwb enable AMR-WB decoding via libopencore-amrwb [no]
++  --enable-libopencore-amrwb-dlopen enable AMR-WB decoding via dlopen()'ed libopencore-amrwb [no]
+   --enable-libopencv       enable video filtering via libopencv [no]
+   --enable-libopenh264     enable H.264 encoding via OpenH264 [no]
+   --enable-libopenjpeg     enable JPEG 2000 de/encoding via OpenJPEG [no]
+@@ -261,6 +266,7 @@
+   --enable-libwavpack      enable wavpack encoding via libwavpack [no]
+   --enable-libwebp         enable WebP encoding via libwebp [no]
+   --enable-libx264         enable H.264 encoding via x264 [no]
++  --enable-libx264-dlopen  enable H.264 encoding via dlopen()'ed x264 [no]
+   --enable-libx265         enable HEVC encoding via x265 [no]
+   --enable-libxavs         enable AVS encoding via xavs [no]
+   --enable-libxcb          enable X11 grabbing using XCB [autodetect]
+@@ -269,6 +275,7 @@
+   --enable-libxcb-shape    enable X11 grabbing shape rendering [autodetect]
+   --enable-libxvid         enable Xvid encoding via xvidcore,
+                            native MPEG-4/Xvid encoder exists [no]
++  --enable-libxvid-dlopen  enable Xvid encoding via dlopen()'ed xvidcore
+   --enable-libzimg         enable z.lib, needed for zscale filter [no]
+   --enable-libzmq          enable message passing via libzmq [no]
+   --enable-libzvbi         enable teletext support via libzvbi [no]
+@@ -1442,7 +1449,9 @@
+     libdc1394
+     libdcadec
+     libfaac
++    libfaac_dlopen
+     libfdk_aac
++    libfdk_aac_dlopen
+     libflite
+     libfontconfig
+     libfreetype
+@@ -1455,9 +1464,12 @@
+     libmfx
+     libmodplug
+     libmp3lame
++    libmp3lame_dlopen
+     libnut
+     libopencore_amrnb
++    libopencore_amrnb_dlopen
+     libopencore_amrwb
++    libopencore_amrwb_dlopen
+     libopencv
+     libopenh264
+     libopenjpeg
+@@ -1484,6 +1496,7 @@
+     libwavpack
+     libwebp
+     libx264
++    libx264_dlopen
+     libx265
+     libxavs
+     libxcb
+@@ -1491,6 +1504,7 @@
+     libxcb_shape
+     libxcb_xfixes
+     libxvid
++    libxvid_dlopen
+     libzimg
+     libzmq
+     libzvbi
+@@ -5469,9 +5483,11 @@
+ enabled libcaca           && require_pkg_config caca caca.h caca_create_canvas
+ enabled libdcadec         && require_pkg_config "dcadec >= 0.1.0" libdcadec/dca_context.h dcadec_context_create
+ enabled libfaac           && require2 libfaac "stdint.h faac.h" faacEncGetVersion -lfaac
++enabled libfaac_dlopen    && enable libfaac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libfdk_aac        && { use_pkg_config fdk-aac "fdk-aac/aacenc_lib.h" aacEncOpen ||
+                                { require libfdk_aac fdk-aac/aacenc_lib.h aacEncOpen -lfdk-aac &&
+                                  warn "using libfdk without pkg-config"; } }
++enabled libfdk_aac_dlopen && enable libfdk_aac && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ flite_libs="-lflite_cmu_time_awb -lflite_cmu_us_awb -lflite_cmu_us_kal -lflite_cmu_us_kal16 -lflite_cmu_us_rms -lflite_cmu_us_slt -lflite_usenglish -lflite_cmulex -lflite"
+ enabled libflite          && require2 libflite "flite/flite.h" flite_init $flite_libs
+ enabled fontconfig        && enable libfontconfig
+@@ -5487,9 +5503,12 @@
+ enabled libmfx            && require_pkg_config libmfx "mfx/mfxvideo.h" MFXInit
+ enabled libmodplug        && require_pkg_config libmodplug libmodplug/modplug.h ModPlug_Load
+ enabled libmp3lame        && require "libmp3lame >= 3.98.3" lame/lame.h lame_set_VBR_quality -lmp3lame
++enabled libmp3lame_dlopen && enable libmp3lame && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libnut            && require libnut libnut.h nut_demuxer_init -lnut
+ enabled libopencore_amrnb && require libopencore_amrnb opencore-amrnb/interf_dec.h Decoder_Interface_init -lopencore-amrnb
++enabled libopencore_amrnb_dlopen && enable libopencore_amrnb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libopencore_amrwb && require libopencore_amrwb opencore-amrwb/dec_if.h D_IF_init -lopencore-amrwb
++enabled libopencore_amrwb_dlopen && enable libopencore_amrwb && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libopencv         && { check_header opencv2/core/core_c.h &&
+                                require_pkg_config opencv opencv2/core/core_c.h cvCreateImageHeader ||
+                                require_pkg_config opencv opencv/cxcore.h cvCreateImageHeader; }
+@@ -5559,11 +5578,13 @@
+                                die "ERROR: libx264 must be installed and version must be >= 0.118."; } &&
+                              { check_cpp_condition x264.h "X264_MPEG2" &&
+                                enable libx262; }
++enabled libx264_dlopen    && enable libx264 && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libx265           && require_pkg_config x265 x265.h x265_api_get &&
+                              { check_cpp_condition x265.h "X265_BUILD >= 68" ||
+                                die "ERROR: libx265 version must be >= 68."; }
+ enabled libxavs           && require libxavs xavs.h xavs_encoder_encode -lxavs
+ enabled libxvid           && require libxvid xvid.h xvid_global -lxvidcore
++enabled libxvid_dlopen    && enable libxvid && add_cppflags "-I$(dirname `readlink -f $0`)/localinc"
+ enabled libzimg           && require_pkg_config zimg zimg.h zimg_get_api_version
+ enabled libzmq            && require_pkg_config libzmq zmq.h zmq_ctx_new
+ enabled libzvbi           && require libzvbi libzvbi.h vbi_decoder_new -lzvbi &&
