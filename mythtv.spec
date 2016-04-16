@@ -150,6 +150,7 @@ BuildRequires:	qt5-devel
 BuildRequires:	pkgconfig(alsa)
 BuildRequires:	pkgconfig(avahi-compat-libdns_sd)
 BuildRequires:	pkgconfig(dvdnav)
+BuildRequires:	pkgconfig(exiv2)
 BuildRequires:	pkgconfig(fftw3)
 BuildRequires:	pkgconfig(glu)
 BuildRequires:	pkgconfig(jack)
