@@ -6,14 +6,15 @@
 %define _disable_lto 1
 %define _disable_rebuild_configure 1
 
-%define api	0.27
+%define api	0.28
 %define major	0
-%define avcmaj	54
-%define avfmaj	3
-%define avumaj	52
-%define ppmaj	52
-%define swscmaj 2
+%define avcmaj	57
+%define avfmaj	6
+%define avumaj	55
+%define ppmaj	54
+%define swscmaj 4
 %define zmqmaj	1
+%define swrsmaj 2
 %define libmyth %mklibname myth %{api} %{major}
 %define libmavc %mklibname mythavcodec %{avcmaj}
 %define libmavd %mklibname mythavdevice %{avcmaj}
@@ -24,16 +25,13 @@
 %define libmythfreemheg %mklibname mythfreemheg %{api} %{major}
 %define libmythhdhomerun %mklibname mythhdhomerun %{api} %{major}
 %define libmythmetadata %mklibname mythmetadata %{api} %{major}
-%define libmnzmqt %mklibname mythnzmqt %{major}
 %define libmpp %mklibname mythpostproc %{ppmaj}
 %define libmythprotoserver %mklibname mythprotoserver %{api} %{major}
-%define libmqjson %mklibname mythqjson %{major}
 %define libmythservicecontracts %mklibname mythservicecontracts %{api} %{major}
-%define libmswr %mklibname mythswresample %{major}
+%define libmswr %mklibname mythswresample %{swrsmaj}
 %define libmsws %mklibname mythswscale %{swscmaj}
 %define libmythui %mklibname mythui %{api} %{major}
 %define libmythupnp %mklibname mythupnp %{api} %{major}
-%define libmzmq %mklibname mythzmq %{zmqmaj}
 %define libname %mklibname %{name} %{api} %{major}
 %define devname	%mklibname %{name} -d
 
@@ -165,6 +163,7 @@ BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(python2)
 BuildRequires:	pkgconfig(Qt5WebKit)
+BuildRequires:	pkgconfig(Qt5Script)
 BuildRequires:	pkgconfig(QtWebKit)
 BuildRequires:	pkgconfig(vpx)
 BuildRequires:	pkgconfig(x11)
@@ -287,7 +286,7 @@ This package is based on the MythTV "fixes" branch at
 revision %{gitrev}
 %endif
 
-%define mythtvlibs libmyth libmavc libmavd libmavfi libmavfo libmavu libmythbase libmythfreemheg libmythhdhomerun libmythmetadata libmnzmqt libmpp libmythprotoserver libmqjson libmythservicecontracts libmswr libmsws libmythui libmythupnp libmzmq 
+%define mythtvlibs libmyth libmavc libmavd libmavfi libmavfo libmavu libmythbase libmythfreemheg libmythhdhomerun libmythmetadata libmpp libmythprotoserver libmythservicecontracts libmswr libmsws libmythui libmythupnp
 %{expand:%(for lib in %{mythtvlibs}; do cat <<EOF
 %%package -n %%{$lib}
 Summary:	Shared library providing mythtv support
@@ -865,7 +864,6 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_bindir}/mythwikiscripts
 %{_bindir}/mythmetadatalookup
 %{_bindir}/mythutil
-%{_bindir}/mythlogserver
 %dir %{_datadir}/%{name}
 %{_datadir}/mythtv/CDS_scpd.xml
 %{_datadir}/mythtv/CMGR_scpd.xml
@@ -879,6 +877,7 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/%{name}/locales/*
 %dir %{_datadir}/%{name}/metadata
 %{_datadir}/%{name}/metadata/Movie
+%{_datadir}/%{name}/metadata/Music
 %{_datadir}/%{name}/metadata/Television
 %dir %{_datadir}/%{name}/hardwareprofile
 %{_datadir}/%{name}/hardwareprofile/*
@@ -886,6 +885,7 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %files backend
 %doc mythtv/README.install.urpmi
 %{_bindir}/mythbackend
+%{_bindir}/mythfilerecorder
 %{_bindir}/mythhdhomerun_config
 %{_bindir}/mythfilldatabase
 %{_bindir}/mythjobqueue
@@ -1191,6 +1191,12 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/themes/default/wide_button_background.png
 %{_datadir}/mythtv/themes/default/wide_button_pushed_background.png
 %{_datadir}/mythtv/themes/default/wide_button_selected_background.png
+%{_datadir}/mythtv/themes/default/image-ui.xml
+%{_datadir}/mythtv/themes/default/musicscanner.png
+%{_datadir}/mythtv/themes/default/shared/folder-reg.png
+%{_datadir}/mythtv/themes/default/shared/folder-sel.png
+%{_datadir}/mythtv/themes/default/shared/movie-reg.png
+%{_datadir}/mythtv/themes/default/shared/movie-sel.png
 
 %{_iconsdir}/%{name}.png
 %{_miconsdir}/%{name}.png
@@ -1226,23 +1232,17 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %files -n %{libmythmetadata}
 %{_libdir}/libmythmetadata-%{api}.so.%{major}*
 
-%files -n %{libmnzmqt}
-%{_libdir}/libmythnzmqt.so.%{major}*
-
 %files -n %{libmpp}
 %{_libdir}/libmythpostproc.so.%{ppmaj}*
 
 %files -n %{libmythprotoserver}
 %{_libdir}/libmythprotoserver-%{api}.so.%{major}*
 
-%files -n %{libmqjson}
-%{_libdir}/libmythqjson.so.%{major}*
-
 %files -n %{libmythservicecontracts}
 %{_libdir}/libmythservicecontracts-%{api}.so.%{major}*
 
 %files -n %{libmswr}
-%{_libdir}/libmythswresample.so.%{major}*
+%{_libdir}/libmythswresample.so.%{swrsmaj}*
 
 %files -n %{libmsws}
 %{_libdir}/libmythswscale.so.%{swscmaj}*
@@ -1255,9 +1255,6 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 
 %files -n %{libmythupnp}
 %{_libdir}/libmythupnp-%{api}.so.%{major}*
-
-%files -n %{libmzmq}
-%{_libdir}/libmythzmq.so.%{zmqmaj}*
 
 %files -n %{devname}
 %if %maenable
@@ -1309,7 +1306,6 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %doc mythplugins/mythmusic/AUTHORS mythplugins/mythmusic/COPYING mythplugins/mythmusic/README* mythplugins/mythmusic/musicdb
 %{_datadir}/mythtv/music_settings.xml
 %{_datadir}/mythtv/musicmenu.xml
-%{_datadir}/mythtv/mythmusic/streams.xml
 %{_libdir}/mythtv/plugins/libmythmusic.so
 %{_localstatedir}/lib/mythmusic
 %{_datadir}/mythtv/i18n/mythmusic_*.qm
