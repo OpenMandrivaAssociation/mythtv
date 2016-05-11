@@ -83,26 +83,13 @@
 %{?_with_x264:			%global build_x264 1}
 %{?_with_xvid:			%global build_xvid 1}
 
-%if "%{disttag}" == "mdk"
-%define build_directfb		1
-%define build_dts		1
-%define build_faac		1
-%define build_faad		1
-%define build_fdk_aac		1
-%define build_lame		1
-%define build_x264		1
-%define build_xvid		1
-# Can be enabled later
-%define build_crystalhd		1
-%endif
-
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
 Version:	0.28
 %define gitrev  v0.28-2-g15cf42
 
 %define	fixesdate 20160415
-Release:	%{?fixesdate:%{fixesdate}.}1%{?extrarelsuffix}
+Release:	%{?fixesdate:%{fixesdate}.}2%{?extrarelsuffix}
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
