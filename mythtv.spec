@@ -547,7 +547,7 @@ and the mythfrontend UI plugin.
 
 %prep
 %setup -q
-%apply_patches
+%autopatch -p1
 
 # (cg) Fixes might bring in some .gitignore files in patches... trash 'em.
 find -name .gitignore -delete
