@@ -1,7 +1,3 @@
-%if "%{distepoch}" < "2015.0"
-%define	__python2	%{_bindir}/python2
-%define	py2_puresitedir	%{py_puresitedir}
-%endif
 
 %define _disable_lto 1
 %define _disable_rebuild_configure 1
@@ -49,7 +45,7 @@
 # Can be enabled later
 %define build_crystalhd		0
 
-%define build_plf 0
+%define build_plf 1
 
 %if %{build_plf}
 %define extrarelsuffix plf
@@ -85,39 +81,39 @@
 
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.28
-%define gitrev  v0.28-2-g15cf42
-
-%define	fixesdate 20160415
-Release:	%{?fixesdate:%{fixesdate}.}2%{?extrarelsuffix}
+Version:	0.30
+Release:	1
 License:	GPLv2 and GPLv3
 Group:		Video
 Url:		http://www.mythtv.org/
-Source0:	%{name}-%{version}.tar.gz
-Source1:	mythbackend.sysconfig.in
-Source2:	mythbackend.service.in
-Source3:	mythbackend.logrotate.in
-Source4:	99MythFrontend
-Source5:	%{name}-16.png
-Source6:	%{name}-32.png
-Source7:	%{name}-48.png
-Source10:	%{name}.rpmlintrc
+Source0:	https://github.com/MythTV/mythtv/archive/v%{version}/mythtv-%{version}.tar.gz
+Source1:        mythbackend.sysconfig.in
+Source2:        mythbackend.init.in
+Source3:        mythbackend.logrotate.in
+Source4:        mythfrontend.desktop
+Source5:        %name-16.png
+Source6:        %name-32.png
+Source7:        %name-48.png
+Source8:        mythbackend.service.in
+Source9:        update-fixes.sh
+Source10:       mythtv.sysconfig.in
 
-%if %{fixesdate}
-Patch0:		fixes-%{gitrev}.patch
-%endif
-Patch100:	0100-lame-Allow-building-without-lame-libraries.patch
-Patch101:	0101-lame-Allow-building-plugins-without-lame-libraries.patch
-Patch102:	0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
-Patch103:	0103-Fix-dns-sd-detection.patch
-#Patch104:	0104-Support-libcec-2.x.patch
-#Patch105:	0105-Use-system-build-flags.patch
-#Patch106:	0106-Fix-zeromq-libdir-path-on-some-systems.patch
-#Patch107:	0107-clang.patch
+Source11:	%{name}.rpmlintrc
 
-Patch200:	mythtv-0.27.4-ffmpeg-dlopen-restricted-codecs.patch
-#Patch201:	0001-this-patch-is-most-likely-broken-but-at-least-it-mak.patch
-Patch203:	0001-fix-to-use-mythtv-s-own-header.patch
+Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
+Patch103: 0103-Fix-dns-sd-detection.patch
+#add CFLAGS and LDFLAGS to QMAKE
+Patch104: mythtv-0.28.1-qmake-mgaflags.patch
+#fix build with new mariadb 10.2
+Patch105: mythtv-30.0-mariadb10.2.patch
+#fix mythavcodec linking
+Patch106: mythtv-30.0-linking.patch
+#enable xnvctrl support on Mageia
+Patch107: mythtv-30.0-mageia-xnvctrl.patch
+#use /run instead of /var/run
+Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
+Patch109: mythtv-python3.patch
+Patch110: mythtv-py3_configure.patch
 
 BuildRequires:	gdb
 BuildRequires:	libtool
@@ -150,10 +146,17 @@ BuildRequires:	pkgconfig(liblircclient0)
 BuildRequires:	pkgconfig(libpulse)
 BuildRequires:	pkgconfig(libva)
 BuildRequires:	pkgconfig(python2)
-BuildRequires:	pkgconfig(Qt5WebKit)
+BuildRequires:  pkgconfig(Qt5Core)
+BuildRequires:  pkgconfig(Qt5DBus)
+BuildRequires:  pkgconfig(Qt5Gui)
 BuildRequires:	pkgconfig(Qt5WebKitWidgets)
 BuildRequires:	pkgconfig(Qt5Script)
 BuildRequires:	pkgconfig(QtWebKit)
+BuildRequires:  pkgconfig(Qt5Widgets)
+BuildRequires:  pkgconfig(Qt5Network)
+BuildRequires:  pkgconfig(Qt5OpenGL)
+BuildRequires:  pkgconfig(Qt5Sql)
+BuildRequires:  pkgconfig(Qt5Xml)
 BuildRequires:	pkgconfig(vpx)
 BuildRequires:	pkgconfig(x11)
 BuildRequires:	pkgconfig(xext)
@@ -162,6 +165,12 @@ BuildRequires:	pkgconfig(xrandr)
 BuildRequires:	pkgconfig(xv)
 BuildRequires:	pkgconfig(xvmc)
 BuildRequires:	pkgconfig(xxf86vm)
+BuildRequires:  python3dist(mysqlclient)
+BuildRequires:  python3dist(lxml)
+BuildRequires:  python3dist(urlgrabber)
+BuildRequires:  pkgconfig(libpulse)
+BuildRequires:  pkgconfig(fftw3)
+BuildRequires:  pkgconfig(libva)
 BuildRequires:	pkgconfig(vdpau)
 BuildRequires:  gsm-devel
 BuildRequires:  pkgconfig(theora)
@@ -219,6 +228,19 @@ BuildRequires:  pkgconfig(libexif)
 BuildRequires:  id3tag-devel
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  pkgconfig(flac)
+BuildRequires:  pkgconfig(python)
+BuildRequires:  pkgconfig(libcec)
+BuildRequires:  pkgconfig(libass)
+BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
+BuildRequires:  pkgconfig(libvpx)
+BuildRequires:  pkgconfig(exiv2)
+BuildRequires:  crystalhd-devel
+BuildRequires:  hdhomerun-devel
+BuildRequires:  pkgconfig(libavc1394)
+BuildRequires:  pkgconfig(libiec61883)
+BuildRequires:  pkgconfig(gl)
+BuildRequires:  pkgconfig(glu)
+
 BuildRequires:  cdda-devel
 BuildRequires:  tiff-devel
 BuildRequires:  mysql-devel
@@ -231,6 +253,36 @@ BuildRequires:  perl-SOAP-Lite
 BuildRequires:  perl-XML-Simple
 BuildRequires:	perl-JSON
 BuildRequires:  perl(Class::Factory::Util)
+BuildRequires:  perl(Net::UPnP::QueryResponse)
+BuildRequires:  perl(Net::UPnP::ControlPoint
+
+# For Plugins
+BuildRequires:  pkgconfig(libvisual-0.4)
+BuildRequires:  pkgconfig(fftw3)
+BuildRequires:  pkgconfig(sdl2)
+BuildRequires:  pkgconfig(dvdread)
+BuildRequires:  pkgconfig(libexif)
+BuildRequires:  pkgconfig(id3tag)
+BuildRequires:  pkgconfig(vorbis)
+BuildRequires:  pkgconfig(flac)
+BuildRequires:  pkgconfig(libbluray)
+BuildRequires:  pkgconfig(libcdaudio)
+BuildRequires:  pkgconfig(lzo2)
+BuildRequires:  libcdda-devel
+BuildRequires:  pkgconfig(libtiff-4)
+BuildRequires:  mysql-devel
+BuildRequires:  pkgconfig(minizip)
+BuildRequires:  pkgconfig(ogg)
+BuildRequires:  pkgconfig(taglib)
+BuildRequires:  pkgconfig(theora)
+BuildRequires:  python3dist(pycurl)
+BuildRequires:  python3dist(oauth)
+
+
+# Bluray support
+#BuildRequires:  ant
+#BuildRequires:  java-devel
+BuildRequires:  pkgconfig(libxml-2.0)
 
 %description
 MythTV implements the following PVR features, and more, with a
@@ -253,10 +305,6 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
-%endif
 
 %package -n %{libname}
 Summary:	Library providing mythtv support
@@ -269,10 +317,6 @@ Common library code for MythTV and add-on modules (development).
 %if %{build_plf}
 This package is in restricted because it contains software that supports
 codecs that may be covered by software patents.
-%endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
 %endif
 
 %define mythtvlibs libmyth libmavc libmavd libmavfi libmavfo libmavu libmythbase libmythfreemheg libmythhdhomerun libmythmetadata libmpp libmythprotoserver libmythservicecontracts libmswr libmsws libmythui libmythupnp
@@ -307,10 +351,6 @@ add-ons for mythtv.
 %if %{build_plf}
 This package is in restricted because it contains software that supports
 codecs that may be covered by software patents.
-%endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
 %endif
 
 %package themes-base
@@ -351,10 +391,6 @@ reachable via the network.
 This package is in restricted because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
-%endif
 
 %package backend
 Summary:	Server component of mythtv (a PVR)
@@ -378,10 +414,6 @@ codecs that may be covered by software patents.
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
-%endif
 
 %package setup
 Summary:	Setup the mythtv backend
@@ -402,10 +434,6 @@ codecs that may be covered by software patents.
 %if !%{build_lame}
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
-%endif
-%if %{fixesdate}
-This package is based on the MythTV "fixes" branch at 
-revision %{gitrev}
 %endif
 
 %package doc
