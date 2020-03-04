@@ -81,7 +81,7 @@
 
 Summary:	A personal video recorder (PVR) application
 Name:		mythtv
-Version:	0.30
+Version:	30.0
 Release:	1
 License:	GPLv2 and GPLv3
 Group:		Video
