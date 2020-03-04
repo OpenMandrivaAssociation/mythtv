@@ -1,6 +1,0 @@
-NAME=MythFrontend
-#ICON=
-EXEC=/usr/bin/mythfrontend
-DESC=MythTV Frontend
-SCRIPT:
-exec /usr/bin/mythfrontend

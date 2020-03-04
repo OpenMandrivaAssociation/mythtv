@@ -1,3 +1,2 @@
 MYTHTV_HOME=@varlibdir@/mythtv
 MYTHCONFDIR=@varlibdir@/mythtv
-#OPTIONS=

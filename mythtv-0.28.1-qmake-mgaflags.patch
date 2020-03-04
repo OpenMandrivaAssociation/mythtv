@@ -1,0 +1,11 @@
+--- mythtv-0.28.1/mythtv/configure.orig	2017-05-30 16:06:00.038961933 +0200
++++ mythtv-0.28.1/mythtv/configure	2017-05-30 16:07:17.000559841 +0200
+@@ -8140,7 +8140,7 @@
+ CXX=$cxx
+ AS=$as
+ OBJCC=$objcc
+-QMAKE=$qmakeconf
++QMAKE=$qmakeconf QMAKE_CFLAGS="$CFLAGS" QMAKE_LFLAGS="$LDFLAGS"
+ QMAKE_CC=$cc
+ QMAKE_CXX=$cxx
+ QMAKE_LINK=$cxx

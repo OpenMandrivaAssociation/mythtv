@@ -1,0 +1,16 @@
+diff -Nru a/mythtv/configure b/mythtv/configure
+--- a/mythtv/configure	2019-01-14 12:53:51.000000000 +0100
++++ b/mythtv/configure	2019-01-21 16:09:18.631425465 +0100
+@@ -6644,10 +6644,10 @@
+     if enabled xnvctrl; then
+         case $target_os in
+             linux)
+-                # Bah. Suse linux doesn't have xnvctrl.
++                # Bah. Mageia linux doesn't have xnvctrl.
+                 . /etc/os-release
+                 case $ID in
+-                    *suse*)
++                    *mageia*)
+ 			# This is hopefully temporary.
+ 			disable xnvctrl_external
+ 			;;

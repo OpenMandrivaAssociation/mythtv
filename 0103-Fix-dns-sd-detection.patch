@@ -11,24 +11,28 @@ diff --git a/mythtv/configure b/mythtv/configure
 index 8551480..a7da12f 100755
 --- a/mythtv/configure
 +++ b/mythtv/configure
-@@ -5479,7 +5479,16 @@ fi
- enabled libcrypto && check_lib openssl/rsa.h RSA_new -lcrypto || disable libcrypto
+@@ -6608,7 +6608,7 @@
+ enabled libcrypto && check_lib crypto openssl/rsa.h RSA_new -lcrypto || disable libcrypto
  
  if test $target_os != darwin ; then
--    enabled libdns_sd && check_lib dns_sd.h DNSServiceRegister -ldns_sd || disable libdns_sd
-+    if enabled libdns_sd; then
-+        check_lib dns_sd.h DNSServiceRegister -ldns_sd || disable libdns_sd
-+        if disabled libdns_sd && pkg-config --exists avahi-compat-libdns_sd ; then
-+            enable libdns_sd
-+            dns_sd_flags=`pkg-config --cflags avahi-compat-libdns_sd`
-+            add_cflags $dns_sd_flags
-+            add_cxxflags $dns_sd_flags
-+            check_lib dns_sd.h DNSServiceRegister `pkg-config --libs avahi-compat-libdns_sd` || disable libdns_sd
-+        fi
-+    fi
+-    enabled libdns_sd && check_lib dns_sd dns_sd.h DNSServiceRegister -ldns_sd || disable libdns_sd
++    enabled libdns_sd && check_lib dns_sd avahi-compat-libdns_sd/dns_sd.h DNSServiceRegister -ldns_sd || disable libdns_sd
  fi
  
  if enabled libxml2 ; then
+diff --git a/mythtv/libs/libmythbase/bonjourregister.h b/mythtv/libs/libmythbase/bonjourregister.h
+index 8551480..a7da12f 100644
+--- a/mythtv/libs/libmythbase/bonjourregister.h
++++ b/mythtv/libs/libmythbase/bonjourregister.h
+@@ -3,7 +3,7 @@
+ 
+ #include <QObject>
+ #include <QMutex>
+-#include <dns_sd.h>
++#include <avahi-compat-libdns_sd/dns_sd.h>
+ #include "mythbaseexp.h"
+ 
+ class QSocketNotifier;
 -- 
 1.8.4
 

@@ -9,6 +9,6 @@
     rotate 4
     size 10M
     postrotate
-       /bin/kill -HUP `cat /var/run/mythbackend.pid 2>/dev/null` 2> /dev/null || true
+       /bin/kill -HUP `cat @rundir@/mythbackend.pid 2>/dev/null` 2> /dev/null || true
     endscript
 }

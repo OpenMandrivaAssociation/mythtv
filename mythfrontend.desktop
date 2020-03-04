@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=MythFrontEnd
+Comment=This session will start MythTV Frontend
+Exec=/usr/bin/mythfrontend
+TryExec=/usr/bin/mythfrontend
+Type=Application
