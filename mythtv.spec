@@ -112,7 +112,7 @@ Patch106: mythtv-30.0-linking.patch
 Patch107: mythtv-30.0-mageia-xnvctrl.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
-Patch109: mythtv-python3.patch
+#Patch109: mythtv-python3.patch
 Patch110: mythtv-py3_configure.patch
 
 BuildRequires:	gdb
