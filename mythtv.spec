@@ -123,8 +123,9 @@ BuildRequires:	flite-devel
 BuildRequires:	perl(Date::Manip)
 BuildRequires:	perl(DBD::mysql)
 BuildRequires:	perl(DBI)
-BuildRequires:	pythonegg(lxml)
-BuildRequires:	python-mysql
+BuildRequires:	python3dist(lxml)
+# Need fix build
+#BuildRequires:	python-mysql
 BuildRequires:	python-urlgrabber
 BuildRequires:	pythonegg(oauth)
 BuildRequires:	yasm
@@ -165,7 +166,7 @@ BuildRequires:	pkgconfig(xrandr)
 BuildRequires:	pkgconfig(xv)
 BuildRequires:	pkgconfig(xvmc)
 BuildRequires:	pkgconfig(xxf86vm)
-BuildRequires:  python3dist(mysqlclient)
+#BuildRequires:  python3dist(mysqlclient)
 BuildRequires:  python3dist(lxml)
 BuildRequires:  python3dist(urlgrabber)
 BuildRequires:  pkgconfig(libpulse)
@@ -208,7 +209,7 @@ BuildRequires:	xvid-devel
 BuildRequires:	libfaac-devel
 %endif
 %if %{build_faad}
-BuildRequires:	libfaad2-devel
+BuildRequires:	faad2-devel
 %endif
 %if %{build_fdk_aac}
 BuildRequires:	pkgconfig(fdk-aac)
@@ -216,9 +217,9 @@ BuildRequires:	pkgconfig(fdk-aac)
 %if %{build_directfb}
 BuildRequires:	pkgconfig(directfb)
 %endif
-%if %{maenable}
-BuildRequires:	multiarch-utils
-%endif
+#if %{maenable}
+#BuildRequires:	multiarch-utils
+#endif
 
 BuildRequires:  libvisual-devel
 BuildRequires:  fftw-devel
@@ -232,10 +233,10 @@ BuildRequires:  pkgconfig(python)
 BuildRequires:  pkgconfig(libcec)
 BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
-BuildRequires:  pkgconfig(libvpx)
+BuildRequires:  pkgconfig(vpx)
 BuildRequires:  pkgconfig(exiv2)
 BuildRequires:  crystalhd-devel
-BuildRequires:  hdhomerun-devel
+#BuildRequires:  hdhomerun-devel
 BuildRequires:  pkgconfig(libavc1394)
 BuildRequires:  pkgconfig(libiec61883)
 BuildRequires:  pkgconfig(gl)
@@ -248,13 +249,13 @@ BuildRequires:  taglib-devel
 BuildRequires:  perl-XML-XPath
 BuildRequires:  perl-Image-Size
 BuildRequires:  perl-Date-Manip
-BuildRequires:  perl-DateTime-Format-ISO8601
-BuildRequires:  perl-SOAP-Lite
+#BuildRequires:  perl-DateTime-Format-ISO8601
+#BuildRequires:  perl-SOAP-Lite
 BuildRequires:  perl-XML-Simple
 BuildRequires:	perl-JSON
 BuildRequires:  perl(Class::Factory::Util)
-BuildRequires:  perl(Net::UPnP::QueryResponse)
-BuildRequires:  perl(Net::UPnP::ControlPoint
+#BuildRequires:  perl(Net::UPnP::QueryResponse)
+#BuildRequires:  perl(Net::UPnP::ControlPoint
 
 # For Plugins
 BuildRequires:  pkgconfig(libvisual-0.4)
@@ -266,9 +267,8 @@ BuildRequires:  pkgconfig(id3tag)
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  pkgconfig(flac)
 BuildRequires:  pkgconfig(libbluray)
-BuildRequires:  pkgconfig(libcdaudio)
+#BuildRequires:  pkgconfig(libcdaudio)
 BuildRequires:  pkgconfig(lzo2)
-BuildRequires:  libcdda-devel
 BuildRequires:  pkgconfig(libtiff-4)
 BuildRequires:  mysql-devel
 BuildRequires:  pkgconfig(minizip)
