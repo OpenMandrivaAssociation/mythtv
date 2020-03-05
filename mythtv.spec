@@ -1,92 +1,84 @@
+# Note: When updating version, also update the update-fixes.sh script's version
+# and rerun it. This will generate a new fixes patch and update the spec
+# automatically.
+%define gitversion v30.0-85-gab250
+%define fixesdate 20200217
+%define rel 1
 
-%define _disable_lto 1
-%define _disable_rebuild_configure 1
+%if %{fixesdate}
+%define release %mkrel %fixesdate.%rel
+%else
+%define release %mkrel %rel
+%endif
 
-%define api	0.28
-%define major	0
-%define avcmaj	57
-%define avfmaj	6
-%define avumaj	55
-%define ppmaj	54
-%define swscmaj 4
-%define zmqmaj	1
-%define swrsmaj 2
-%define libmyth %mklibname myth %{api} %{major}
-%define libmavc %mklibname mythavcodec %{avcmaj}
-%define libmavd %mklibname mythavdevice %{avcmaj}
-%define libmavfi %mklibname mythavfilter %{avfmaj}
-%define libmavfo %mklibname mythavformat %{avcmaj}
-%define libmavu %mklibname mythavutil %{avumaj}
-%define libmythbase %mklibname mythbase %{api} %{major}
-%define libmythfreemheg %mklibname mythfreemheg %{api} %{major}
-%define libmythhdhomerun %mklibname mythhdhomerun %{api} %{major}
-%define libmythmetadata %mklibname mythmetadata %{api} %{major}
-%define libmpp %mklibname mythpostproc %{ppmaj}
-%define libmythprotoserver %mklibname mythprotoserver %{api} %{major}
-%define libmythservicecontracts %mklibname mythservicecontracts %{api} %{major}
-%define libmswr %mklibname mythswresample %{swrsmaj}
-%define libmsws %mklibname mythswscale %{swscmaj}
-%define libmythui %mklibname mythui %{api} %{major}
-%define libmythupnp %mklibname mythupnp %{api} %{major}
-%define libname %mklibname %{name} %{api} %{major}
-%define devname	%mklibname %{name} -d
+%define lib_name_orig   libmyth
+%define lib_major       30
+%define lib_name        %mklibname myth %{lib_major}
+%define lib_name_devel  %mklibname myth -d
 
 %define maenable 1
+
 #set default build options
 # disabled as overrides xv
-%define build_directfb		0
-%define build_dts		0
-%define build_faac		0
-%define build_faad		0
-%define build_fdk_aac		0
-%define build_lame		0
-%define build_x264		0
-%define build_xvid		0
-# Can be enabled later
-%define build_crystalhd		0
+%define build_directfb          0
+%define build_dts               0
+%define build_faac              0
+%define build_faad              0
+#lame is no longer tainted
+%define build_lame              1
+%define build_x264              0
+%define build_x265              0
+%define build_xvid              0
 
-%define build_plf 1
-
-%if %{build_plf}
-%define extrarelsuffix plf
-%define distsuffix		plf
-%define build_dts		1
-%define build_faac		1
-%define build_faad		1
-%define build_fdk_aac		1
-%define build_lame		1
-# build broken against current x264 as of 2010-01, re-enable when fixed
-%define build_x264		1
-%define build_xvid		1
+# --with plf
+%if "%distro_section" == "tainted"
+%global build_tainted 1
+%else
+%global build_tainted 0
+%endif
+%if %{build_tainted}
+%define build_dts               1
+%define build_faac              0
+%define build_faad              1
+%define build_lame              1
+%define build_x264              1
+%define build_x265              1
+%define build_xvid              1
 %endif
 
 #enable/disable building for certain hardware
-%{?_without_directfb:		%global build_directfb 0}
-%{?_without_dts:		%global build_dts 0}
-%{?_without_faac:		%global build_faac 0}
-%{?_without_faad:		%global build_faad 0}
-%{?_without_fdk_aac:               %global build_fdk_aac 0}
-%{?_without_lame:		%global build_lame 0}
-%{?_without_x264:		%global build_x264 0}
-%{?_without_xvid:		%global build_xvid 0}
+%{?_without_directfb:           %global build_directfb 0}
+%{?_without_dts:                %global build_dts 0}
+%{?_without_faac:               %global build_faac 0}
+%{?_without_faad:               %global build_faad 0}
+%{?_without_lame:               %global build_lame 0}
+%{?_without_x264:               %global build_x264 0}
+%{?_without_x265:               %global build_x265 0}
+%{?_without_xvid:               %global build_xvid 0}
 
-%{?_with_directfb:		%global build_directfb 1}
-%{?_with_dts:			%global build_dts 1}
-%{?_with_faac:			%global build_faac 1}
-%{?_with_faad:			%global build_faad 1}
-%{?_with_fdk_aac:               %global build_fdk_aac 1}
-%{?_with_lame:			%global build_lame 1}
-%{?_with_x264:			%global build_x264 1}
-%{?_with_xvid:			%global build_xvid 1}
+%{?_with_directfb:              %global build_directfb 1}
+%{?_with_dts:                   %global build_dts 1}
+%{?_with_faac:                  %global build_faac 1}
+%{?_with_faad:                  %global build_faad 1}
+%{?_with_lame:                  %global build_lame 1}
+%{?_with_x264:                  %global build_x264 1}
+%{?_with_x265:                  %global build_x265 1}
+%{?_with_xvid:                  %global build_xvid 1}
 
-Summary:	A personal video recorder (PVR) application
-Name:		mythtv
-Version:	30.0
-Release:	1
-License:	GPLv2 and GPLv3
-Group:		Video
-Url:		http://www.mythtv.org/
-Source0:	https://github.com/MythTV/mythtv/archive/v%{version}/mythtv-%{version}.tar.gz
+# Turn off the brp-python-bytecompile automagic
+%global _python_bytecompile_extra 0
+
+# The filters in mythfrontend shouldn't really be exposed as provides.
+%global _exclude_files_from_autoprov %{?_exclude_files_from_autoprov:%_exclude_files_from_autoprov|}%{_libdir}/%{name}/filters/.*\\.so$
+
+Summary:        A personal video recorder (PVR) application
+Name:           mythtv
+Version:        30.0
+Release:        %{release}
+URL:            http://www.mythtv.org/
+License:        GPLv2 + GPLv3
+Group:          Video/Television
+Source0:        https://github.com/MythTV/mythtv/archive/v%{version}/mythtv-%{version}.tar.gz
 Source1:        mythbackend.sysconfig.in
 Source2:        mythbackend.init.in
 Source3:        mythbackend.logrotate.in
@@ -97,9 +89,10 @@ Source7:        %name-48.png
 Source8:        mythbackend.service.in
 Source9:        update-fixes.sh
 Source10:       mythtv.sysconfig.in
-
-Source11:	%{name}.rpmlintrc
-
+%if %{fixesdate}
+Patch001: fixes-%{gitversion}.patch
+%endif
+# (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
 #add CFLAGS and LDFLAGS to QMAKE
@@ -112,150 +105,82 @@ Patch106: mythtv-30.0-linking.patch
 Patch107: mythtv-30.0-mageia-xnvctrl.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
-#Patch109: mythtv-python3.patch
+Patch109: mythtv-python3.patch
 Patch110: mythtv-py3_configure.patch
 
-BuildRequires:	gdb
-BuildRequires:	libtool
-BuildRequires:	autoconf
-BuildRequires:	imagemagick
-BuildRequires:	flite-devel
-BuildRequires:	perl(Date::Manip)
-#BuildRequires:	perl(DBD::mysql)
-BuildRequires:	perl(DBI)
-BuildRequires:	python3dist(lxml)
-# Need fix build
-#BuildRequires:	python-mysql
-BuildRequires:	python-urlgrabber
-BuildRequires:	pythonegg(oauth)
-BuildRequires:	yasm
-BuildRequires:	perl-devel
-BuildRequires:	qt5-devel
-BuildRequires:	pkgconfig(alsa)
-BuildRequires:	pkgconfig(avahi-compat-libdns_sd)
-BuildRequires:	pkgconfig(dvdnav)
-BuildRequires:	pkgconfig(exiv2)
-BuildRequires:	pkgconfig(fftw3)
-BuildRequires:	pkgconfig(glu)
-BuildRequires:	pkgconfig(jack)
-BuildRequires:	pkgconfig(libass)
-BuildRequires:	pkgconfig(libavc1394)
-BuildRequires:	pkgconfig(libbluray)
-BuildRequires:	pkgconfig(libcec)
-BuildRequires:	pkgconfig(libiec61883)
-BuildRequires:	pkgconfig(liblircclient0)
-BuildRequires:	pkgconfig(libpulse)
-BuildRequires:	pkgconfig(libva)
-BuildRequires:	pkgconfig(python2)
+BuildRequires:  gdb
+BuildRequires:  imagemagick
+BuildRequires:  yasm
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5DBus)
 BuildRequires:  pkgconfig(Qt5Gui)
-BuildRequires:	pkgconfig(Qt5WebKitWidgets)
-BuildRequires:	pkgconfig(Qt5Script)
-BuildRequires:	pkgconfig(Qt5WebKit)
-BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5Network)
 BuildRequires:  pkgconfig(Qt5OpenGL)
+BuildRequires:  pkgconfig(Qt5Script)
 BuildRequires:  pkgconfig(Qt5Sql)
+BuildRequires:  pkgconfig(Qt5WebKit)
+BuildRequires:  pkgconfig(Qt5WebKitWidgets)
+BuildRequires:  pkgconfig(Qt5Widgets)
 BuildRequires:  pkgconfig(Qt5Xml)
-BuildRequires:	pkgconfig(vpx)
-BuildRequires:	pkgconfig(x11)
-BuildRequires:	pkgconfig(xext)
-BuildRequires:	pkgconfig(xinerama)
-BuildRequires:	pkgconfig(xrandr)
-BuildRequires:	pkgconfig(xv)
-BuildRequires:	pkgconfig(xvmc)
-BuildRequires:	pkgconfig(xxf86vm)
-#BuildRequires:  python3dist(mysqlclient)
+BuildRequires:  pkgconfig(alsa)
+BuildRequires:  pkgconfig(dvdnav)
+BuildRequires:  pkgconfig(jack)
+BuildRequires:  pkgconfig(liblircclient0)
+BuildRequires:  pkgconfig(x11)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xinerama)
+BuildRequires:  pkgconfig(xrandr)
+BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(xvmc)
+BuildRequires:  pkgconfig(xxf86vm)
+BuildRequires:  pkgconfig(python3)
+BuildRequires:  python3dist(mysqlclient)
 BuildRequires:  python3dist(lxml)
 BuildRequires:  python3dist(urlgrabber)
 BuildRequires:  pkgconfig(libpulse)
 BuildRequires:  pkgconfig(fftw3)
+BuildRequires:  pkgconfig(vdpau)
 BuildRequires:  pkgconfig(libva)
-BuildRequires:	pkgconfig(vdpau)
-BuildRequires:  gsm-devel
-BuildRequires:  pkgconfig(theora)
-BuildRequires:  pkgconfig(schroedinger-1.0)
-BuildRequires:  pkgconfig(librtmp)
-BuildRequires:  pkgconfig(speex)
-BuildRequires:  libnut-devel
-BuildRequires:  pkgconfig(freetype2)
-BuildRequires:  pkgconfig(celt)
-BuildRequires:  openjpeg-devel
-BuildRequires:  pkgconfig(openal)
-BuildRequires:  pkgconfig(soxr)
-BuildRequires:  pkgconfig(twolame)
-BuildRequires:  pkgconfig(opus)
-BuildRequires:  pkgconfig(libilbc)
-BuildRequires:  pkgconfig(libmodplug)
-BuildRequires:  pkgconfig(libv4l2)
-BuildRequires:	dc1394-devel
-%if %{build_crystalhd}
-BuildRequires:	crystalhd-devel
-%endif
-%if %{build_lame}
-BuildRequires:	lame-devel
-%endif
-%if %{build_dts}
-BuildRequires:	dtsdec-devel
-%endif
-%if %{build_x264}
-BuildRequires:	x264-devel
-%endif
-%if %{build_xvid}
-BuildRequires:	xvid-devel
-%endif
-%if %{build_faac}
-BuildRequires:	libfaac-devel
-%endif
-%if %{build_faad}
-BuildRequires:	faad2-devel
-%endif
-%if %{build_fdk_aac}
-BuildRequires:	pkgconfig(fdk-aac)
-%endif
-%if %{build_directfb}
-BuildRequires:	pkgconfig(directfb)
-%endif
-#if %{maenable}
-#BuildRequires:	multiarch-utils
-#endif
-
-BuildRequires:  libvisual-devel
-BuildRequires:  fftw-devel
-BuildRequires:  pkgconfig(sdl)
-BuildRequires:  libdvdread-devel
-BuildRequires:  pkgconfig(libexif)
-BuildRequires:  id3tag-devel
-BuildRequires:  pkgconfig(vorbis)
-BuildRequires:  pkgconfig(flac)
-BuildRequires:  pkgconfig(python)
 BuildRequires:  pkgconfig(libcec)
 BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
-BuildRequires:  pkgconfig(vpx)
+BuildRequires:  pkgconfig(libvpx)
 BuildRequires:  pkgconfig(exiv2)
 BuildRequires:  crystalhd-devel
-#BuildRequires:  hdhomerun-devel
+BuildRequires:  hdhomerun-devel
+%if %build_lame
+BuildRequires:  lame-devel
+%endif
+%if %build_dts
+BuildRequires:  pkgconfig(libdts)
+%endif
+%if %build_x264
+BuildRequires:  pkgconfig(x264)
+%endif
+%if %build_x265
+BuildRequires:  pkgconfig(x265)
+%endif
+%if %build_xvid
+BuildRequires:  xvid-devel
+%endif
+%if %build_faac
+BuildRequires:  libfaac-devel
+%endif
+%if %build_faad
+BuildRequires:  libfaad2-devel
+%endif
+%if %{build_directfb}
+BuildRequires:  libdirectfb-devel
+%endif
 BuildRequires:  pkgconfig(libavc1394)
 BuildRequires:  pkgconfig(libiec61883)
 BuildRequires:  pkgconfig(gl)
 BuildRequires:  pkgconfig(glu)
-
-BuildRequires:  cdda-devel
-BuildRequires:  tiff-devel
-BuildRequires:  mysql-devel
-BuildRequires:  taglib-devel
-BuildRequires:  perl-XML-XPath
-BuildRequires:  perl-Image-Size
-BuildRequires:  perl-Date-Manip
-#BuildRequires:  perl-DateTime-Format-ISO8601
-#BuildRequires:  perl-SOAP-Lite
-BuildRequires:  perl-XML-Simple
-BuildRequires:	perl-JSON
-BuildRequires:  perl(Class::Factory::Util)
-#BuildRequires:  perl(Net::UPnP::QueryResponse)
-#BuildRequires:  perl(Net::UPnP::ControlPoint
+%if %maenable
+BuildRequires:  multiarch-utils
+%endif
+BuildRequires:  perl(Net::UPnP::QueryResponse)
+BuildRequires:  perl(Net::UPnP::ControlPoint)
 
 # For Plugins
 BuildRequires:  pkgconfig(libvisual-0.4)
@@ -267,8 +192,9 @@ BuildRequires:  pkgconfig(id3tag)
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  pkgconfig(flac)
 BuildRequires:  pkgconfig(libbluray)
-#BuildRequires:  pkgconfig(libcdaudio)
+BuildRequires:  pkgconfig(libcdaudio)
 BuildRequires:  pkgconfig(lzo2)
+BuildRequires:  libcdda-devel
 BuildRequires:  pkgconfig(libtiff-4)
 BuildRequires:  mysql-devel
 BuildRequires:  pkgconfig(minizip)
@@ -277,12 +203,19 @@ BuildRequires:  pkgconfig(taglib)
 BuildRequires:  pkgconfig(theora)
 BuildRequires:  python3dist(pycurl)
 BuildRequires:  python3dist(oauth)
-
+BuildRequires:  perl(XML::XPath)
+BuildRequires:  perl(Image::Size)
+BuildRequires:  perl(Date::Manip)
+BuildRequires:  perl(DateTime::Format::ISO8601)
+BuildRequires:  perl(SOAP::Lite)
+BuildRequires:  perl(XML::Simple)
+BuildRequires:  perl(Class::Factory::Util)
 
 # Bluray support
-#BuildRequires:  ant
-#BuildRequires:  java-devel
+BuildRequires:  ant
+BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
+
 
 %description
 MythTV implements the following PVR features, and more, with a
@@ -297,182 +230,222 @@ unified graphical interface:
  - Resolution of conflicts between scheduled recordings
  - Basic video editing
 
-%if %{build_plf}
-This package is in restricted because it contains software that supports
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if !%{build_lame}
+%if !%build_lame
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
-
-%package -n %{libname}
-Summary:	Library providing mythtv support
-Group:		System/Libraries
-Obsoletes:	%{_lib}mythtv0.26 < 0.26.0-20130328.2
-
-%description -n %{libname}
-Common library code for MythTV and add-on modules (development).
-
-%if %{build_plf}
-This package is in restricted because it contains software that supports
-codecs that may be covered by software patents.
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
-%define mythtvlibs libmyth libmavc libmavd libmavfi libmavfo libmavu libmythbase libmythfreemheg libmythhdhomerun libmythmetadata libmpp libmythprotoserver libmythservicecontracts libmswr libmsws libmythui libmythupnp
-%{expand:%(for lib in %{mythtvlibs}; do cat <<EOF
-%%package -n %%{$lib}
-Summary:	Shared library providing mythtv support
-Group:		System/Libraries
-Conflicts:	%{_lib}mythtv0.26 < 0.26.0-20130328.2
-EOF
-done)}
+%package -n %{lib_name}
+Summary:        Library providing mythtv support
+Group:          System/Libraries
+Provides:       %{lib_name_orig} = %{version}-%{release}
 
-%{expand:%(for lib in %{mythtvlibs}; do cat <<EOF
-%%description -n %%{$lib}
-This package contains a shared library for %{name}.
-EOF
-done)}
+%description -n %{lib_name}
+Common library code for MythTV and add-on modules (development)
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
 
-%package -n %{devname}
-Summary:	Development files for libmyth
-Group:		Development/Other
-Requires:	%{libname} = %{version}-%{release}
-%{expand:%(for lib in %{mythtvlibs}; do cat <<EOF
-Requires:	%%{$lib} = %{version}-%{release}
-EOF
-done)}
-Provides:	%{name}-devel = %{version}-%{release}
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
+codecs that may be covered by software patents.
+%endif
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
+%endif
 
-%description -n %{devname}
+%package -n %{lib_name_devel}
+Summary:        Development files for libmyth
+Group:          Development/Other
+Requires:       %{lib_name} = %{version}-%{release}
+Provides:       %{lib_name_orig}-devel = %{version}-%{release}
+Provides:       myth-devel = %{version}-%{release}
+
+%description -n %{lib_name_devel}
 This package contains the header files and libraries for developing
 add-ons for mythtv.
 
-%if %{build_plf}
-This package is in restricted because it contains software that supports
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
 codecs that may be covered by software patents.
+%endif
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package themes-base
-Summary:	Base themes for mythtv's frontend
-Group:		Video
-BuildArch:	noarch
+Summary:        Base themes for mythtv's frontend
+Group:          Video/Television
+BuildArch:      noarch
 
 %description themes-base
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains only the base themes used by mythtv-frontend and
 mythtv-setup.
 
 %package common
-Summary:	Common components needed by multiple other MythTV components
-Group:		Video
+Summary:        Common components needed by multiple other MythTV components
+Group:          Video/Television
+Requires:       perl-DBD-mysql
 
 %description common
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains components needed by multiple other MythTV components.
 
 %package frontend
-Summary:	Client component of mythtv (a PVR)
-Group:		Video
-Requires:	mythtv-themes-base = %{version}-%{release}
-Requires:	mythtv-common = %{version}-%{release}
-Requires:	qt4-database-plugin-mysql
-Requires:	mplayer
-%if %{build_plf}
-Requires:	transcode
-Requires:	%{mklibname dvdcss 2}
+Summary:        Client component of mythtv (a PVR)
+Group:          Video/Television
+Requires:       mythtv-themes-base = %{version}-%{release}
+Requires:       mythtv-common = %{version}-%{release}
+Requires:       qt5-database-plugin-mysql
+Requires:       mplayer
+%if %{build_tainted}
+Requires:       transcode
+Requires:       %mklibname dvdcss 2
 %endif
 
 %description frontend
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains only the client software, which provides a
 front-end for playback and configuration.  It requires access to a
 mythtv-backend installation, either on the same system or one
 reachable via the network.
 
-%if %{build_plf}
-This package is in restricted because it contains software that supports
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
 codecs that may be covered by software patents.
+%endif
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package backend
-Summary:	Server component of mythtv (a PVR)
-Group:		Video
-Requires:	%{libname} = %{version}-%{release}
-Requires:	mythtv-common = %{version}-%{release}
-Requires:	qt4-database-plugin-mysql
-Requires(pre,postun):	rpm-helper
+Summary:        Server component of mythtv (a PVR)
+Group:          Video/Television
+Requires:       %{lib_name} = %{version}-%{release}
+Requires:       mythtv-common = %{version}-%{release}
+Requires:       qt5-database-plugin-mysql
+Requires(post):  rpm-helper >= 0.24.8-1
+Requires(preun): rpm-helper >= 0.24.8-1
+Recommends:       mysql
 
 %description backend
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains only the server software, which provides video
 and audio capture and encoding services.  In order to be useful, it
 requires a mythtv-frontend installation, either on the same system or
 one reachable via the network.
 
-%if %{build_plf}
-This package is in restricted because it contains software that supports
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if !%{build_lame}
+%if !%build_lame
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
+%endif
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
 %endif
 
 %package setup
-Summary:	Setup the mythtv backend
-Group:		Video
-Requires:	mythtv-backend = %{version}-%{release}
-Requires:	mythtv-themes-base = %{version}-%{release}
-Requires:	qt4-database-plugin-mysql
-Provides:	mythtvsetup
+Summary:        Setup the mythtv backend
+Group:          Video/Television
+Requires:       mythtv-backend = %{version}-%{release}
+Requires:       mythtv-themes-base = %{version}-%{release}
+Provides:       mythtvsetup
+Requires:       qt5-database-plugin-mysql
 
 %description setup
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains the setup software for configuring the mythtv
 backend.
 
-%if %{build_plf}
-This package is in restricted because it contains software that supports
+%if %{build_tainted}
+This package is in the "tainted" section because it contains software that supports
 codecs that may be covered by software patents.
 %endif
-%if !%{build_lame}
+%if !%build_lame
 Note that this build does not support MP3 encoding when recording
 into the NuppelVideo format.
 %endif
+%if %{fixesdate}
+This package is based on the MythTV "fixes" branch at revision %{gitversion}
+%endif
 
 %package doc
-Summary:	MythTV documentation
-Group:		Video
+Summary:        MythTV documentation
+Group:          Video/Television
+BuildArch:      noarch
+Requires:       mythtv-common >= %{version}-%{release}
 
 %description doc
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains the documentation and contributed additional
 scripts for MythTV.
 
 %package -n perl-MythTV
-Summary:	Perl bindings for MythTV
-Group:		Development/Perl
+Summary:        Perl bindings for MythTV
+Group:          Development/Perl
 
 %description -n perl-MythTV
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains the perl bindings for MythTV.
 
-%package -n python-mythtv
-Summary:	Python bindings for MythTV
-Group:		Development/Python
-Requires:	python-mysql
-Requires:	python2-lxml
+%package -n python3-mythtv
+Summary:        Python 3 bindings for MythTV
+Group:          Development/Python
+Requires:       python3dist(mysqlclient)
+Requires:       python3dist(lxml)
+Requires:       python3dist(pycurl)
+Requires:       python3dist(oauth)
 
-%description -n python-mythtv
-This package contains the python bindings for MythTV.
+Obsoletes:      python-mythtv < 0.28.1-20170528.12
+Provides:       python-mythtv = %{version}-%{release}
+Obsoletes:      python2-mythtv < 30.0-20190728.2
+
+%description -n python3-mythtv
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
+This package contains the python 3 bindings for MythTV.
 
 %package -n php-mythtv
-Summary:	PHP bindings for MythTV
-Group:		Development/PHP
-BuildArch:	noarch
+Summary:        PHP bindings for MythTV
+Group:          Development/PHP
+BuildArch:      noarch
+Requires:       php-mysql
 
 %description -n php-mythtv
+MythTV provides a unified graphical interface for recording and viewing
+television programs.
+
 This package contains the PHP bindings for MythTV.
 
 %package plugin-browser
 Summary:        Full web browser for MythTV
 URL:            http://www.mythtv.org/
-Group:          Video
-Obsoletes:      mythbrowser < 0.20a-7
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
 
 %description plugin-browser
@@ -480,67 +453,62 @@ MythBrowser is a full web browser for MythTV.
 
 %package plugin-gallery
 Summary:        Gallery/slideshow module for MythTV
-Group:          Video
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
-Obsoletes:      mythgallery < 0.20a-7
 
 %description plugin-gallery
 A gallery/slideshow module for MythTV.
 
 %package plugin-game
 Summary:        Game frontend for MythTV
-Group:          Video
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
-Obsoletes:      mythgame < 0.20a-7
 
 %description plugin-game
 A game frontend for MythTV.
 
 %package plugin-music
 Summary:        The music player add-on module for MythTV
-Group:          Video
+Group:          Video/Television
 #Requires:       cdparanoia
 Requires:       mythtv-frontend >= %{version}
-Obsoletes:      mythmusic < 0.20a-7
 
 %description plugin-music
 The music player add-on module for MythTV.
 
-%if %{build_plf}
+%if %{build_tainted}
 This package is in the tainted section because it contains software that supports
 codecs that may be covered by software patents.
 %endif
 
 %package plugin-netvision
 Summary:        NetVision for MythTV
-Group:          Video
+Group:          Video/Television
+Requires:       python3-mythtv
 Requires:       mythtv-frontend >= %{version}
-Requires:	pythonegg(oauth)
 
 %description plugin-netvision
 NetVision for MythTV. View popular media website content.
 
 %package plugin-news
 Summary:        RSS News feed plugin for MythTV
-Group:          Video
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
-Obsoletes:      mythnews < 0.20a-7
 
 %description plugin-news
 An RSS News feed plugin for MythTV.
 
 %package plugin-weather
 Summary:        MythTV module that displays a weather forecast
-Group:          Video
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
-Obsoletes:      mythweather < 0.20a-7
 
 %description plugin-weather
 A MythTV module that displays a weather forcast.
 
 %package plugin-zoneminder
 Summary:        Security camera plugin for MythTV
-Group:          Video
+Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
 
 %description plugin-zoneminder
@@ -548,18 +516,18 @@ A security camera plugin for MythTV.
 
 %package plugin-archive
 Summary:        Creates DVDs from your recorded shows
-Group:          Video
+Group:          Video/Television
 Requires:       dvd+rw-tools
 Requires:       dvdauthor
 Requires:       ffmpeg
 Requires:       mjpegtools
-Requires:       python-imaging
+Requires:       python3dist(pillow)
+Requires:       python3dist(mysqlclient)
 Requires:       mythtv-frontend >= %{version}
-%if %{build_plf}
+%if %{build_tainted}
 Requires:       transcode
 %endif
 Requires:       cdrkit-genisoimage
-Obsoletes:      mytharchive < 0.20a-7
 
 %description plugin-archive
 MythArchive is a plugin for MythTV that lets you create DVDs
@@ -572,6 +540,8 @@ later be restored or it will also allow you to move recordings
 between myth systems without losing any of the metadata. It is a
 complete rewrite of the old MythBurn bash scripts, now using python,
 and the mythfrontend UI plugin.
+
+
 
 %prep
 %setup -q
@@ -627,100 +597,65 @@ sed -i 's| -Wsuggest-override||' mythtv/configure
 
 %build
 pushd mythtv
-%global debugcflags -gdwarf-4 -Wstrict-aliasing=2
-./configure	--cc=clang \
-		--cxx=clang++ \
-		--logfile=config.log \
-		--prefix=%{_prefix} \
-		--libdir-name=%{_lib} \
-		--python=%{__python} \
-		--enable-runtime-cpudetect \
-		--enable-dvb \
-		--enable-opengl-video \
-		--with-bindings=perl,php,python \
-		--extra-cxxflags="%{optflags} -fPIC -Ofast" \
-		--extra-ldflags="%{ldflags}" \
-		--enable-sdl \
-		--enable-vdpau \
-		--enable-vaapi \
-%if %{build_crystalhd}
-		--enable-crystalhd \
+./configure \
+  --prefix=%{_prefix} \
+  --libdir-name=%{_lib} \
+  --enable-dvb \
+  --without-bindings=perl \
+  --extra-cxxflags="%{optflags} -fomit-frame-pointer -fno-devirtualize" \
+  --extra-cflags="%{optflags} -fomit-frame-pointer -fno-devirtualize -DHAVE_PTHREAD_H" \
+  --extra-ldflags="%{ldflags}" \
+  --python=%{__python3} \
+%ifarch %arm
+  --disable-vdpau \
+  --disable-vaapi \
+  --disable-opengl-video \
+%else
+  --enable-vdpau \
+  --enable-vaapi \
+  --enable-opengl-video \
 %endif
-		--enable-libfftw3 \
-		--enable-libdns-sd \
-		--enable-libvpx \
-%if %{build_plf}
-		--enable-nonfree \
+  --enable-crystalhd \
+  --enable-libfftw3 \
+  --enable-libdns-sd \
+  --enable-libvpx \
+  --enable-sdl2 \
+  --enable-bdjava \
+%if %{build_tainted}
+  --enable-nonfree \
 %endif
-		--enable-dvb \
-		--enable-opengl-video \
-		--with-bindings=perl,php,python \
-		--perl-config-opts=INSTALLDIRS=vendor \
-		--enable-libass \
-		--enable-v4l2 \
-		--enable-firewire \
-                --disable-libfdk-aac \
-%if %{build_fdk_aac}
-                --enable-libfdk-aac-dlopen \
-%endif
-		--disable-libopencore-amrnb \
-%if %{build_plf}
-		--enable-libopencore-amrnb-dlopen \
-%endif
-		--disable-libopencore-amrwb \
-%if %{build_plf}
-		--enable-libopencore-amrwb-dlopen \
-%endif
-		--disable-libfaac \
-%if %{build_faac}
-		--enable-libfaac-dlopen \
-%endif
-		--disable-libx264 \
 %if %{build_x264}
-		--enable-libx264-dlopen \
+  --enable-libx264 \
 %endif
-		--disable-libxvid \
+%if %{build_x265}
+  --enable-libx265 \
+%endif
 %if %{build_xvid}
-		--enable-libxvid-dlopen \
+  --enable-libxvid \
 %endif
-		--disable-libmp3lame \
+%if %{build_faac}
+  --enable-libfaac \
+%endif
 %if %{build_lame}
-		--enable-libmp3lame-dlopen \
+  --enable-libmp3lame \
 %endif
-		--enable-postproc \
-		--enable-pthreads \
-		--enable-libtheora \
-		--enable-libdc1394 \
-		--enable-libschroedinger \
-		--enable-librtmp \
-		--enable-libspeex \
-		--enable-libfreetype \
-		--enable-libnut \
-		--enable-libgsm \
-		--enable-libcelt \
-		--enable-libopenjpeg \
-		--enable-libmodplug \
-		--enable-libv4l2 \
-		--enable-openal \
-		--enable-libsoxr \
-		--enable-libtwolame \
-		--enable-libopus \
-		--enable-libilbc \
-		--enable-libiec61883 \
-		--enable-libbluray \
-		--enable-fontconfig \
-		--enable-libflite \
-		--disable-decoder=aac \
-		--disable-encoder=aac
+  --enable-firewire \
+  --enable-hdhomerun \
+  --qmake=%{_qt5_bindir}/qmake
 
+%make_build
 
-%make
+# This is easier to do ourselves
+pushd bindings/perl
+%{__perl} Makefile.PL INSTALLDIRS=vendor
+%make_build
+popd
 popd
 
 # Install temporarily to compile plugins
-mkdir -p temp
-temp=$PWD/temp
-%make -C mythtv install INSTALL_ROOT=$temp DESTDIR=$temp
+mkdir temp
+temp=$(pwd)/temp
+make -C mythtv install INSTALL_ROOT=$temp
 export LD_LIBRARY_PATH=$temp%{_libdir}:$LD_LIBRARY_PATH
 
 pushd mythplugins
@@ -729,62 +664,82 @@ pushd mythplugins
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
 find . -name \*.pro \
   -exec sed -i -e "s,INCLUDEPATH += .\+/include/mythtv,INCLUDEPATH += $temp%{_includedir}/mythtv," {} \; \
-  -exec sed -i -e "s,DEPLIBS = \$\${LIBDIR},DEPLIBS = $temp%{_libdir}," {} \; \
+  -exec sed -i -e "s,DEPLIBS = \$\${SYSROOT}\$\${LIBDIR},DEPLIBS = $temp%{_libdir}," {} \; \
   -exec sed -i -e "s,\$\${PREFIX}/include/mythtv,$temp%{_includedir}/mythtv," {} \;
 echo "INCLUDEPATH -= \$\${PREFIX}/include" >> settings.pro
 echo "INCLUDEPATH -= \$\${SYSROOT}/\$\${PREFIX}/include" >> settings.pro
 echo "INCLUDEPATH -= %{_includedir}" >> settings.pro
 echo "INCLUDEPATH += $temp%{_includedir}" >> settings.pro
-echo "INCLUDEPATH += %{_includedir}" >> settings.pro
 echo "LIBS *= -L$temp%{_libdir}" >> settings.pro
 echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 
-./configure	--prefix=${temp}%{_prefix} \
-		--libdir=%{_libdir} \
-		--libdir-name=%{_lib} \
-		--logfile=config.log \
-		--python=%{__python2} \
-		--enable-all \
-		--enable-new-exif \
-		--disable-mp3lame \
-		--enable-mp3lame-dlopen
+# (daviddavid) FIXME:
+# the MythTV Python bindings is not found in "$temp" install by the
+# check_py_lib script thus disabling MythNetvision due to missing dependencies
+sed -i 's|check_py_lib MythTV|#check_py_lib MythTV|' configure
 
+./configure \
+  --prefix=${temp}%{_prefix} \
+  --libdir=${_libdir} \
+  --libdir-name=${_lib} \
+  --python=%{__python3} \
+  --enable-all \
+  --qmake=%{_qt5_bindir}/qmake
 
-%make
+%make_build
 
 popd
 
 
+
 %install
-INSTALL_ROOT=%{buildroot}; export INSTALL_ROOT
+export INSTALL_ROOT=%{buildroot}
 
-%makeinstall_std -C mythtv
+pushd mythtv
+%make_install
 
-%makeinstall_std -C mythtv/bindings/perl
+pushd bindings/perl
+%make_install
+popd
 
-%if %{maenable}
-%multiarch_includes %{buildroot}%{_includedir}/mythtv/mythconfig.h
+
+%if %maenable
+%multiarch_includes %{buildroot}%_includedir/mythtv/mythconfig.h
 %endif
 
+mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv/recordings
 mkdir -p %{buildroot}%{_var}/cache/mythtv
 mkdir -p %{buildroot}%{_logdir}/mythtv
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
+mkdir -p %{buildroot}%{_initrddir}
+mkdir -p %{buildroot}%{_unitdir}
+mkdir -p %{buildroot}%{_sysconfdir}/sysconfig
 
-install -p -m644 mythtv/mythbackend.service -D %{buildroot}%{_unitdir}/mythbackend.service
-install -p -m644 mythtv/mythbackend.sysconfig -D %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
-install -p -m644 mythtv/mythbackend.logrotate -D %{buildroot}%{_sysconfdir}/logrotate.d/mythbackend.logrotate
+install -p mythbackend.init %{buildroot}%{_initrddir}/mythbackend
+install -p mythbackend.service %{buildroot}%{_unitdir}/mythbackend.service
+install -p mythbackend.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mythbackend
+install -p mythtv.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/mythtv
+install -p mythbackend.logrotate  %{buildroot}%{_sysconfdir}/logrotate.d
 
 # wmsession.d for mythfrontend
-install -p -m644 %{SOURCE4} -D %{buildroot}%{_sysconfdir}/X11/wmsession.d/99MythFrontend
+mkdir -p %{buildroot}%{_datadir}/xsessions
+install -p %{SOURCE4} %{buildroot}%{_datadir}/xsessions
 
 # icon
-install -p -m755 %{SOURCE5} -D %{buildroot}%{_miconsdir}/%{name}.png
-install -p -m755 %{SOURCE6} -D %{buildroot}%{_iconsdir}/%{name}.png
-install -p -m755 %{SOURCE7} -D %{buildroot}%{_liconsdir}/%{name}.png
+install -d -m755 %{buildroot}/%{_miconsdir}
+install -m755 %{SOURCE5} %{buildroot}/%{_miconsdir}/%name.png
 
-# Mandriva Menu entrys
+install -d -m755 %{buildroot}/%{_iconsdir}
+install -m755 %{SOURCE6} %{buildroot}/%{_iconsdir}/%name.png
+
+install -d -m755 %{buildroot}/%{_liconsdir}
+install -m755 %{SOURCE7} %{buildroot}/%{_liconsdir}/%name.png
+
+
+# Menu entries
 install -d -m755 %{buildroot}%{_datadir}/applications
-cat <<EOF > %{buildroot}%{_datadir}/applications/mandriva-mythtv-frontend.desktop
+cat <<EOF > %{buildroot}%{_datadir}/applications/%{_real_vendor}-mythtv-frontend.desktop
 [Desktop Entry]
 Name=MythTV
 Comment=Record, playback and watch TV
@@ -792,9 +747,9 @@ Exec=mythfrontend
 Icon=%{name}
 Terminal=false
 Type=Application
-Categories=Qt;AudioVideo;Video;TV;Recorder;X-MandrivaLinux-Multimedia-Video;
+Categories=Qt;AudioVideo;Video;TV;Recorder;
 EOF
-cat <<EOF > %{buildroot}%{_datadir}/applications/mandriva-mythtv-setup.desktop
+cat <<EOF > %{buildroot}%{_datadir}/applications/%{_real_vendor}-mythtv-setup.desktop
 [Desktop Entry]
 Name=MythTV Setup
 Comment=Setup MythTV backend
@@ -802,10 +757,10 @@ Exec=mythtv-setup
 Icon=%{name}
 Terminal=false
 Type=Application
-Categories=Qt;AudioVideo;Video;TV;Recorder;X-MandrivaLinux-Multimedia-Video;
+Categories=Qt;AudioVideo;Video;TV;Recorder;
 EOF
 
-cat > mythtv/README.install.urpmi <<EOF
+cat > README.install.urpmi <<EOF
 You can import the initial database by running:
 mysql -u root -p < %{_datadir}/mythtv/initialdb/mc.sql
 (you can omit -p if you do not have the password set)
@@ -814,12 +769,16 @@ EOF
 mkdir -p %{buildroot}%{_libdir}/mythtv/plugins
 
 install -d -m755 %{buildroot}%{_datadir}/mythtv/initialdb
-install -m644 mythtv/database/* %{buildroot}%{_datadir}/mythtv/initialdb
+install -m644 database/* %{buildroot}%{_datadir}/mythtv/initialdb
 
 # install a few useful contrib scripts
-cp -a mythtv/contrib %{buildroot}%{_datadir}/mythtv
+mkdir -p %{buildroot}%{_datadir}/%{name}
+cp -ar contrib %{buildroot}%{_datadir}/%{name}
 
-%makeinstall_std -C mythplugins
+popd
+
+pushd mythplugins
+%make_install
 
 #mythgallery
 mkdir -p %{buildroot}%{_localstatedir}/lib/pictures
@@ -828,10 +787,15 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/mythmusic
 
 mkdir -p %{buildroot}{%_docdir}/mythtv-plugin-{browser,gallery,game,music,netvision,news,weather,video,zoneminder}
 
+popd
+
+# Remove python egg-info as it's pointless
+rm -f %{buildroot}%{python3_sitelib}/MythTV-*.egg-info
+
 # (cg) We cover the package license so no need to include it separately
 rm -f %{buildroot}%{_datadir}/%{name}/fonts/tiresias_gpl3.txt
 
-# (cg) This is needed for the %doc stuff on the subpackages for some reason...
+# (cg) This is needed for the %%doc stuff on the subpackages for some reason...
 mkdir -p %{buildroot}%{_docdir}/%{name}-backend
 mkdir -p %{buildroot}%{_docdir}/%{name}-doc
 
@@ -845,38 +809,44 @@ if [ -f %{buildroot}%{buildroot}%{_bindir}/mythffmpeg ]; then
   rmdir -p %{buildroot}%{buildroot}%{_bindir} || /bin/true
 fi
 
-# (cg) Clean up some stuff we don't want to include
-rm -f %{buildroot}%{_libdir}/libmythqjson.prl \
-rm -f %{buildroot}%{_includedir}/zmq*.h* \
-      %{buildroot}%{_libdir}/pkgconfig/libmythzmq.pc
+# (cg) The mythzeromq stuff is not needed in our -devel package.
+rm -f %{buildroot}%{_includedir}/zmq*.h* %{buildroot}%{_libdir}/pkgconfig/libmythzmq.pc
+rmdir %{buildroot}%{_libdir}/pkgconfig 2>/dev/null || :
 
-rm -f %{buildroot}%{_datadir}/mythtv/contrib/development/tsc-calibrate/tsc-calibrate.c
-rm -f %{buildroot}%{_datadir}/mythtv/mytharchive/themes/burnthemestrings.h
+# (cg) Clean up some other stuff we don't want to include
+rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 
+# python shebangs
+pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}%{_datadir}/%{name}/*
+
+find %{buildroot} -name *.la -delete
 find %{buildroot} -name *.a -delete
-
-#cb fix odd install location
-mkdir -p %{buildroot}%{perl_vendorlib}
-mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 
 %pre backend
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
 %{_bindir}/gpasswd -a mythtv audio &>/dev/null
-%{_bindir}/gpasswd -a mythtv input &>/dev/null
-%{_bindir}/gpasswd -a mythtv tty &>/dev/null
 %{_bindir}/gpasswd -a mythtv video &>/dev/null
 
 %postun backend
 %_postun_userdel mythtv
 
+%post backend
+%_post_service mythbackend
+
+%preun backend
+%_preun_service mythbackend
+
 %files doc
-%doc mythtv/README mythtv/UPGRADING mythtv/AUTHORS mythtv/COPYING mythtv/FAQ
+%doc mythtv/README mythtv/UPGRADING
+%doc mythtv/AUTHORS mythtv/COPYING
+%doc mythtv/FAQ
 %doc mythtv/keys.txt
 %doc mythtv/contrib
 %{_datadir}/%{name}/fonts/*.txt
 %{_datadir}/%{name}/contrib
 %{_datadir}/%{name}/html
+
 
 %files common
 %{_bindir}/mythccextractor
@@ -886,29 +856,22 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_bindir}/mythwikiscripts
 %{_bindir}/mythmetadatalookup
 %{_bindir}/mythutil
+%{_bindir}/mythfilerecorder
+%{_bindir}/mythexternrecorder
 %dir %{_datadir}/%{name}
-%{_datadir}/mythtv/CDS_scpd.xml
-%{_datadir}/mythtv/CMGR_scpd.xml
-%{_datadir}/mythtv/MFEXML_scpd.xml
-%{_datadir}/mythtv/MSRR_scpd.xml
-%{_datadir}/mythtv/MXML_scpd.xml
-%{_datadir}/mythtv/devicemaster.xml
-%{_datadir}/mythtv/deviceslave.xml
-%{_datadir}/%{name}/mythconverg*.pl
+%{_datadir}/%{name}/mythconverg_backup.pl
+%{_datadir}/%{name}/mythconverg_restore.pl
 %dir %{_datadir}/%{name}/locales
 %{_datadir}/%{name}/locales/*
 %dir %{_datadir}/%{name}/metadata
-%{_datadir}/%{name}/metadata/Movie
-%{_datadir}/%{name}/metadata/Music
-%{_datadir}/%{name}/metadata/Television
+%{_datadir}/%{name}/metadata/*
 %dir %{_datadir}/%{name}/hardwareprofile
 %{_datadir}/%{name}/hardwareprofile/*
+%exclude %{_datadir}/mythtv/metadata/Game
 
 %files backend
 %doc mythtv/README.install.urpmi
 %{_bindir}/mythbackend
-%{_bindir}/mythfilerecorder
-%{_bindir}/mythhdhomerun_config
 %{_bindir}/mythfilldatabase
 %{_bindir}/mythjobqueue
 %{_bindir}/mythmediaserver
@@ -917,392 +880,146 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %attr(-,mythtv,mythtv) %dir %{_localstatedir}/lib/mythtv/recordings
 %attr(-,mythtv,mythtv) %dir %{_var}/cache/mythtv
 %{_unitdir}/mythbackend.service
+%{_initrddir}/mythbackend
 %config(noreplace) %{_sysconfdir}/sysconfig/mythbackend
+%config(noreplace) %{_sysconfdir}/sysconfig/mythtv
 %config(noreplace) %{_sysconfdir}/logrotate.d/*
 %attr(-,mythtv,mythtv) %dir %{_logdir}/mythtv
 %{_datadir}/%{name}/backend-config
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
-%{_datadir}/mythtv/internetcontent/
+%dir %{_datadir}/mythtv/internetcontent
+%{_datadir}/mythtv/internetcontent/*
 
 %files frontend
-%config(noreplace) %{_sysconfdir}/X11/wmsession.d/99MythFrontend
-%exclude %{_datadir}/mythtv/setup.xml
+%config(noreplace) %{_datadir}/xsessions/mythfrontend.desktop
 %{_bindir}/mythwelcome
 %{_bindir}/mythfrontend
 %{_bindir}/mythff*
 %{_bindir}/mythlcdserver
-%{_bindir}/mythshutdown
 %{_bindir}/mythscreenwizard
+%{_bindir}/mythshutdown
 %{_bindir}/mythavtest
 %dir %{_libdir}/mythtv
 %{_libdir}/mythtv/filters
 %dir %{_libdir}/mythtv/plugins
-%dir %{_datadir}/mythtv
 %dir %{_datadir}/mythtv/fonts
 %{_datadir}/mythtv/fonts/*.ttf
 %{_datadir}/mythtv/fonts/*.otf
 %dir %{_datadir}/mythtv/i18n
-%{_datadir}/mythtv/i18n/mythfrontend*
-%{_datadir}/applications/mandriva-mythtv-frontend.desktop
+%{_datadir}/mythtv/i18n/mythfrontend_*.qm
+%{_datadir}/applications/%{_real_vendor}-mythtv-frontend.desktop
+%{_datadir}/mythtv/CDS_scpd.xml
+%{_datadir}/mythtv/CMGR_scpd.xml
+%{_datadir}/mythtv/MFEXML_scpd.xml
+%{_datadir}/mythtv/MSRR_scpd.xml
+%{_datadir}/mythtv/MXML_scpd.xml
+%{_datadir}/mythtv/devicemaster.xml
+%{_datadir}/mythtv/deviceslave.xml
 
 %files setup
 %{_bindir}/mythtv-setup
-%{_datadir}/applications/mandriva-mythtv-setup.desktop
-%dir %{_datadir}/mythtv
+%{_datadir}/applications/%{_real_vendor}-mythtv-setup.desktop
 %{_datadir}/mythtv/setup.xml
 
 %files themes-base
-%dir %{_datadir}/mythtv
 %dir %{_datadir}/mythtv/themes
+%{_datadir}/mythtv/themes/DVR/
+%{_datadir}/mythtv/themes/MythCenter/
+%{_datadir}/mythtv/themes/Slave/
+%{_datadir}/mythtv/themes/Terra/
+%{_datadir}/mythtv/themes/classic/
+%{_datadir}/mythtv/themes/default-wide/
+%{_datadir}/mythtv/themes/MythCenter-wide/
+%{_datadir}/mythtv/themes/default/
+%{_datadir}/mythtv/themes/defaultmenu/
+%{_datadir}/mythtv/themes/mediacentermenu/
 %{_datadir}/mythtv/themes/mythuitheme.dtd
-%{_datadir}/mythtv/themes/classic
-%{_datadir}/mythtv/themes/defaultmenu
-%{_datadir}/mythtv/themes/DVR
-%{_datadir}/mythtv/themes/mediacentermenu
-%{_datadir}/mythtv/themes/MythCenter
-%{_datadir}/mythtv/themes/MythCenter-wide
-%{_datadir}/mythtv/themes/Slave
-%{_datadir}/mythtv/themes/Terra
-%dir %{_datadir}/mythtv/themes/default-wide
-%dir %{_datadir}/mythtv/themes/default-wide/shared
-%dir %{_datadir}/mythtv/themes/default
-%dir %{_datadir}/mythtv/themes/default/shared
+%{_iconsdir}/%name.png
+%{_miconsdir}/%name.png
+%{_liconsdir}/%name.png
 
-%{_datadir}/mythtv/themes/default-wide/appear-ui.xml
-%{_datadir}/mythtv/themes/default-wide/bar.png
-%{_datadir}/mythtv/themes/default-wide/base.xml
-%{_datadir}/mythtv/themes/default-wide/button_wide_background.png
-%{_datadir}/mythtv/themes/default-wide/button_wide_pushed_background.png
-%{_datadir}/mythtv/themes/default-wide/button_wide_selected_background.png
-%{_datadir}/mythtv/themes/default-wide/config-ui.xml
-%{_datadir}/mythtv/themes/default-wide/controls-ui.xml
-%{_datadir}/mythtv/themes/default-wide/cr-lines.png
-%{_datadir}/mythtv/themes/default-wide/cr-selectbar.png
-%{_datadir}/mythtv/themes/default-wide/def-ro-lines.png
-%{_datadir}/mythtv/themes/default-wide/filler.png
-%{_datadir}/mythtv/themes/default-wide/md_progress_background.png
-%{_datadir}/mythtv/themes/default-wide/mv_browse_background.png
-%{_datadir}/mythtv/themes/default-wide/mv_browse_nocover_large.png
-%{_datadir}/mythtv/themes/default-wide/mv_browse_selector.png
-%{_datadir}/mythtv/themes/default-wide/mv_itemdetail_popup.png
-%{_datadir}/mythtv/themes/default-wide/mv_results_popup.png
-%{_datadir}/mythtv/themes/default-wide/osd.xml
-%{_datadir}/mythtv/themes/default-wide/pd-background.png
-%{_datadir}/mythtv/themes/default-wide/pf-background.png
-%{_datadir}/mythtv/themes/default-wide/pf-lines.png
-%{_datadir}/mythtv/themes/default-wide/pf-sel1.png
-%{_datadir}/mythtv/themes/default-wide/pf-sel2.png
-%{_datadir}/mythtv/themes/default-wide/pf-sel3.png
-%{_datadir}/mythtv/themes/default-wide/pf-top.png
-%{_datadir}/mythtv/themes/default-wide/preview.png
-%{_datadir}/mythtv/themes/default-wide/reclist_background.png
-%{_datadir}/mythtv/themes/default-wide/recordings-ui.xml
-%{_datadir}/mythtv/themes/default-wide/rk-lines.png
-%{_datadir}/mythtv/themes/default-wide/rk-selectbar.png
-%{_datadir}/mythtv/themes/default-wide/schedule-ui.xml
-%{_datadir}/mythtv/themes/default-wide/selectbar.png
-%{_datadir}/mythtv/themes/default-wide/settings-ui.xml
-%{_datadir}/mythtv/themes/default-wide/shared/grid_back_reg.png
-%{_datadir}/mythtv/themes/default-wide/shared/grid_back_sel.png
-%{_datadir}/mythtv/themes/default-wide/shared/grid_noimage.png
-%{_datadir}/mythtv/themes/default-wide/solid-container.png
-%{_datadir}/mythtv/themes/default-wide/solid-cr-background.png
-%{_datadir}/mythtv/themes/default-wide/status-bar.png
-%{_datadir}/mythtv/themes/default-wide/status-ui.xml
-%{_datadir}/mythtv/themes/default-wide/text_button_off.png
-%{_datadir}/mythtv/themes/default-wide/text_button_on.png
-%{_datadir}/mythtv/themes/default-wide/text_button_pushed.png
-%{_datadir}/mythtv/themes/default-wide/track_info_background.png
-%{_datadir}/mythtv/themes/default-wide/trans-backup.png
-%{_datadir}/mythtv/themes/default-wide/trans-container.png
-%{_datadir}/mythtv/themes/default-wide/trans-cr-background.png
-%{_datadir}/mythtv/themes/default-wide/trans-rk-background.png
-%{_datadir}/mythtv/themes/default-wide/trans-sr-background.png
-%{_datadir}/mythtv/themes/default-wide/video-ui.xml
-%{_datadir}/mythtv/themes/default-wide/welcome-ui.xml
-%{_datadir}/mythtv/themes/default/appear-ui.xml
-%{_datadir}/mythtv/themes/default/autoexpire.png
-%{_datadir}/mythtv/themes/default/avchd.png
-%{_datadir}/mythtv/themes/default/background.png
-%{_datadir}/mythtv/themes/default/backup.png
-%{_datadir}/mythtv/themes/default/bar.png
-%{_datadir}/mythtv/themes/default/base.xml
-%{_datadir}/mythtv/themes/default/blank.png
-%{_datadir}/mythtv/themes/default/blankbutton_off.png
-%{_datadir}/mythtv/themes/default/blankbutton_on.png
-%{_datadir}/mythtv/themes/default/blankbutton_pushed.png
-%{_datadir}/mythtv/themes/default/bookmark.png
-%{_datadir}/mythtv/themes/default/bottomright.png
-%{_datadir}/mythtv/themes/default/busyimages
-%{_datadir}/mythtv/themes/default/button_background.png
-%{_datadir}/mythtv/themes/default/button_pushed_background.png
-%{_datadir}/mythtv/themes/default/button_selected_background.png
-%{_datadir}/mythtv/themes/default/categories.xml
-%{_datadir}/mythtv/themes/default/cc.png
-%{_datadir}/mythtv/themes/default/check.png
-%{_datadir}/mythtv/themes/default/checkbox_background_off.png
-%{_datadir}/mythtv/themes/default/checkbox_background_selected.png
-%{_datadir}/mythtv/themes/default/checkbox_fullcheck.png
-%{_datadir}/mythtv/themes/default/checkbox_halfcheck.png
-%{_datadir}/mythtv/themes/default/checked.png
-%{_datadir}/mythtv/themes/default/checked_high.png
-%{_datadir}/mythtv/themes/default/commflagged.png
-%{_datadir}/mythtv/themes/default/config-ui.xml
-%{_datadir}/mythtv/themes/default/container.png
-%{_datadir}/mythtv/themes/default/controls-ui.xml
-%{_datadir}/mythtv/themes/default/cr-background.png
-%{_datadir}/mythtv/themes/default/cr-lines.png
-%{_datadir}/mythtv/themes/default/cr-selectbar.png
-%{_datadir}/mythtv/themes/default/cursor.png
-%{_datadir}/mythtv/themes/default/cutlist.png
-%{_datadir}/mythtv/themes/default/damaged.png
-%{_datadir}/mythtv/themes/default/dd.png
-%{_datadir}/mythtv/themes/default/def-ro-lines.png
-%{_datadir}/mythtv/themes/default/down_arrow.png
-%{_datadir}/mythtv/themes/default/downarrow.png
-%{_datadir}/mythtv/themes/default/dummy1280x720p29.97.ts
-%{_datadir}/mythtv/themes/default/dummy1920x1088p29.97.ts
-%{_datadir}/mythtv/themes/default/dummy640x480p29.97.ts
-%{_datadir}/mythtv/themes/default/dummy720x480p29.97.ts
-%{_datadir}/mythtv/themes/default/dummy720x576p25.00.ts
-%{_datadir}/mythtv/themes/default/dummy768x576p50.00.ts
-%{_datadir}/mythtv/themes/default/error.png
-%{_datadir}/mythtv/themes/default/filler.png
-%{_datadir}/mythtv/themes/default/gg-arrow-down.png
-%{_datadir}/mythtv/themes/default/gg-arrow-left.png
-%{_datadir}/mythtv/themes/default/gg-arrow-right.png
-%{_datadir}/mythtv/themes/default/gg-arrow-up.png
-%{_datadir}/mythtv/themes/default/gg-chans.png
-%{_datadir}/mythtv/themes/default/gg-rs-all.png
-%{_datadir}/mythtv/themes/default/gg-rs-channel.png
-%{_datadir}/mythtv/themes/default/gg-rs-findone.png
-%{_datadir}/mythtv/themes/default/gg-rs-override.png
-%{_datadir}/mythtv/themes/default/gg-rs-single.png
-%{_datadir}/mythtv/themes/default/gg-rs-timeslot.png
-%{_datadir}/mythtv/themes/default/gg-rs-weekslot.png
-%{_datadir}/mythtv/themes/default/gg-times.png
-%{_datadir}/mythtv/themes/default/hd.png
-%{_datadir}/mythtv/themes/default/hd1080.png
-%{_datadir}/mythtv/themes/default/hd720.png
-%{_datadir}/mythtv/themes/default/htmls
-%{_datadir}/mythtv/themes/default/keyboard
-%{_datadir}/mythtv/themes/default/lb-arrow.png
-%{_datadir}/mythtv/themes/default/lb-check-empty.png
-%{_datadir}/mythtv/themes/default/lb-check-full.png
-%{_datadir}/mythtv/themes/default/lb-check-half.png
-%{_datadir}/mythtv/themes/default/lb-dnarrow-reg.png
-%{_datadir}/mythtv/themes/default/lb-dnarrow-sel.png
-%{_datadir}/mythtv/themes/default/lb-ltarrow-reg.png
-%{_datadir}/mythtv/themes/default/lb-ltarrow-sel.png
-%{_datadir}/mythtv/themes/default/lb-rtarrow-reg.png
-%{_datadir}/mythtv/themes/default/lb-rtarrow-sel.png
-%{_datadir}/mythtv/themes/default/lb-uparrow-reg.png
-%{_datadir}/mythtv/themes/default/lb-uparrow-sel.png
-%{_datadir}/mythtv/themes/default/left_arrow.png
-%{_datadir}/mythtv/themes/default/leftarrow.png
-%{_datadir}/mythtv/themes/default/leftright_off.png
-%{_datadir}/mythtv/themes/default/leftright_on.png
-%{_datadir}/mythtv/themes/default/leftright_pushed.png
-%{_datadir}/mythtv/themes/default/locale
-%{_datadir}/mythtv/themes/default/md_progress_background.png
-%{_datadir}/mythtv/themes/default/md_rip_banner.png
-%{_datadir}/mythtv/themes/default/menu_cutlist.xml
-%{_datadir}/mythtv/themes/default/menu_cutlist_compact.xml
-%{_datadir}/mythtv/themes/default/menu_playback.xml
-%{_datadir}/mythtv/themes/default/menu_playback_compact.xml
-%{_datadir}/mythtv/themes/default/mono.png
-%{_datadir}/mythtv/themes/default/mv_browse_background.png
-%{_datadir}/mythtv/themes/default/mv_browse_selector.png
-%{_datadir}/mythtv/themes/default/mv_filerequest.png
-%{_datadir}/mythtv/themes/default/mv_itemdetail_popup.png
-%{_datadir}/mythtv/themes/default/mv_level_high.png
-%{_datadir}/mythtv/themes/default/mv_level_low.png
-%{_datadir}/mythtv/themes/default/mv_level_lowest.png
-%{_datadir}/mythtv/themes/default/mv_level_medium.png
-%{_datadir}/mythtv/themes/default/mv_level_none.png
-%{_datadir}/mythtv/themes/default/mv_results_popup.png
-%{_datadir}/mythtv/themes/default/mythdialogbox-background.png
-%{_datadir}/mythtv/themes/default/mythfilebrowser-background.png
-%{_datadir}/mythtv/themes/default/mythprogressdialog-background.png
-%{_datadir}/mythtv/themes/default/noartwork.png
-%{_datadir}/mythtv/themes/default/noartwork512.png
-%{_datadir}/mythtv/themes/default/notification-ui.xml
-%{_datadir}/mythtv/themes/default/osd.xml
-%{_datadir}/mythtv/themes/default/osd_subtitle.xml
-%{_datadir}/mythtv/themes/default/pd-background.png
-%{_datadir}/mythtv/themes/default/pf-background.png
-%{_datadir}/mythtv/themes/default/pf-lines.png
-%{_datadir}/mythtv/themes/default/pf-sel1.png
-%{_datadir}/mythtv/themes/default/pf-sel2.png
-%{_datadir}/mythtv/themes/default/pf-sel3.png
-%{_datadir}/mythtv/themes/default/pf-top.png
-%{_datadir}/mythtv/themes/default/pf-topbackground.png
-%{_datadir}/mythtv/themes/default/playlist_yes.png
-%{_datadir}/mythtv/themes/default/preview.png
-%{_datadir}/mythtv/themes/default/processing.png
-%{_datadir}/mythtv/themes/default/progressbar_background.png
-%{_datadir}/mythtv/themes/default/progressbar_fill.png
-%{_datadir}/mythtv/themes/default/progressbar_fill2.png
-%{_datadir}/mythtv/themes/default/reclist_background.png
-%{_datadir}/mythtv/themes/default/recordings-ui.xml
-%{_datadir}/mythtv/themes/default/right_arrow.png
-%{_datadir}/mythtv/themes/default/rightarrow.png
-%{_datadir}/mythtv/themes/default/rk-background.png
-%{_datadir}/mythtv/themes/default/rk-lines.png
-%{_datadir}/mythtv/themes/default/rk-selectbar.png
-%{_datadir}/mythtv/themes/default/schedule-ui.xml
-%{_datadir}/mythtv/themes/default/schedule_conflict.png
-%{_datadir}/mythtv/themes/default/schedule_disabled.png
-%{_datadir}/mythtv/themes/default/schedule_other.png
-%{_datadir}/mythtv/themes/default/schedule_record.png
-%{_datadir}/mythtv/themes/default/schedule_recording.png
-%{_datadir}/mythtv/themes/default/selectbar.png
-%{_datadir}/mythtv/themes/default/settings-ui.xml
-%{_datadir}/mythtv/themes/default/shared/0_stars.png
-%{_datadir}/mythtv/themes/default/shared/10_stars.png
-%{_datadir}/mythtv/themes/default/shared/1_stars.png
-%{_datadir}/mythtv/themes/default/shared/2_stars.png
-%{_datadir}/mythtv/themes/default/shared/3_stars.png
-%{_datadir}/mythtv/themes/default/shared/4_stars.png
-%{_datadir}/mythtv/themes/default/shared/5_stars.png
-%{_datadir}/mythtv/themes/default/shared/6_stars.png
-%{_datadir}/mythtv/themes/default/shared/7_stars.png
-%{_datadir}/mythtv/themes/default/shared/8_stars.png
-%{_datadir}/mythtv/themes/default/shared/9_stars.png
-%{_datadir}/mythtv/themes/default/shared/directory.png
-%{_datadir}/mythtv/themes/default/shared/executable.png
-%{_datadir}/mythtv/themes/default/shared/file.png
-%{_datadir}/mythtv/themes/default/shared/grid_back_reg.png
-%{_datadir}/mythtv/themes/default/shared/grid_back_sel.png
-%{_datadir}/mythtv/themes/default/shared/grid_noimage.png
-%{_datadir}/mythtv/themes/default/shared/secure.png
-%{_datadir}/mythtv/themes/default/shared/unsecure.png
-%{_datadir}/mythtv/themes/default/shared/updirectory.png
-%{_datadir}/mythtv/themes/default/small_watched.png
-%{_datadir}/mythtv/themes/default/solid-container.png
-%{_datadir}/mythtv/themes/default/solid-cr-background.png
-%{_datadir}/mythtv/themes/default/sr-background.png
-%{_datadir}/mythtv/themes/default/status-bar.png
-%{_datadir}/mythtv/themes/default/status-ui.xml
-%{_datadir}/mythtv/themes/default/stereo.png
-%{_datadir}/mythtv/themes/default/subs.png
-%{_datadir}/mythtv/themes/default/subs_onscreen.png
-%{_datadir}/mythtv/themes/default/surround.png
-%{_datadir}/mythtv/themes/default/text_button_off.png
-%{_datadir}/mythtv/themes/default/text_button_on.png
-%{_datadir}/mythtv/themes/default/text_button_pushed.png
-%{_datadir}/mythtv/themes/default/topleft.png
-%{_datadir}/mythtv/themes/default/trans-backup.png
-%{_datadir}/mythtv/themes/default/trans-container.png
-%{_datadir}/mythtv/themes/default/trans-cr-background.png
-%{_datadir}/mythtv/themes/default/trans-rk-background.png
-%{_datadir}/mythtv/themes/default/trans-sr-background.png
-%{_datadir}/mythtv/themes/default/unchecked.png
-%{_datadir}/mythtv/themes/default/unchecked_high.png
-%{_datadir}/mythtv/themes/default/up_arrow.png
-%{_datadir}/mythtv/themes/default/uparrow.png
-%{_datadir}/mythtv/themes/default/very_wide_button_background.png
-%{_datadir}/mythtv/themes/default/very_wide_button_pushed_background.png
-%{_datadir}/mythtv/themes/default/very_wide_button_selected_background.png
-%{_datadir}/mythtv/themes/default/video-ui.xml
-%{_datadir}/mythtv/themes/default/warning.png
-%{_datadir}/mythtv/themes/default/watched.png
-%{_datadir}/mythtv/themes/default/welcome-ui.xml
-%{_datadir}/mythtv/themes/default/wide.png
-%{_datadir}/mythtv/themes/default/wide_button_background.png
-%{_datadir}/mythtv/themes/default/wide_button_pushed_background.png
-%{_datadir}/mythtv/themes/default/wide_button_selected_background.png
-%{_datadir}/mythtv/themes/default/image-ui.xml
-%{_datadir}/mythtv/themes/default/musicscanner.png
-%{_datadir}/mythtv/themes/default/shared/folder-reg.png
-%{_datadir}/mythtv/themes/default/shared/folder-sel.png
-%{_datadir}/mythtv/themes/default/shared/movie-reg.png
-%{_datadir}/mythtv/themes/default/shared/movie-sel.png
+%exclude %{_datadir}/mythtv/themes/default-wide/music-sel-bg.png
+%exclude %{_datadir}/mythtv/themes/default-wide/stream-ui.xml
+%exclude %{_datadir}/mythtv/themes/default-wide/mytharchive-ui.xml
+%exclude %{_datadir}/mythtv/themes/default-wide/mythburn-ui.xml
+%exclude %{_datadir}/mythtv/themes/default-wide/mythnative-ui.xml
+%exclude %{_datadir}/mythtv/themes/default/ff_button*.png
+%exclude %{_datadir}/mythtv/themes/default/music-*.png
+%exclude %{_datadir}/mythtv/themes/default/next_button*.png
+%exclude %{_datadir}/mythtv/themes/default/pause_button*.png
+%exclude %{_datadir}/mythtv/themes/default/play_button*.png
+%exclude %{_datadir}/mythtv/themes/default/prev_button*.png
+%exclude %{_datadir}/mythtv/themes/default/rew_button*.png
+%exclude %{_datadir}/mythtv/themes/default/selectionbar.png
+%exclude %{_datadir}/mythtv/themes/default/stop_button*.png
+%exclude %{_datadir}/mythtv/themes/default/track_info_background.png
+%exclude %{_datadir}/mythtv/themes/default/miniplayer_background.png
+%exclude %{_datadir}/mythtv/themes/default/stream-ui.xml
+%exclude %{_datadir}/mythtv/themes/default/enclosures.png
+%exclude %{_datadir}/mythtv/themes/default/need-download.png
+%exclude %{_datadir}/mythtv/themes/default/podcast.png
+%exclude %{_datadir}/mythtv/themes/default/cloudy.png
+%exclude %{_datadir}/mythtv/themes/default/fair.png
+%exclude %{_datadir}/mythtv/themes/default/flurries.png
+%exclude %{_datadir}/mythtv/themes/default/fog.png
+%exclude %{_datadir}/mythtv/themes/default/logo.png
+%exclude %{_datadir}/mythtv/themes/default/lshowers.png
+%exclude %{_datadir}/mythtv/themes/default/mcloudy.png
+%exclude %{_datadir}/mythtv/themes/default/pcloudy.png
+%exclude %{_datadir}/mythtv/themes/default/rainsnow.png
+%exclude %{_datadir}/mythtv/themes/default/showers.png
+%exclude %{_datadir}/mythtv/themes/default/snowshow.png
+%exclude %{_datadir}/mythtv/themes/default/sunny.png
+%exclude %{_datadir}/mythtv/themes/default/thunshowers.png
+%exclude %{_datadir}/mythtv/themes/default/unknown.png
+%exclude %{_datadir}/mythtv/themes/default/ma_*.png
+%exclude %{_datadir}/mythtv/themes/default/mytharchive-ui.xml
+%exclude %{_datadir}/mythtv/themes/default/mythburn-ui.xml
+%exclude %{_datadir}/mythtv/themes/default/mythnative-ui.xml
+%exclude %{_datadir}/mythtv/themes/default*/browser-ui.xml
+%exclude %{_datadir}/mythtv/themes/default*/mb_*.png
+%exclude %{_datadir}/mythtv/themes/default*/gallery*
+%exclude %{_datadir}/mythtv/themes/default*/game*
+%exclude %{_datadir}/mythtv/themes/default*/mm_*.png
+%exclude %{_datadir}/mythtv/themes/default*/mm-*.png
+%exclude %{_datadir}/mythtv/themes/default*/*music*.xml
+%exclude %{_datadir}/mythtv/themes/default*/netvision*.xml
+%exclude %{_datadir}/mythtv/themes/default*/news*
+%exclude %{_datadir}/mythtv/themes/default*/mw*.png
+%exclude %{_datadir}/mythtv/themes/default*/weather-ui.xml
+%exclude %{_datadir}/mythtv/themes/default*/zoneminder*.xml
+%exclude %{_datadir}/mythtv/themes/default*/mz_*.png
 
-%{_iconsdir}/%{name}.png
-%{_miconsdir}/%{name}.png
-%{_liconsdir}/%{name}.png
+%files -n %{lib_name}
+%{_libdir}/*.so.*
 
-%files -n %{libmyth}
-%{_libdir}/libmyth-%{api}.so.%{major}*
-
-%files -n %{libmavc}
-%{_libdir}/libmythavcodec.so.%{avcmaj}*
-
-%files -n %{libmavd}
-%{_libdir}/libmythavdevice.so.%{avcmaj}*
-
-%files -n %{libmavfi}
-%{_libdir}/libmythavfilter.so.%{avfmaj}*
-
-%files -n %{libmavfo}
-%{_libdir}/libmythavformat.so.%{avcmaj}*
-
-%files -n %{libmavu}
-%{_libdir}/libmythavutil.so.%{avumaj}*
-
-%files -n %{libmythbase}
-%{_libdir}/libmythbase-%{api}.so.%{major}*
-
-%files -n %{libmythfreemheg}
-%{_libdir}/libmythfreemheg-%{api}.so.%{major}*
-
-%files -n %{libmythhdhomerun}
-%{_libdir}/libmythhdhomerun-%{api}.so.%{major}*
-
-%files -n %{libmythmetadata}
-%{_libdir}/libmythmetadata-%{api}.so.%{major}*
-
-%files -n %{libmpp}
-%{_libdir}/libmythpostproc.so.%{ppmaj}*
-
-%files -n %{libmythprotoserver}
-%{_libdir}/libmythprotoserver-%{api}.so.%{major}*
-
-%files -n %{libmythservicecontracts}
-%{_libdir}/libmythservicecontracts-%{api}.so.%{major}*
-
-%files -n %{libmswr}
-%{_libdir}/libmythswresample.so.%{swrsmaj}*
-
-%files -n %{libmsws}
-%{_libdir}/libmythswscale.so.%{swscmaj}*
-
-%files -n %{libname}
-%{_libdir}/libmythtv-%{api}.so.%{major}*
-
-%files -n %{libmythui}
-%{_libdir}/libmythui-%{api}.so.%{major}*
-
-%files -n %{libmythupnp}
-%{_libdir}/libmythupnp-%{api}.so.%{major}*
-
-%files -n %{devname}
+%files -n %{lib_name_devel}
 %if %maenable
-%{multiarch_includedir}/mythtv/mythconfig.h
+%multiarch %{multiarch_includedir}/mythtv/mythconfig.h
 %endif
 %{_includedir}/mythtv
 # FIXME: Manually multiarch mythconfig.mak
 %{_libdir}/*.so
-#%{_datadir}/mythtv/build/settings.pro
 
 %files -n perl-MythTV
 %{perl_vendorlib}/MythTV.pm
 %{perl_vendorlib}/MythTV
 %{perl_vendorlib}/IO/Socket/INET/MythTV.pm
 
-%files -n python-mythtv
+%files -n python3-mythtv
 %{_bindir}/mythpython
-%{py2_puresitedir}/MythTV
-%{py2_puresitedir}/MythTV*.egg-info
+%dir %{python3_sitelib}/MythTV
+%{python3_sitelib}/MythTV/*
 
 %files -n php-mythtv
+%dir %{_datadir}/%{name}/bindings
 %{_datadir}/%{name}/bindings/php
 
-
 %files plugin-browser
-%doc mythplugins/mythbrowser/README mythplugins/mythbrowser/COPYING mythplugins/mythbrowser/AUTHORS
+%doc mythplugins/mythbrowser/README
+%doc mythplugins/mythbrowser/COPYING
+%doc mythplugins/mythbrowser/AUTHORS
 %{_libdir}/mythtv/plugins/libmythbrowser.so
 %{_datadir}/mythtv/i18n/mythbrowser_*.qm
 %{_datadir}/mythtv/themes/default*/browser-ui.xml
@@ -1321,11 +1038,13 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/i18n/mythgame_*.qm
 %{_datadir}/mythtv/game_settings.xml
 %{_datadir}/mythtv/themes/default*/game*
-%dir %{_datadir}/mythtv/metadata
 %{_datadir}/mythtv/metadata/Game
 
 %files plugin-music
-%doc mythplugins/mythmusic/AUTHORS mythplugins/mythmusic/COPYING mythplugins/mythmusic/README* mythplugins/mythmusic/musicdb
+%doc mythplugins/mythmusic/AUTHORS
+%doc mythplugins/mythmusic/COPYING
+%doc mythplugins/mythmusic/README*
+%doc mythplugins/mythmusic/musicdb
 %{_datadir}/mythtv/music_settings.xml
 %{_datadir}/mythtv/musicmenu.xml
 %{_libdir}/mythtv/plugins/libmythmusic.so
@@ -1350,7 +1069,9 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/themes/default-wide/stream-ui.xml
 
 %files plugin-netvision
-%doc mythplugins/mythnetvision/README mythplugins/mythnetvision/ChangeLog mythplugins/mythnetvision/AUTHORS
+%doc mythplugins/mythnetvision/README
+%doc mythplugins/mythnetvision/ChangeLog
+%doc mythplugins/mythnetvision/AUTHORS
 %{_bindir}/mythfillnetvision
 %{_libdir}/mythtv/plugins/libmythnetvision.so
 %{_datadir}/mythtv/i18n/mythnetvision_*.qm
@@ -1359,7 +1080,10 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/themes/default*/netvision*.xml
 
 %files plugin-news
-%doc mythplugins/mythnews/AUTHORS mythplugins/mythnews/COPYING mythplugins/mythnews/ChangeLog mythplugins/mythnews/README*
+%doc mythplugins/mythnews/AUTHORS
+%doc mythplugins/mythnews/COPYING
+%doc mythplugins/mythnews/ChangeLog
+%doc mythplugins/mythnews/README*
 %{_libdir}/mythtv/plugins/libmythnews.so
 %{_datadir}/mythtv/i18n/mythnews_*.qm
 %{_datadir}/mythtv/mythnews
@@ -1369,7 +1093,9 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/themes/default/podcast.png
 
 %files plugin-weather
-%doc mythplugins/mythweather/AUTHORS mythplugins/mythweather/COPYING mythplugins/mythweather/README*
+%doc mythplugins/mythweather/AUTHORS
+%doc mythplugins/mythweather/COPYING
+%doc mythplugins/mythweather/README*
 %{_libdir}/mythtv/plugins/libmythweather.so
 %{_datadir}/mythtv/i18n/mythweather_*.qm
 %{_datadir}/mythtv/mythweather
@@ -1392,7 +1118,9 @@ mv %{buildroot}%{buildroot}%{perl_vendorlib}/* %{buildroot}%{perl_vendorlib}
 %{_datadir}/mythtv/weather_settings.xml
 
 %files plugin-zoneminder
-%doc mythplugins/mythzoneminder/README mythplugins/mythzoneminder/COPYING mythplugins/mythzoneminder/AUTHORS
+%doc mythplugins/mythzoneminder/README
+%doc mythplugins/mythzoneminder/COPYING
+%doc mythplugins/mythzoneminder/AUTHORS
 %{_bindir}/mythzmserver
 %{_libdir}/mythtv/plugins/libmythzoneminder.so
 %{_datadir}/mythtv/zonemindermenu.xml
