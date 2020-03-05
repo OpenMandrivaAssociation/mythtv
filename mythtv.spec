@@ -577,28 +577,25 @@ and the mythfrontend UI plugin.
 %setup -q
 %autopatch -p1
 
-# (cg) Fixes might bring in some .gitignore files in patches... trash 'em.
-find -name .gitignore -delete
-
-# (cg) The installer is dumb and installs our patch backup files...
-# This can be removed after 0.25
-rm -f programs/scripts/database/mythconverg_restore.pl.*
+# (cg) The install scripts are pretty dumb at times and include these files
+# so lets trash them early
+find \( -name .gitignore -o -name "*.[0-9][0-9][0-9][0-9]" \) -delete
 
 pushd mythtv
-
 # (cg) As of 0.21, only contrib scripts are affected.
 find contrib -type f | xargs grep -l /usr/local | xargs perl -pi -e's|/usr/local|%{_prefix}|g'
 
 echo "QMAKE_PROJECT_DEPTH = 0" >> mythtv.pro
 echo "QMAKE_PROJECT_DEPTH = 0" >> settings.pro
 
-
-cp -a %{SOURCE1} %{SOURCE2} %{SOURCE3} .
-for file in mythbackend.service \
+cp -a %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE8} %{SOURCE10} .
+for file in mythbackend.init \
+            mythbackend.service \
             mythbackend.sysconfig \
+            mythtv.sysconfig \
             mythbackend.logrotate; do
   sed -e's|@logdir@|%{_logdir}|g' \
-      -e's|@rundir@|%{_varrun}|g' \
+      -e's|@rundir@|%{_rundir}|g' \
       -e's|@sysconfdir@|%{_sysconfdir}|g' \
       -e's|@sysconfigdir@|%{_sysconfdir}/sysconfig|g' \
       -e's|@initdir@|%{_initrddir}|g' \
@@ -617,8 +614,16 @@ perl -pi -e's|/mnt/store|%{_localstatedir}/lib/mythtv/recordings|' programs/myth
 # do not set hardcoded archflags
 perl -pi -e's|^echo "ARCHFLAGS=|# echo "ARCHFLAGS=|' configure
 
-# Fix the version reporting (which assumes svn checkout)
-echo "SOURCE_VERSION=%{version}-%{release}" >VERSION
+# Fix the version reporting (which assumes git clone)
+perl -pi -e"s|SOURCE_VERSION=.*|SOURCE_VERSION='%{version}-%{release} (aka %{gitversion})'\nBRANCH='fixes/%{version}'|" version.sh
+popd
+
+# remove -Wsuggest-override compile flags it generates plenty of build log
+sed -i 's| -Wsuggest-override||' mythtv/configure
+
+#(eatdirt) added -DHAVE_PTHREAD_H to fix udfreac.c for armv5. There is a
+#conditional in there using either atomic, or fall back to pthread if
+#HAVE_PTHREAD_H is defined.
 
 %build
 pushd mythtv
@@ -628,7 +633,7 @@ pushd mythtv
 		--logfile=config.log \
 		--prefix=%{_prefix} \
 		--libdir-name=%{_lib} \
-		--python=%{__python2} \
+		--python=%{__python} \
 		--enable-runtime-cpudetect \
 		--enable-dvb \
 		--enable-opengl-video \
