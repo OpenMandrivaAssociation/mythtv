@@ -146,6 +146,7 @@ BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
 BuildRequires:  pkgconfig(vpx)
 BuildRequires:  pkgconfig(exiv2)
+BuildRequires:  pkgconfig(samplerate)
 BuildRequires:  crystalhd-devel
 #BuildRequires:  hdhomerun-devel
 %if %build_lame
