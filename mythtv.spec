@@ -134,7 +134,7 @@ BuildRequires:  pkgconfig(xv)
 BuildRequires:  pkgconfig(xvmc)
 BuildRequires:  pkgconfig(xxf86vm)
 BuildRequires:  pkgconfig(python3)
-BuildRequires:  python3dist(mysqlclient)
+#BuildRequires:  python3dist(mysqlclient)
 BuildRequires:  python3dist(lxml)
 BuildRequires:  python3dist(urlgrabber)
 BuildRequires:  pkgconfig(libpulse)
@@ -144,10 +144,10 @@ BuildRequires:  pkgconfig(libva)
 BuildRequires:  pkgconfig(libcec)
 BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
-BuildRequires:  pkgconfig(libvpx)
+BuildRequires:  pkgconfig(vpx)
 BuildRequires:  pkgconfig(exiv2)
 BuildRequires:  crystalhd-devel
-BuildRequires:  hdhomerun-devel
+#BuildRequires:  hdhomerun-devel
 %if %build_lame
 BuildRequires:  lame-devel
 %endif
@@ -177,10 +177,10 @@ BuildRequires:  pkgconfig(libiec61883)
 BuildRequires:  pkgconfig(gl)
 BuildRequires:  pkgconfig(glu)
 %if %maenable
-BuildRequires:  multiarch-utils
+#BuildRequires:  multiarch-utils
 %endif
-BuildRequires:  perl(Net::UPnP::QueryResponse)
-BuildRequires:  perl(Net::UPnP::ControlPoint)
+#BuildRequires:  perl(Net::UPnP::QueryResponse)
+#BuildRequires:  perl(Net::UPnP::ControlPoint)
 
 # For Plugins
 BuildRequires:  pkgconfig(libvisual-0.4)
@@ -192,7 +192,7 @@ BuildRequires:  pkgconfig(id3tag)
 BuildRequires:  pkgconfig(vorbis)
 BuildRequires:  pkgconfig(flac)
 BuildRequires:  pkgconfig(libbluray)
-BuildRequires:  pkgconfig(libcdaudio)
+#BuildRequires:  pkgconfig(libcdaudio)
 BuildRequires:  pkgconfig(lzo2)
 BuildRequires:  libcdda-devel
 BuildRequires:  pkgconfig(libtiff-4)
@@ -206,14 +206,14 @@ BuildRequires:  python3dist(oauth)
 BuildRequires:  perl(XML::XPath)
 BuildRequires:  perl(Image::Size)
 BuildRequires:  perl(Date::Manip)
-BuildRequires:  perl(DateTime::Format::ISO8601)
-BuildRequires:  perl(SOAP::Lite)
+#BuildRequires:  perl(DateTime::Format::ISO8601)
+#BuildRequires:  perl(SOAP::Lite)
 BuildRequires:  perl(XML::Simple)
 BuildRequires:  perl(Class::Factory::Util)
 
 # Bluray support
-BuildRequires:  ant
-BuildRequires:  java-devel
+#BuildRequires:  ant
+#BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
 
 
