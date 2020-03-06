@@ -5,6 +5,9 @@
 %define fixesdate 20200217
 %define rel 1
 
+%define _disable_lto 1
+%define _disable_rebuild_configure 1
+
 %if %{fixesdate}
 %define release %mkrel %fixesdate.%rel
 %else
