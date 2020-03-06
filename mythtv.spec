@@ -194,7 +194,7 @@ BuildRequires:  pkgconfig(flac)
 BuildRequires:  pkgconfig(libbluray)
 #BuildRequires:  pkgconfig(libcdaudio)
 BuildRequires:  pkgconfig(lzo2)
-BuildRequires:  libcdda-devel
+BuildRequires:  cdda-devel
 BuildRequires:  pkgconfig(libtiff-4)
 BuildRequires:  mysql-devel
 BuildRequires:  pkgconfig(minizip)
