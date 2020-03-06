@@ -111,6 +111,7 @@ Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
 Patch109: mythtv-python3.patch
 Patch110: mythtv-py3_configure.patch
 
+BuildRequires:  gcc
 BuildRequires:  gdb
 BuildRequires:  imagemagick
 BuildRequires:  yasm
