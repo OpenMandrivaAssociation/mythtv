@@ -213,7 +213,7 @@ BuildRequires:  perl(XML::Simple)
 BuildRequires:  perl(Class::Factory::Util)
 
 # Bluray support
-#BuildRequires:  ant
+BuildRequires:  ant
 #BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
 
