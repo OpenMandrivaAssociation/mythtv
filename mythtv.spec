@@ -604,6 +604,8 @@ sed -i 's| -Wsuggest-override||' mythtv/configure
 %build
 pushd mythtv
 ./configure \
+  --cc=clang \
+		--cxx=clang++ \
   --prefix=%{_prefix} \
   --libdir-name=%{_lib} \
   --enable-dvb \
