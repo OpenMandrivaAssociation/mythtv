@@ -185,6 +185,7 @@ BuildRequires:  pkgconfig(glu)
 %endif
 #BuildRequires:  perl(Net::UPnP::QueryResponse)
 #BuildRequires:  perl(Net::UPnP::ControlPoint)
+BuildRequires:   perl-devel
 
 # For Plugins
 BuildRequires:  pkgconfig(libvisual-0.4)
