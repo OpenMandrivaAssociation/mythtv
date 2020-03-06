@@ -6,11 +6,11 @@ diff -Nru a/mythtv/configure b/mythtv/configure
          case $target_os in
              linux)
 -                # Bah. Suse linux doesn't have xnvctrl.
-+                # Bah. Mageia linux doesn't have xnvctrl.
++                # Bah. OpenMandriva linux doesn't have xnvctrl.
                  . /etc/os-release
                  case $ID in
 -                    *suse*)
-+                    *mageia*)
++                    *openmandriva*)
  			# This is hopefully temporary.
  			disable xnvctrl_external
  			;;
