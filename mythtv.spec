@@ -309,7 +309,7 @@ Summary:        Client component of mythtv (a PVR)
 Group:          Video/Television
 Requires:       mythtv-themes-base = %{version}-%{release}
 Requires:       mythtv-common = %{version}-%{release}
-Requires:       qt5-database-plugin-mysql
+Requires:       qt5-qtbase-database-plugin-mysql
 Requires:       mplayer
 %if %{build_tainted}
 Requires:       transcode
@@ -338,7 +338,7 @@ Summary:        Server component of mythtv (a PVR)
 Group:          Video/Television
 Requires:       %{lib_name} = %{version}-%{release}
 Requires:       mythtv-common = %{version}-%{release}
-Requires:       qt5-database-plugin-mysql
+Requires:       qt5-qtbase-database-plugin-mysql
 Requires(post):  rpm-helper >= 0.24.8-1
 Requires(preun): rpm-helper >= 0.24.8-1
 Recommends:       mysql
@@ -370,7 +370,7 @@ Group:          Video/Television
 Requires:       mythtv-backend = %{version}-%{release}
 Requires:       mythtv-themes-base = %{version}-%{release}
 Provides:       mythtvsetup
-Requires:       qt5-database-plugin-mysql
+Requires:       qt5-qtbase-database-plugin-mysql
 
 %description setup
 MythTV provides a unified graphical interface for recording and viewing
@@ -604,7 +604,7 @@ pushd mythtv
   --prefix=%{_prefix} \
   --libdir-name=%{_lib} \
   --enable-dvb \
-  --without-bindings=perl \
+  --with-bindings=python,php,perl \
   --extra-cxxflags="%{optflags} -fomit-frame-pointer -fno-devirtualize" \
   --extra-cflags="%{optflags} -fomit-frame-pointer -fno-devirtualize -DHAVE_PTHREAD_H" \
   --extra-ldflags="%{ldflags}" \
