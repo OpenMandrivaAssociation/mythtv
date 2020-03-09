@@ -1,0 +1,15 @@
+diff -up mythtv-30.0/mythtv/libs/libmythfreesurround/el_processor.cpp.2~ mythtv-30.0/mythtv/libs/libmythfreesurround/el_processor.cpp
+--- mythtv-30.0/mythtv/libs/libmythfreesurround/el_processor.cpp.2~	2020-03-08 17:46:31.441339799 +0100
++++ mythtv-30.0/mythtv/libs/libmythfreesurround/el_processor.cpp	2020-03-08 17:47:16.920341805 +0100
+@@ -32,11 +32,6 @@ extern "C" {
+ typedef FFTSample FFTComplexArray[2];
+ #endif
+ 
+-
+-#ifdef USE_FFTW3
+-#pragma comment (lib,"libfftw3f-3.lib")
+-#endif
+-
+ typedef std::complex<float> cfloat;
+ 
+ static const float PI = 3.141592654;

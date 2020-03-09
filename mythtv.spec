@@ -19,8 +19,6 @@
 %define lib_name        %mklibname myth %{lib_major}
 %define lib_name_devel  %mklibname myth -d
 
-%define maenable 1
-
 #set default build options
 # disabled as overrides xv
 %define build_directfb          0
@@ -95,6 +93,7 @@ Source10:       mythtv.sysconfig.in
 %if %{fixesdate}
 Patch001: fixes-%{gitversion}.patch
 %endif
+Patch101: mythtv-30.0-clang-compile.patch
 # (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
@@ -181,9 +180,6 @@ BuildRequires:  pkgconfig(libavc1394)
 BuildRequires:  pkgconfig(libiec61883)
 BuildRequires:  pkgconfig(gl)
 BuildRequires:  pkgconfig(glu)
-%if %maenable
-#BuildRequires:  multiarch-utils
-%endif
 #BuildRequires:  perl(Net::UPnP::QueryResponse)
 #BuildRequires:  perl(Net::UPnP::ControlPoint)
 BuildRequires:   perl-devel
@@ -550,8 +546,7 @@ and the mythfrontend UI plugin.
 
 
 %prep
-%setup -q
-%autopatch -p1
+%autosetup -p1
 
 # (cg) The install scripts are pretty dumb at times and include these files
 # so lets trash them early
@@ -710,11 +705,6 @@ pushd bindings/perl
 %make_install
 popd
 
-
-%if %maenable
-%multiarch_includes %{buildroot}%_includedir/mythtv/mythconfig.h
-%endif
-
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythtv/recordings
 mkdir -p %{buildroot}%{_var}/cache/mythtv
@@ -824,12 +814,6 @@ rmdir %{buildroot}%{_libdir}/pkgconfig 2>/dev/null || :
 # (cg) Clean up some other stuff we don't want to include
 rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 
-# python shebangs
-pathfix.py -pni "%{__python3} %{py3_shbang_opts}" %{buildroot}%{_datadir}/%{name}/*
-
-find %{buildroot} -name *.la -delete
-find %{buildroot} -name *.a -delete
-
 %pre backend
 # Add the "mythtv" user
 %_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
@@ -861,7 +845,6 @@ find %{buildroot} -name *.a -delete
 %{_bindir}/mythcommflag
 %{_bindir}/mythpreviewgen
 %{_bindir}/mythtranscode
-%{_bindir}/mythwikiscripts
 %{_bindir}/mythmetadatalookup
 %{_bindir}/mythutil
 %{_bindir}/mythfilerecorder
@@ -967,21 +950,6 @@ find %{buildroot} -name *.a -delete
 %exclude %{_datadir}/mythtv/themes/default/enclosures.png
 %exclude %{_datadir}/mythtv/themes/default/need-download.png
 %exclude %{_datadir}/mythtv/themes/default/podcast.png
-%exclude %{_datadir}/mythtv/themes/default/cloudy.png
-%exclude %{_datadir}/mythtv/themes/default/fair.png
-%exclude %{_datadir}/mythtv/themes/default/flurries.png
-%exclude %{_datadir}/mythtv/themes/default/fog.png
-%exclude %{_datadir}/mythtv/themes/default/logo.png
-%exclude %{_datadir}/mythtv/themes/default/lshowers.png
-%exclude %{_datadir}/mythtv/themes/default/mcloudy.png
-%exclude %{_datadir}/mythtv/themes/default/pcloudy.png
-%exclude %{_datadir}/mythtv/themes/default/rainsnow.png
-%exclude %{_datadir}/mythtv/themes/default/showers.png
-%exclude %{_datadir}/mythtv/themes/default/snowshow.png
-%exclude %{_datadir}/mythtv/themes/default/sunny.png
-%exclude %{_datadir}/mythtv/themes/default/thunshowers.png
-%exclude %{_datadir}/mythtv/themes/default/unknown.png
-%exclude %{_datadir}/mythtv/themes/default/ma_*.png
 %exclude %{_datadir}/mythtv/themes/default/mytharchive-ui.xml
 %exclude %{_datadir}/mythtv/themes/default/mythburn-ui.xml
 %exclude %{_datadir}/mythtv/themes/default/mythnative-ui.xml
@@ -994,8 +962,6 @@ find %{buildroot} -name *.a -delete
 %exclude %{_datadir}/mythtv/themes/default*/*music*.xml
 %exclude %{_datadir}/mythtv/themes/default*/netvision*.xml
 %exclude %{_datadir}/mythtv/themes/default*/news*
-%exclude %{_datadir}/mythtv/themes/default*/mw*.png
-%exclude %{_datadir}/mythtv/themes/default*/weather-ui.xml
 %exclude %{_datadir}/mythtv/themes/default*/zoneminder*.xml
 %exclude %{_datadir}/mythtv/themes/default*/mz_*.png
 
@@ -1003,22 +969,13 @@ find %{buildroot} -name *.a -delete
 %{_libdir}/*.so.*
 
 %files -n %{lib_name_devel}
-%if %maenable
-%multiarch %{multiarch_includedir}/mythtv/mythconfig.h
-%endif
 %{_includedir}/mythtv
-# FIXME: Manually multiarch mythconfig.mak
 %{_libdir}/*.so
 
 %files -n perl-MythTV
 %{perl_vendorlib}/MythTV.pm
 %{perl_vendorlib}/MythTV
 %{perl_vendorlib}/IO/Socket/INET/MythTV.pm
-
-%files -n python3-mythtv
-%{_bindir}/mythpython
-%dir %{python3_sitelib}/MythTV
-%{python3_sitelib}/MythTV/*
 
 %files -n php-mythtv
 %dir %{_datadir}/%{name}/bindings
@@ -1099,31 +1056,6 @@ find %{buildroot} -name *.a -delete
 %{_datadir}/mythtv/themes/default/enclosures.png
 %{_datadir}/mythtv/themes/default/need-download.png
 %{_datadir}/mythtv/themes/default/podcast.png
-
-%files plugin-weather
-%doc mythplugins/mythweather/AUTHORS
-%doc mythplugins/mythweather/COPYING
-%doc mythplugins/mythweather/README*
-%{_libdir}/mythtv/plugins/libmythweather.so
-%{_datadir}/mythtv/i18n/mythweather_*.qm
-%{_datadir}/mythtv/mythweather
-%{_datadir}/mythtv/themes/default/cloudy.png
-%{_datadir}/mythtv/themes/default/fair.png
-%{_datadir}/mythtv/themes/default/flurries.png
-%{_datadir}/mythtv/themes/default/fog.png
-%{_datadir}/mythtv/themes/default/logo.png
-%{_datadir}/mythtv/themes/default/lshowers.png
-%{_datadir}/mythtv/themes/default/mcloudy.png
-%{_datadir}/mythtv/themes/default/pcloudy.png
-%{_datadir}/mythtv/themes/default/rainsnow.png
-%{_datadir}/mythtv/themes/default/showers.png
-%{_datadir}/mythtv/themes/default/snowshow.png
-%{_datadir}/mythtv/themes/default/sunny.png
-%{_datadir}/mythtv/themes/default/thunshowers.png
-%{_datadir}/mythtv/themes/default/unknown.png
-%{_datadir}/mythtv/themes/default*/mw*.png
-%{_datadir}/mythtv/themes/default*/weather-ui.xml
-%{_datadir}/mythtv/weather_settings.xml
 
 %files plugin-zoneminder
 %doc mythplugins/mythzoneminder/README
