@@ -1,21 +1,15 @@
 # Note: When updating version, also update the update-fixes.sh script's version
 # and rerun it. This will generate a new fixes patch and update the spec
 # automatically.
-%define gitversion v30.0-85-gab250
-%define fixesdate 20200217
+%define gitversion v31.0
+%define fixesdate 0
 %define rel 1
 
 %define _disable_lto 1
 %define _disable_rebuild_configure 1
 
-%if %{fixesdate}
-%define release %mkrel %fixesdate.%rel
-%else
-%define release %mkrel %rel
-%endif
-
 %define lib_name_orig   libmyth
-%define lib_major       30
+%define lib_major       31
 %define lib_name        %mklibname myth %{lib_major}
 %define lib_name_devel  %mklibname myth -d
 
@@ -74,8 +68,8 @@
 
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
-Version:        30.0
-Release:        %{release}
+Version:        31.0
+Release:        1
 URL:            http://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -93,7 +87,7 @@ Source10:       mythtv.sysconfig.in
 %if %{fixesdate}
 Patch001: fixes-%{gitversion}.patch
 %endif
-Patch101: mythtv-30.0-clang-compile.patch
+Patch002:	mythtv-31.0-qt-5.15.patch
 # (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
@@ -103,12 +97,8 @@ Patch104: mythtv-0.28.1-qmake-mgaflags.patch
 Patch105: mythtv-30.0-mariadb10.2.patch
 #fix mythavcodec linking
 Patch106: mythtv-30.0-linking.patch
-#enable xnvctrl support on Mageia
-Patch107: mythtv-30.0-mageia-xnvctrl.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
-Patch109: mythtv-python3.patch
-Patch110: mythtv-py3_configure.patch
 
 BuildRequires:  gcc
 BuildRequires:  gdb
@@ -218,6 +208,7 @@ BuildRequires:  ant
 #BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
 
+Obsoletes: %{name}-plugin-netvision < %{EVRD}
 
 %description
 MythTV implements the following PVR features, and more, with a
@@ -483,15 +474,6 @@ This package is in the tainted section because it contains software that support
 codecs that may be covered by software patents.
 %endif
 
-%package plugin-netvision
-Summary:        NetVision for MythTV
-Group:          Video/Television
-Requires:       python3-mythtv
-Requires:       mythtv-frontend >= %{version}
-
-%description plugin-netvision
-NetVision for MythTV. View popular media website content.
-
 %package plugin-news
 Summary:        RSS News feed plugin for MythTV
 Group:          Video/Television
@@ -612,13 +594,10 @@ pushd mythtv
 %ifarch %arm
   --disable-vdpau \
   --disable-vaapi \
-  --disable-opengl-video \
 %else
   --enable-vdpau \
   --enable-vaapi \
-  --enable-opengl-video \
 %endif
-  --enable-crystalhd \
   --enable-libfftw3 \
   --enable-libdns-sd \
   --enable-libvpx \
@@ -783,7 +762,7 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/pictures
 #mythmusic
 mkdir -p %{buildroot}%{_localstatedir}/lib/mythmusic
 
-mkdir -p %{buildroot}{%_docdir}/mythtv-plugin-{browser,gallery,game,music,netvision,news,weather,video,zoneminder}
+mkdir -p %{buildroot}{%_docdir}/mythtv-plugin-{browser,gallery,game,music,news,weather,video,zoneminder}
 
 popd
 
@@ -856,8 +835,7 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/locales/*
 %dir %{_datadir}/%{name}/metadata
 %{_datadir}/%{name}/metadata/*
-%dir %{_datadir}/%{name}/hardwareprofile
-%{_datadir}/%{name}/hardwareprofile/*
+%{_datadir}/%{name}/externrecorder
 %exclude %{_datadir}/mythtv/metadata/Game
 
 %files backend
@@ -879,8 +857,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/backend-config
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
-%dir %{_datadir}/mythtv/internetcontent
-%{_datadir}/mythtv/internetcontent/*
 
 %files frontend
 %config(noreplace) %{_datadir}/xsessions/mythfrontend.desktop
@@ -892,7 +868,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_bindir}/mythshutdown
 %{_bindir}/mythavtest
 %dir %{_libdir}/mythtv
-%{_libdir}/mythtv/filters
 %dir %{_libdir}/mythtv/plugins
 %dir %{_datadir}/mythtv/fonts
 %{_datadir}/mythtv/fonts/*.ttf
@@ -960,7 +935,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %exclude %{_datadir}/mythtv/themes/default*/mm_*.png
 %exclude %{_datadir}/mythtv/themes/default*/mm-*.png
 %exclude %{_datadir}/mythtv/themes/default*/*music*.xml
-%exclude %{_datadir}/mythtv/themes/default*/netvision*.xml
 %exclude %{_datadir}/mythtv/themes/default*/news*
 %exclude %{_datadir}/mythtv/themes/default*/zoneminder*.xml
 %exclude %{_datadir}/mythtv/themes/default*/mz_*.png
@@ -991,9 +965,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default*/mb_*.png
 
 %files plugin-gallery
-%doc mythplugins/mythgallery/README*
-%{_libdir}/mythtv/plugins/libmythgallery.so
-%{_datadir}/mythtv/i18n/mythgallery_*.qm
 %{_datadir}/mythtv/themes/default*/gallery*
 %{_localstatedir}/lib/pictures
 
@@ -1032,17 +1003,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default/stream-ui.xml
 %{_datadir}/mythtv/themes/default-wide/music-sel-bg.png
 %{_datadir}/mythtv/themes/default-wide/stream-ui.xml
-
-%files plugin-netvision
-%doc mythplugins/mythnetvision/README
-%doc mythplugins/mythnetvision/ChangeLog
-%doc mythplugins/mythnetvision/AUTHORS
-%{_bindir}/mythfillnetvision
-%{_libdir}/mythtv/plugins/libmythnetvision.so
-%{_datadir}/mythtv/i18n/mythnetvision_*.qm
-%{_datadir}/mythtv/mythnetvision
-%{_datadir}/mythtv/netvisionmenu.xml
-%{_datadir}/mythtv/themes/default*/netvision*.xml
 
 %files plugin-news
 %doc mythplugins/mythnews/AUTHORS
