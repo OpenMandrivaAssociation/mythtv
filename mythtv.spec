@@ -405,7 +405,7 @@ television programs.
 
 This package contains the perl bindings for MythTV.
 
-%package -n python3-mythtv
+%package -n python-mythtv
 Summary:        Python 3 bindings for MythTV
 Group:          Development/Python
 Requires:       python3dist(mysqlclient)
@@ -417,7 +417,7 @@ Obsoletes:      python-mythtv < 0.28.1-20170528.12
 Provides:       python-mythtv = %{version}-%{release}
 Obsoletes:      python2-mythtv < 30.0-20190728.2
 
-%description -n python3-mythtv
+%description -n python-mythtv
 MythTV provides a unified graphical interface for recording and viewing
 television programs.
 
@@ -427,7 +427,7 @@ This package contains the python 3 bindings for MythTV.
 Summary:        PHP bindings for MythTV
 Group:          Development/PHP
 BuildArch:      noarch
-Requires:       php-mysql
+Requires:       php-mysqli
 
 %description -n php-mythtv
 MythTV provides a unified graphical interface for recording and viewing
