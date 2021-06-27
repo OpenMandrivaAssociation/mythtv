@@ -660,6 +660,11 @@ echo "QMAKE_LIBDIR += $temp%{_libdir}" >> targetdep.pro
 # check_py_lib script thus disabling MythNetvision due to missing dependencies
 sed -i 's|check_py_lib MythTV|#check_py_lib MythTV|' configure
 
+# [from mageia] hack for mariadb 10.5.4
+# /usr/include/mysql/server/my_alloc.h:23:10: fatal error: mysql/psi/psi_memory.h: No such
+# file or directory
+export CPATH="%{_includedir}/mysql/server
+
 ./configure \
   --prefix=${temp}%{_prefix} \
   --libdir=${_libdir} \
