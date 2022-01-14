@@ -1,0 +1,43 @@
+diff -up mythtv-31.0/mythtv/external/FFmpeg/libavcodec/libdav1d.c.omv~ mythtv-31.0/mythtv/external/FFmpeg/libavcodec/libdav1d.c
+--- mythtv-31.0/mythtv/external/FFmpeg/libavcodec/libdav1d.c.omv~	2022-01-14 18:00:31.917441756 +0100
++++ mythtv-31.0/mythtv/external/FFmpeg/libavcodec/libdav1d.c	2022-01-14 18:01:59.281637875 +0100
+@@ -37,8 +37,7 @@ typedef struct Libdav1dContext {
+     int pool_size;
+ 
+     Dav1dData data;
+-    int tile_threads;
+-    int frame_threads;
++    int threads;
+     int apply_grain;
+ } Libdav1dContext;
+ 
+@@ -132,14 +131,11 @@ static av_cold int libdav1d_init(AVCodec
+     s.allocator.release_picture_callback = libdav1d_picture_release;
+     s.apply_grain = dav1d->apply_grain;
+ 
+-    s.n_tile_threads = dav1d->tile_threads
+-                     ? dav1d->tile_threads
+-                     : FFMIN(floor(sqrt(threads)), DAV1D_MAX_TILE_THREADS);
+-    s.n_frame_threads = dav1d->frame_threads
+-                      ? dav1d->frame_threads
+-                      : FFMIN(ceil(threads / s.n_tile_threads), DAV1D_MAX_FRAME_THREADS);
+-    av_log(c, AV_LOG_DEBUG, "Using %d frame threads, %d tile threads\n",
+-           s.n_frame_threads, s.n_tile_threads);
++    s.n_threads = dav1d->threads
++                      ? dav1d->threads
++                      : FFMIN(ceil(threads / s.n_threads), DAV1D_MAX_THREADS);
++    av_log(c, AV_LOG_DEBUG, "Using %d threads\n",
++           s.n_threads);
+ 
+     res = dav1d_open(&dav1d->c, &s);
+     if (res < 0)
+@@ -339,8 +335,7 @@ static av_cold int libdav1d_close(AVCode
+ #define OFFSET(x) offsetof(Libdav1dContext, x)
+ #define VD AV_OPT_FLAG_VIDEO_PARAM | AV_OPT_FLAG_DECODING_PARAM
+ static const AVOption libdav1d_options[] = {
+-    { "tilethreads", "Tile threads", OFFSET(tile_threads), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, DAV1D_MAX_TILE_THREADS, VD },
+-    { "framethreads", "Frame threads", OFFSET(frame_threads), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, DAV1D_MAX_FRAME_THREADS, VD },
++    { "threads", "Threads", OFFSET(threads), AV_OPT_TYPE_INT, { .i64 = 0 }, 0, DAV1D_MAX_THREADS, VD },
+     { "filmgrain", "Apply Film Grain", OFFSET(apply_grain), AV_OPT_TYPE_BOOL, { .i64 = 1 }, 0, 1, VD },
+     { NULL }
+ };

@@ -99,6 +99,7 @@ Patch105: mythtv-30.0-mariadb10.2.patch
 Patch106: mythtv-30.0-linking.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
+Patch109: mythtv-dav1d-0.9.3.patch
 
 BuildRequires:  gcc
 BuildRequires:  gdb
