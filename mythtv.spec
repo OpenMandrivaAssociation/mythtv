@@ -100,6 +100,9 @@ Patch106: mythtv-30.0-linking.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
 Patch109: mythtv-dav1d-0.9.3.patch
+# Used as SOURCE: instead of PATCH: because it's only needed on aarch64
+# and shouldn't be applied elsewhere -- not a task for autosetup
+Source500: mythtv-31.0-aarch64-no-underlinking.patch
 
 BuildRequires:  gcc
 BuildRequires:  gdb
@@ -530,6 +533,9 @@ and the mythfrontend UI plugin.
 
 %prep
 %autosetup -p1
+%ifarch %{aarch64}
+patch -p1 -z .500~ -b <%{S:500}
+%endif
 
 # (cg) The install scripts are pretty dumb at times and include these files
 # so lets trash them early

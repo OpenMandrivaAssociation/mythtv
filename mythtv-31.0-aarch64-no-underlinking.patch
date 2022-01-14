@@ -1,0 +1,12 @@
+diff -up mythtv-31.0/mythtv/libs/libmythtv/libmythtv.pro.omv~ mythtv-31.0/mythtv/libs/libmythtv/libmythtv.pro
+--- mythtv-31.0/mythtv/libs/libmythtv/libmythtv.pro.omv~	2022-01-14 18:49:33.951039822 +0000
++++ mythtv-31.0/mythtv/libs/libmythtv/libmythtv.pro	2022-01-14 18:49:59.020819838 +0000
+@@ -1008,7 +1008,7 @@ INCLUDEPATH += $$POSTINC
+ 
+ include ( ../libs-targetfix.pro )
+ 
+-LIBS += $$LATE_LIBS
++LIBS += $$LATE_LIBS -lGLX
+ DEFINES += MTV_API
+ 
+ test_clean.commands = -cd test/ && $(MAKE) -f Makefile clean
