@@ -837,11 +837,11 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %_preun_service mythbackend
 
 %files doc
-%doc mythtv/README mythtv/UPGRADING
-%doc mythtv/AUTHORS mythtv/COPYING
-%doc mythtv/FAQ
-%doc mythtv/keys.txt
-%doc mythtv/contrib
+#doc mythtv/README mythtv/UPGRADING
+#doc mythtv/AUTHORS mythtv/COPYING
+#doc mythtv/FAQ
+#doc mythtv/keys.txt
+#doc mythtv/contrib
 %{_datadir}/%{name}/fonts/*.txt
 %{_datadir}/%{name}/contrib
 %{_datadir}/%{name}/html
