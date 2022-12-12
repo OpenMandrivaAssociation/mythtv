@@ -543,6 +543,15 @@ between myth systems without losing any of the metadata. It is a
 complete rewrite of the old MythBurn bash scripts, now using python,
 and the mythfrontend UI plugin.
 
+%package plugin-netvision
+Summary:        NetVision for MythTV
+Group:          Video/Television
+#Requires:       python-mythtv
+Requires:       mythtv-frontend >= %{version}
+
+%description plugin-netvision
+NetVision for MythTV. View popular media website content.
+
 
 
 %prep
@@ -883,6 +892,7 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/backend-config
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
+%{_datadir}/%{name}/initialdb/legacy.mc.sql
 
 %files frontend
 %config(noreplace) %{_datadir}/xsessions/mythfrontend.desktop
@@ -1053,3 +1063,11 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default-wide/mythburn-ui.xml
 %{_datadir}/mythtv/themes/default-wide/mythnative-ui.xml
 %{_datadir}/mythtv/i18n/mytharchive_*.qm
+
+%files plugin-netvision
+%{_bindir}/mythfillnetvision
+%{_libdir}/mythtv/plugins/libmythnetvision.so
+%{_datadir}/mythtv/i18n/mythnetvision_*.qm
+%{_datadir}/mythtv/mythnetvision/
+%{_datadir}/mythtv/netvisionmenu.xml
+%{_datadir}/mythtv/themes/default*/netvision*.xml
