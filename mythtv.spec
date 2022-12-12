@@ -595,6 +595,8 @@ sed -i 's| -Wsuggest-override||' mythtv/configure
 #HAVE_PTHREAD_H is defined.
 
 %build
+export CC=gcc
+export CXX=g++
 pushd mythtv
 ./configure \
   --cc=clang \
