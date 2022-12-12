@@ -600,8 +600,6 @@ sed -i 's| -Wsuggest-override||' mythtv/configure
 #HAVE_PTHREAD_H is defined.
 
 %build
-export CC=gcc
-export CXX=g++
 pushd mythtv
 ./configure \
   --cc=clang \
@@ -984,9 +982,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/bindings/php
 
 %files plugin-browser
-%doc mythplugins/mythbrowser/README
-%doc mythplugins/mythbrowser/COPYING
-%doc mythplugins/mythbrowser/AUTHORS
 %{_libdir}/mythtv/plugins/libmythbrowser.so
 %{_datadir}/mythtv/i18n/mythbrowser_*.qm
 %{_datadir}/mythtv/themes/default*/browser-ui.xml
@@ -1005,10 +1000,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/metadata/Game
 
 %files plugin-music
-%doc mythplugins/mythmusic/AUTHORS
-%doc mythplugins/mythmusic/COPYING
-%doc mythplugins/mythmusic/README*
-%doc mythplugins/mythmusic/musicdb
 %{_datadir}/mythtv/music_settings.xml
 %{_datadir}/mythtv/musicmenu.xml
 %{_libdir}/mythtv/plugins/libmythmusic.so
@@ -1033,10 +1024,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default-wide/stream-ui.xml
 
 %files plugin-news
-%doc mythplugins/mythnews/AUTHORS
-%doc mythplugins/mythnews/COPYING
-%doc mythplugins/mythnews/ChangeLog
-%doc mythplugins/mythnews/README*
 %{_libdir}/mythtv/plugins/libmythnews.so
 %{_datadir}/mythtv/i18n/mythnews_*.qm
 %{_datadir}/mythtv/mythnews
@@ -1046,9 +1033,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default/podcast.png
 
 %files plugin-zoneminder
-%doc mythplugins/mythzoneminder/README
-%doc mythplugins/mythzoneminder/COPYING
-%doc mythplugins/mythzoneminder/AUTHORS
 %{_bindir}/mythzmserver
 %{_libdir}/mythtv/plugins/libmythzoneminder.so
 %{_datadir}/mythtv/zonemindermenu.xml
