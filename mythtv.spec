@@ -87,7 +87,7 @@ Source10:       mythtv.sysconfig.in
 %if %{fixesdate}
 Patch001: fixes-%{gitversion}.patch
 %endif
-Patch002:	mythtv-31.0-qt-5.15.patch
+#Patch002:	mythtv-31.0-qt-5.15.patch
 # (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
