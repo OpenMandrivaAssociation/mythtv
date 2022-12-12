@@ -218,7 +218,7 @@ BuildRequires:  perl(Class::Factory::Util)
 
 # Bluray support
 BuildRequires:  ant
-#BuildRequires:  java-devel
+BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
 
 Obsoletes: %{name}-plugin-netvision < %{EVRD}
