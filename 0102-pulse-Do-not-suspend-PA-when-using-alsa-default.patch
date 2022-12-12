@@ -14,16 +14,17 @@ diff --git a/mythtv/libs/libmyth/audio/audiooutput.cpp b/mythtv/libs/libmyth/aud
 index cbb5a42..b31f2e4 100644
 --- a/mythtv/libs/libmyth/audio/audiooutput.cpp
 +++ b/mythtv/libs/libmyth/audio/audiooutput.cpp
-@@ -135,7 +135,8 @@ AudioOutput *AudioOutput::OpenAudio(AudioSettings &settings,
-             delete alsadevs;
-         }
- #endif
--        if (main_device.contains("pulse", Qt::CaseInsensitive))
-+        if (main_device.contains("pulse", Qt::CaseInsensitive)
-+            || main_device.contains("alsa:default", Qt::CaseInsensitive))
-         {
-             ispulse = true;
-         }
+@@ -133,7 +133,10 @@ AudioOutput *AudioOutput::OpenAudio(Audi
+             if (!alsadevs->empty() && alsadevs->contains(device_name))
+             {
+                 if (alsadevs->value(device_name).contains("pulse",
+-                                                          Qt::CaseInsensitive))
++                                                          Qt::CaseInsensitive)
++                    || alsadevs->value(device_name).contains("alsa:default",
++                                                          Qt::CaseInsensitive)
++                                                          )
+                 {
+                     ispulse = true;
+                 }
 -- 
 1.8.4
-
