@@ -1,7 +1,7 @@
 # Note: When updating version, also update the update-fixes.sh script's version
 # and rerun it. This will generate a new fixes patch and update the spec
 # automatically.
-%define gitversion v31.0
+%define gitversion v32.0
 %define fixesdate 0
 %define rel 1
 
@@ -9,7 +9,7 @@
 %define _disable_rebuild_configure 1
 
 %define lib_name_orig   libmyth
-%define lib_major       31
+%define lib_major       32
 %define lib_name        %mklibname myth %{lib_major}
 %define lib_name_devel  %mklibname myth -d
 
@@ -68,8 +68,8 @@
 
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
-Version:        31.0
-Release:        4
+Version:        32.0
+Release:        1
 URL:            http://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -92,14 +92,16 @@ Patch002:	mythtv-31.0-qt-5.15.patch
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
 #add CFLAGS and LDFLAGS to QMAKE
-Patch104: mythtv-0.28.1-qmake-mgaflags.patch
+#Patch104: mythtv-0.28.1-qmake-mgaflags.patch
 #fix build with new mariadb 10.2
-Patch105: mythtv-30.0-mariadb10.2.patch
+#Patch105: mythtv-30.0-mariadb10.2.patch
 #fix mythavcodec linking
 Patch106: mythtv-30.0-linking.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
-Patch109: mythtv-dav1d-0.9.3.patch
+#Patch109: mythtv-dav1d-0.9.3.patch
+Patch110: mythtv-32.0-linking-zlib.patch
+Patch111: mythtv-32.0-fix-sdl2-request.patch
 # Used as SOURCE: instead of PATCH: because it's only needed on aarch64
 # and shouldn't be applied elsewhere -- not a task for autosetup
 Source500: mythtv-31.0-aarch64-no-underlinking.patch
@@ -143,6 +145,13 @@ BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
 BuildRequires:  pkgconfig(vpx)
 BuildRequires:  pkgconfig(exiv2)
+BuildRequires:  pkgconfig(soundtouch)
+BuildRequires:  pkgconfig(libzip)
+BuildRequires:  pkgconfig(sndio)
+BuildRequires:  pkgconfig(gnutls)
+BuildRequires:  pkgconfig(libsctp)
+BuildRequires:  texinfo
+BuildRequires:  nasm
 BuildRequires:  pkgconfig(samplerate)
 BuildRequires:  crystalhd-devel
 #BuildRequires:  hdhomerun-devel
