@@ -1,0 +1,12 @@
+diff -up mythtv-32.0/mythtv/external/libexiv2/libexiv2.pro.libz mythtv-32.0/mythtv/external/libexiv2/libexiv2.pro
+--- mythtv-32.0/mythtv/external/libexiv2/libexiv2.pro.libz	2022-11-17 14:19:48.763288584 +0100
++++ mythtv-32.0/mythtv/external/libexiv2/libexiv2.pro	2022-11-17 14:19:56.566337849 +0100
+@@ -10,7 +10,7 @@ darwin {
+     LIBS += -lexpat -liconv -lz
+ } else {
+     INCLUDEPATH += . ./include ./include/exiv2 ./src ./xmpsdk/include
+-    LIBS += -lexpat
++    LIBS += -lexpat -lz
+ }
+ 
+ contains(CC, gcc) {
