@@ -11,8 +11,8 @@ diff --git a/mythtv/configure b/mythtv/configure
 index 8551480..a7da12f 100755
 --- a/mythtv/configure
 +++ b/mythtv/configure
-@@ -6608,7 +6608,7 @@
- enabled libcrypto && check_lib crypto openssl/rsa.h RSA_new -lcrypto || disable libcrypto
+@@ -6652,7 +6652,7 @@ if enabled gnutls ; then
+ fi
  
  if test $target_os != darwin ; then
 -    enabled libdns_sd && check_lib dns_sd dns_sd.h DNSServiceRegister -ldns_sd || disable libdns_sd
@@ -35,4 +35,3 @@ index 8551480..a7da12f 100644
  class QSocketNotifier;
 -- 
 1.8.4
-

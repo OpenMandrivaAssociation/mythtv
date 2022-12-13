@@ -1,8 +1,8 @@
-diff -Nru a/mythtv/libs/libmythui/libmythui.pro b/mythtv/libs/libmythui/libmythui.pro
---- a/mythtv/libs/libmythui/libmythui.pro	2019-01-14 12:53:51.000000000 +0100
-+++ b/mythtv/libs/libmythui/libmythui.pro	2019-01-14 18:36:17.932334135 +0100
-@@ -18,6 +18,7 @@
- INCLUDEPATH += ../.. ../../external/FFmpeg
+diff -up mythtv-32.0/mythtv/libs/libmythui/libmythui.pro.orig mythtv-32.0/mythtv/libs/libmythui/libmythui.pro
+--- mythtv-32.0/mythtv/libs/libmythui/libmythui.pro.orig	2022-02-23 18:01:37.000000000 +0100
++++ mythtv-32.0/mythtv/libs/libmythui/libmythui.pro	2022-11-17 14:14:43.722362550 +0100
+@@ -19,6 +19,7 @@ INCLUDEPATH += ../libmythbase
+ INCLUDEPATH += ../.. ../
  
  LIBS += -L../libmythbase -lmythbase-$$LIBVERSION
 +LIBS += -L../../external/FFmpeg/libavcodec -lmythavcodec

@@ -1,7 +1,7 @@
 # Note: When updating version, also update the update-fixes.sh script's version
 # and rerun it. This will generate a new fixes patch and update the spec
 # automatically.
-%define gitversion v31.0
+%define gitversion v32.0
 %define fixesdate 0
 %define rel 1
 
@@ -9,7 +9,7 @@
 %define _disable_rebuild_configure 1
 
 %define lib_name_orig   libmyth
-%define lib_major       31
+%define lib_major       32
 %define lib_name        %mklibname myth %{lib_major}
 %define lib_name_devel  %mklibname myth -d
 
@@ -68,8 +68,8 @@
 
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
-Version:        31.0
-Release:        4
+Version:        32.0
+Release:        1
 URL:            http://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -87,19 +87,26 @@ Source10:       mythtv.sysconfig.in
 %if %{fixesdate}
 Patch001: fixes-%{gitversion}.patch
 %endif
-Patch002:	mythtv-31.0-qt-5.15.patch
+#Patch002:	mythtv-31.0-qt-5.15.patch
 # (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
 Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
 Patch103: 0103-Fix-dns-sd-detection.patch
 #add CFLAGS and LDFLAGS to QMAKE
-Patch104: mythtv-0.28.1-qmake-mgaflags.patch
+#Patch104: mythtv-0.28.1-qmake-mgaflags.patch
 #fix build with new mariadb 10.2
-Patch105: mythtv-30.0-mariadb10.2.patch
+#Patch105: mythtv-30.0-mariadb10.2.patch
 #fix mythavcodec linking
 Patch106: mythtv-30.0-linking.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
-Patch109: mythtv-dav1d-0.9.3.patch
+#Patch109: mythtv-dav1d-0.9.3.patch
+Patch110: mythtv-32.0-linking-zlib.patch
+Patch111: mythtv-32.0-fix-sdl2-request.patch
+# OpenMandriva patches
+
+# Fix missing includes
+Patch 1000:	fix-missing-include-in-zmserver.patch
+
 # Used as SOURCE: instead of PATCH: because it's only needed on aarch64
 # and shouldn't be applied elsewhere -- not a task for autosetup
 Source500: mythtv-31.0-aarch64-no-underlinking.patch
@@ -143,6 +150,13 @@ BuildRequires:  pkgconfig(libass)
 BuildRequires:  pkgconfig(avahi-compat-libdns_sd)
 BuildRequires:  pkgconfig(vpx)
 BuildRequires:  pkgconfig(exiv2)
+BuildRequires:  pkgconfig(soundtouch)
+BuildRequires:  pkgconfig(libzip)
+BuildRequires:  pkgconfig(sndio)
+BuildRequires:  pkgconfig(gnutls)
+BuildRequires:  pkgconfig(libsctp)
+BuildRequires:  texinfo
+BuildRequires:  nasm
 BuildRequires:  pkgconfig(samplerate)
 BuildRequires:  crystalhd-devel
 #BuildRequires:  hdhomerun-devel
@@ -209,8 +223,10 @@ BuildRequires:  perl(Class::Factory::Util)
 
 # Bluray support
 BuildRequires:  ant
-#BuildRequires:  java-devel
+BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
+
+BuildRequires: rpm-helper
 
 Obsoletes: %{name}-plugin-netvision < %{EVRD}
 
@@ -529,6 +545,15 @@ between myth systems without losing any of the metadata. It is a
 complete rewrite of the old MythBurn bash scripts, now using python,
 and the mythfrontend UI plugin.
 
+%package plugin-netvision
+Summary:        NetVision for MythTV
+Group:          Video/Television
+#Requires:       python-mythtv
+Requires:       mythtv-frontend >= %{version}
+
+%description plugin-netvision
+NetVision for MythTV. View popular media website content.
+
 
 
 %prep
@@ -821,11 +846,11 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %_preun_service mythbackend
 
 %files doc
-%doc mythtv/README mythtv/UPGRADING
-%doc mythtv/AUTHORS mythtv/COPYING
-%doc mythtv/FAQ
-%doc mythtv/keys.txt
-%doc mythtv/contrib
+#doc mythtv/README mythtv/UPGRADING
+#doc mythtv/AUTHORS mythtv/COPYING
+#doc mythtv/FAQ
+#doc mythtv/keys.txt
+#doc mythtv/contrib
 %{_datadir}/%{name}/fonts/*.txt
 %{_datadir}/%{name}/contrib
 %{_datadir}/%{name}/html
@@ -869,6 +894,7 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/backend-config
 %dir %{_datadir}/%{name}/initialdb
 %{_datadir}/%{name}/initialdb/mc.sql
+%{_datadir}/%{name}/initialdb/legacy.mc.sql
 
 %files frontend
 %config(noreplace) %{_datadir}/xsessions/mythfrontend.desktop
@@ -968,9 +994,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/%{name}/bindings/php
 
 %files plugin-browser
-%doc mythplugins/mythbrowser/README
-%doc mythplugins/mythbrowser/COPYING
-%doc mythplugins/mythbrowser/AUTHORS
 %{_libdir}/mythtv/plugins/libmythbrowser.so
 %{_datadir}/mythtv/i18n/mythbrowser_*.qm
 %{_datadir}/mythtv/themes/default*/browser-ui.xml
@@ -989,10 +1012,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/metadata/Game
 
 %files plugin-music
-%doc mythplugins/mythmusic/AUTHORS
-%doc mythplugins/mythmusic/COPYING
-%doc mythplugins/mythmusic/README*
-%doc mythplugins/mythmusic/musicdb
 %{_datadir}/mythtv/music_settings.xml
 %{_datadir}/mythtv/musicmenu.xml
 %{_libdir}/mythtv/plugins/libmythmusic.so
@@ -1017,10 +1036,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default-wide/stream-ui.xml
 
 %files plugin-news
-%doc mythplugins/mythnews/AUTHORS
-%doc mythplugins/mythnews/COPYING
-%doc mythplugins/mythnews/ChangeLog
-%doc mythplugins/mythnews/README*
 %{_libdir}/mythtv/plugins/libmythnews.so
 %{_datadir}/mythtv/i18n/mythnews_*.qm
 %{_datadir}/mythtv/mythnews
@@ -1030,9 +1045,6 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default/podcast.png
 
 %files plugin-zoneminder
-%doc mythplugins/mythzoneminder/README
-%doc mythplugins/mythzoneminder/COPYING
-%doc mythplugins/mythzoneminder/AUTHORS
 %{_bindir}/mythzmserver
 %{_libdir}/mythtv/plugins/libmythzoneminder.so
 %{_datadir}/mythtv/zonemindermenu.xml
@@ -1053,3 +1065,11 @@ rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 %{_datadir}/mythtv/themes/default-wide/mythburn-ui.xml
 %{_datadir}/mythtv/themes/default-wide/mythnative-ui.xml
 %{_datadir}/mythtv/i18n/mytharchive_*.qm
+
+%files plugin-netvision
+%{_bindir}/mythfillnetvision
+%{_libdir}/mythtv/plugins/libmythnetvision.so
+%{_datadir}/mythtv/i18n/mythnetvision_*.qm
+%{_datadir}/mythtv/mythnetvision/
+%{_datadir}/mythtv/netvisionmenu.xml
+%{_datadir}/mythtv/themes/default*/netvision*.xml

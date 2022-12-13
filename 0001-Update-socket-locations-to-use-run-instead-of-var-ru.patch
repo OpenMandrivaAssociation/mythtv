@@ -1,23 +1,28 @@
-diff -up mythtv-31.0/mythtv/libs/libmythui/mythmainwindow.cpp.6~ mythtv-31.0/mythtv/libs/libmythui/mythmainwindow.cpp
---- mythtv-31.0/mythtv/libs/libmythui/mythmainwindow.cpp.6~	2020-03-26 01:34:55.776899369 +0100
-+++ mythtv-31.0/mythtv/libs/libmythui/mythmainwindow.cpp	2020-03-26 01:35:28.850036058 +0100
-@@ -2769,10 +2769,10 @@ void MythMainWindow::StartLIRC(void)
-     if (!QFile::exists(config_file))
-         config_file = QDir::homePath() + "/.lircrc";
+From 0778f10378f018f0bd421bd2d09116f33dc65205 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jani=20V=C3=A4limaa?= <wally@mageia.org>
+Date: Sat, 16 Feb 2019 15:29:04 +0200
+Subject: [PATCH] Update socket locations to use /run instead of /var/run
+
+---
+ mythtv/libs/libmythui/devices/mythinputdevicehandler.cpp        | 2 +-
+ mythtv/programs/mythfrontend/globalsettings.cpp | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mythtv/libs/libmythui/devices/mythinputdevicehandler.cpp b/mythtv/libs/libmythui/devices/mythinputdevicehandler.cpp
+@@ -62,7 +62,7 @@ void MythInputDeviceHandler::Start(void)
+         // lircd socket moved from /dev/ to /var/run/lirc/ in lirc 0.8.6
+         QString socket = "/dev/lircd";
+         if (!QFile::exists(socket))
+-            socket = "/var/run/lirc/lircd";
++            socket = "/run/lirc/lircd";
  
--    /* lircd socket moved from /dev/ to /var/run/lirc/ in lirc 0.8.6 */
-+    /* lircd socket moved from /dev/ to /run/lirc/ in lirc 0.8.6 */
-     QString lirc_socket = "/dev/lircd";
-     if (!QFile::exists(lirc_socket))
--        lirc_socket = "/var/run/lirc/lircd";
-+        lirc_socket = "/run/lirc/lircd";
- 
-     d->m_lircThread = new LIRC(
-         this,
-diff -up mythtv-31.0/mythtv/programs/mythfrontend/globalsettings.cpp.6~ mythtv-31.0/mythtv/programs/mythfrontend/globalsettings.cpp
---- mythtv-31.0/mythtv/programs/mythfrontend/globalsettings.cpp.6~	2020-03-23 15:32:28.000000000 +0100
-+++ mythtv-31.0/mythtv/programs/mythfrontend/globalsettings.cpp	2020-03-26 01:34:55.777899373 +0100
-@@ -2024,7 +2024,7 @@ static HostTextEditSetting *LircDaemonDe
+         m_lircThread = new LIRC(this, GetMythDB()->GetSetting("LircSocket", socket), "mythtv", config);
+         if (m_lircThread->Init())
+diff --git a/mythtv/programs/mythfrontend/globalsettings.cpp b/mythtv/programs/mythfrontend/globalsettings.cpp
+index 951e869..f30805b 100644
+--- a/mythtv/programs/mythfrontend/globalsettings.cpp
++++ b/mythtv/programs/mythfrontend/globalsettings.cpp
+@@ -2072,7 +2072,7 @@ static HostTextEditSetting *LircDaemonDe
      QString lirc_socket = "/dev/lircd";
  
      if (!QFile::exists(lirc_socket))
@@ -26,3 +31,5 @@ diff -up mythtv-31.0/mythtv/programs/mythfrontend/globalsettings.cpp.6~ mythtv-3
  
      ge->setValue(lirc_socket);
  
+-- 
+2.20.1
