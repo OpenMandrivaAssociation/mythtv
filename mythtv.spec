@@ -226,6 +226,8 @@ BuildRequires:  ant
 BuildRequires:  java-devel
 BuildRequires:  pkgconfig(libxml-2.0)
 
+BuildRequires: rpm-helper
+
 Obsoletes: %{name}-plugin-netvision < %{EVRD}
 
 %description
