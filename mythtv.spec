@@ -60,6 +60,8 @@
 %{?_with_x265:                  %global build_x265 1}
 %{?_with_xvid:                  %global build_xvid 1}
 
+%global optflags %{optflags} -Wno-incompatible-function-pointer-types
+
 # Turn off the brp-python-bytecompile automagic
 %global _python_bytecompile_extra 0
 
