@@ -632,7 +632,6 @@ pushd mythtv
   --enable-vdpau \
   --enable-vaapi \
 %endif
-  --enable-libfftw3 \
   --enable-libdns-sd \
   --enable-libvpx \
   --enable-sdl2 \
