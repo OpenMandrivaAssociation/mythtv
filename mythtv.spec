@@ -70,8 +70,8 @@
 
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
-Version:        32.0
-Release:        3
+Version:        33.1
+Release:        1
 URL:            http://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -103,7 +103,7 @@ Patch106: mythtv-30.0-linking.patch
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
 #Patch109: mythtv-dav1d-0.9.3.patch
 Patch110: mythtv-32.0-linking-zlib.patch
-Patch111: mythtv-32.0-fix-sdl2-request.patch
+#Patch111: mythtv-32.0-fix-sdl2-request.patch
 # OpenMandriva patches
 
 # Fix missing includes
