@@ -107,7 +107,7 @@ Patch110: mythtv-32.0-linking-zlib.patch
 # OpenMandriva patches
 
 # Fix missing includes
-Patch 1000:	fix-missing-include-in-zmserver.patch
+#Patch 1000:	fix-missing-include-in-zmserver.patch
 
 # Used as SOURCE: instead of PATCH: because it's only needed on aarch64
 # and shouldn't be applied elsewhere -- not a task for autosetup
