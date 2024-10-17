@@ -72,7 +72,7 @@ Summary:        A personal video recorder (PVR) application
 Name:           mythtv
 Version:        34.0
 Release:        1
-URL:            http://www.mythtv.org/
+URL:            https://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
 Source0:        https://github.com/MythTV/mythtv/archive/v%{version}/mythtv-%{version}.tar.gz
@@ -459,7 +459,7 @@ This package contains the PHP bindings for MythTV.
 
 %package plugin-browser
 Summary:        Full web browser for MythTV
-URL:            http://www.mythtv.org/
+URL:            https://www.mythtv.org/
 Group:          Video/Television
 Requires:       mythtv-frontend >= %{version}
 
