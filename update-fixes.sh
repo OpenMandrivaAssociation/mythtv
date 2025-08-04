@@ -1,9 +1,9 @@
 #!/bin/bash
 
 PACKAGE=mythtv
-VERSION=30.0
+VERSION=35.0
 REPO=https://github.com/MythTV/mythtv.git
-FIXES=fixes/30
+FIXES=fixes/35
 
 echo "Updating Fixes Source"
 if [ ! -d clone ]; then
@@ -21,7 +21,7 @@ fi
 
 export GIT_DIR=clone/.git
 
-GITVERSION=$(grep "^%define gitversion " ../SPECS/$PACKAGE.spec | cut -d' ' -f3)
+GITVERSION=$(grep "^%define gitversion " $PACKAGE.spec | cut -d' ' -f3)
 NEW_GITVERSION=$(git describe --abbrev=4 --match='v[0-9]*' HEAD)
 
 if [ "$NEW_GITVERSION" == "$GITVERSION" ]; then
@@ -33,7 +33,7 @@ echo "Current Git version: $GITVERSION"
 echo "New Git version:     $NEW_GITVERSION"
 
 
-FIXESDATE=$(grep "^%define fixesdate " ../SPECS/$PACKAGE.spec | cut -d' ' -f3)
+FIXESDATE=$(grep "^%define fixesdate " $PACKAGE.spec | cut -d' ' -f3)
 NEW_FIXESDATE=$(date +%Y%m%d)
 
 echo "Generating Fixes Patch ($NEW_GITVERSION)"
@@ -43,4 +43,4 @@ fi
 git diff v$VERSION..$FIXES >fixes-$NEW_GITVERSION.patch
 
 echo "Updating Spec"
-sed -i "s/%define fixesdate $FIXESDATE/%define fixesdate $NEW_FIXESDATE/;s/%define gitversion $GITVERSION/%define gitversion $NEW_GITVERSION/;s/%define rel .*/%define rel 1/" ../SPECS/$PACKAGE.spec
+sed -i "s/%define fixesdate $FIXESDATE/%define fixesdate $NEW_FIXESDATE/;s/%define gitversion $GITVERSION/%define gitversion $NEW_GITVERSION/;s/%define rel .*/%define rel 1/" $PACKAGE.spec
