@@ -1,8 +1,8 @@
 # Note: When updating version, also update the update-fixes.sh script's version
 # and rerun it. This will generate a new fixes patch and update the spec
 # automatically.
-%define gitversion v32.0
-%define fixesdate 0
+%define gitversion v35.0-32-g958895d
+%define fixesdate 20250804
 %define rel 1
 
 %define _disable_lto 1
@@ -354,7 +354,11 @@ Requires:       mythtv-common = %{version}-%{release}
 Requires:       qt5-qtbase-database-plugin-mysql
 Requires(post):  rpm-helper >= 0.24.8-1
 Requires(preun): rpm-helper >= 0.24.8-1
+Requires:        bash-completion
 Recommends:       mysql
+Provides: user(mythtv)
+Provides: group(mythtv)
+
 
 %description backend
 MythTV provides a unified graphical interface for recording and viewing
@@ -832,13 +836,21 @@ rmdir %{buildroot}%{_libdir}/pkgconfig 2>/dev/null || :
 rm -f %{buildroot}%{_libdir}/libmythqjson.prl
 
 %pre backend
-# Add the "mythtv" user
-%_pre_useradd mythtv %{_localstatedir}/lib/mythtv /sbin/nologin
-%{_bindir}/gpasswd -a mythtv audio &>/dev/null
-%{_bindir}/gpasswd -a mythtv video &>/dev/null
+# Create mythtv group and user if not exist
+getent group mythtv >/dev/null || groupadd -r mythtv
+getent passwd mythtv >/dev/null || \
+    useradd -r -g mythtv -d /var/lib/mythtv -s /sbin/nologin -c "MythTV user" mythtv
+
+# Add mythtv user to audio and video groups
+usermod -a -G audio mythtv 2>/dev/null || :
+usermod -a -G video mythtv 2>/dev/null || :
 
 %postun backend
-%_postun_userdel mythtv
+# Only delete mythtv user if this is the final removal (not during upgrade)
+if [ "$1" -eq 0 ]; then
+    getent passwd mythtv >/dev/null && userdel mythtv 2>/dev/null || :
+    getent group mythtv >/dev/null && groupdel mythtv 2>/dev/null || :
+fi
 
 %post backend
 %_post_service mythbackend
