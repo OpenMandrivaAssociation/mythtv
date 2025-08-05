@@ -71,7 +71,7 @@
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
 Version:        35.0
-Release:        1
+Release:        2
 URL:            https://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -853,10 +853,10 @@ if [ "$1" -eq 0 ]; then
 fi
 
 %post backend
-%_post_service mythbackend
+%systemd_post mythbackend.service
 
 %preun backend
-%_preun_service mythbackend
+%systemd_preun mythbackend.service
 
 %files doc
 #doc mythtv/README mythtv/UPGRADING
