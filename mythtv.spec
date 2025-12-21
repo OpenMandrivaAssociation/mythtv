@@ -113,6 +113,11 @@ Patch110: mythtv-32.0-linking-zlib.patch
 # and shouldn't be applied elsewhere -- not a task for autosetup
 Source500: mythtv-31.0-aarch64-no-underlinking.patch
 
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool-base
+BuildRequires:	slibtool
+BuildRequires:	make
 BuildRequires:  gcc
 BuildRequires:  gdb
 BuildRequires:  imagemagick
