@@ -70,8 +70,8 @@
 
 Summary:        A personal video recorder (PVR) application
 Name:           mythtv
-Version:        35.0
-Release:        5
+Version:        36.0
+Release:        1
 URL:            https://www.mythtv.org/
 License:        GPLv2 + GPLv3
 Group:          Video/Television
@@ -87,18 +87,18 @@ Source8:        mythbackend.service.in
 Source9:        update-fixes.sh
 Source10:       mythtv.sysconfig.in
 %if %{fixesdate}
-Patch001: fixes-%{gitversion}.patch
+# dropped (no longer applies): Patch001: fixes-%{gitversion}.patch
 %endif
 #Patch002:	mythtv-31.0-qt-5.15.patch
 # (cg) git format-patch --start-number 100 fixes/0.27..mga-0.27
-Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
-Patch103: 0103-Fix-dns-sd-detection.patch
+# dropped (no longer applies): Patch102: 0102-pulse-Do-not-suspend-PA-when-using-alsa-default.patch
+# dropped (no longer applies): Patch103: 0103-Fix-dns-sd-detection.patch
 #add CFLAGS and LDFLAGS to QMAKE
 #Patch104: mythtv-0.28.1-qmake-mgaflags.patch
 #fix build with new mariadb 10.2
 #Patch105: mythtv-30.0-mariadb10.2.patch
 #fix mythavcodec linking
-Patch106: mythtv-30.0-linking.patch
+# dropped (no longer applies): Patch106: mythtv-30.0-linking.patch
 #use /run instead of /var/run
 Patch108: 0001-Update-socket-locations-to-use-run-instead-of-var-ru.patch
 #Patch109: mythtv-dav1d-0.9.3.patch
